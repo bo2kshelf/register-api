@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "EditorConfig.EditorConfig",
+    "mikestead.dotenv",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "Orta.vscode-jest",
+    "ms-azuretools.vscode-docker",
+    "exiasr.hadolint"
+  ]
+}

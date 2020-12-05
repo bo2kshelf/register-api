@@ -1,0 +1,8 @@
+# test
+coverage/
+junit/
+
+# output
+dist/
+
+schema.graphql

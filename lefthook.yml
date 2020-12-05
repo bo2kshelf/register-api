@@ -1,0 +1,46 @@
+commit-msg:
+  commands:
+    commitlint:
+      run: commitlint --edit ./.git/COMMIT_EDITMSG
+
+pre-push:
+  parallel:
+  commands:
+    ts-check:
+      run: tsc --noEmit
+    schema-generate:
+      run: |
+        yarn run schema-generate &&
+        test -z "$(git status schema.graphql -s)"; exit $?
+
+pre-commit:
+  parallel: true
+  commands:
+    eslint:
+      run: npm run lint:eslint
+    prettier:
+      run: npm run lint:prettier
+    hadolint:
+      tags: docker lint
+      files: git diff --name-only --staged
+      glob: 'Dockerfile*'
+      run: |
+        for staged_file in {staged_files}; do
+          docker run -i --rm hadolint/hadolint < $staged_file
+        done
+    validate-codecov:
+      files: git diff --name-only --staged
+      glob: 'codecov.yml'
+      run: cat codecov.yml | curl --data-binary @- https://codecov.io/validate
+    validate-renovate:
+      files: git diff --name-only --staged
+      glob: '.renovaterc'
+      run: npx --package renovate -c 'renovate-config-validator'
+    validate-circleci:
+      files: git diff --name-only --staged
+      glob: '.circleci/*.yml'
+      run: |
+        docker run \
+          -v $(pwd)/.circleci:/go/.circleci \
+          -it --rm circleci/circleci-cli \
+          circleci config validate

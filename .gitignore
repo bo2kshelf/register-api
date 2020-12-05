@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# output
+dist/
+
+# logfiles
+*.log
+
+# test
+coverage/
+junit/
+
+# cache
+.eslintcache
+
+# environments
+.env*
+!.env.example
+

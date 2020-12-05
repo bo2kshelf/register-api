@@ -1,0 +1,33 @@
+{
+  "root": true,
+  "extends": [
+    "plugin:@shopify/typescript",
+    "plugin:@shopify/jest",
+    "plugin:@shopify/prettier"
+  ],
+  "rules": {
+    "import/order": [0],
+    "jest/valid-title": [0],
+    "jest/lowercase-name": [0]
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.entity.ts"],
+      "rules": {
+        "import/no-cycle": [0]
+      }
+    },
+    {
+      "files": ["src/**/*.module.ts"],
+      "rules": {
+        "@typescript-eslint/no-extraneous-class": [0]
+      }
+    },
+    {
+      "files": ["src/**/*.config.ts"],
+      "rules": {
+        "no-process-env": [0]
+      }
+    }
+  ]
+}
