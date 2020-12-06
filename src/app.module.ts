@@ -6,6 +6,7 @@ import {AuthorsModule} from './authors/authors.module';
 import {BooksModule} from './books/books.module';
 import mongooseConfig from './mongoose/mongoose.config';
 import {MongooseService} from './mongoose/mongoose.service';
+import {SeriesModule} from './series/series.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import {MongooseService} from './mongoose/mongoose.service';
     }),
     BooksModule,
     AuthorsModule,
+    SeriesModule,
   ],
 })
 export class AppModule {}
