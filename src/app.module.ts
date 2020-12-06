@@ -2,6 +2,7 @@ import {Module} from '@nestjs/common';
 import {ConfigModule} from '@nestjs/config';
 import {GraphQLModule} from '@nestjs/graphql';
 import {MongooseModule} from '@nestjs/mongoose';
+import {BooksModule} from './books/books.module';
 import mongooseConfig from './mongoose/mongoose.config';
 import {MongooseService} from './mongoose/mongoose.service';
 
@@ -15,6 +16,7 @@ import {MongooseService} from './mongoose/mongoose.service';
       imports: [ConfigModule.forFeature(mongooseConfig)],
       useClass: MongooseService,
     }),
+    BooksModule,
   ],
 })
 export class AppModule {}
