@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 docker run \
-  -v $(pwd)/.renovaterc:/usr/src/app/.renovaterc \
-  -it --rm -e LOG_LEVEL=debug renovate/renovate:slim  \
+  --rm -e LOG_LEVEL=debug \
+  -v $(pwd)/.renovaterc:/usr/src/app/config.json \
+  renovate/renovate:slim  \
   renovate-config-validator
