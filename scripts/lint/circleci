@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+docker run \
+  -v $(pwd)/.circleci:/go/.circleci \
+  -it --rm circleci/circleci-cli \
+  circleci config validate
