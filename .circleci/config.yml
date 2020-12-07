@@ -1,0 +1,98 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.0.0
+  docker: circleci/docker@1.4.0
+  codecov: codecov/codecov@1.1.1
+
+jobs:
+  build:
+    executor:
+      name: 'node/default'
+      tag: '14.14'
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run: yarn run build
+      - store_artifacts:
+          path: ./dist
+
+  lint-prettier:
+    executor:
+      name: 'node/default'
+      tag: '14.14'
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run: yarn run lint:prettier
+
+  lint-eslint:
+    executor:
+      name: 'node/default'
+      tag: '14.14'
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - restore_cache:
+          key: eslint-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run: yarn run lint:eslint --cache --format junit --output-file ./junit/eslint.xml
+      - save_cache:
+          key: eslint-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - .eslintcache
+      - store_test_results:
+          path: ./junit
+
+  ts-check:
+    executor:
+      name: 'node/default'
+      tag: '14.14'
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run: yarn run ts-check
+
+  test-unit:
+    executor:
+      name: 'node/default'
+      tag: '14.14'
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          command: |
+            yarn run test:unit --ci --runInBand \
+              --forceExit \
+              --reporters=default --reporters=jest-junit \
+              --testResultsProcessor=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./junit
+            JEST_JUNIT_OUTPUT_NAME: jest.xml
+      - store_test_results:
+          path: ./junit
+      - store_artifacts:
+          path: ./coverage
+      - codecov/upload:
+          file: ./coverage/lcov.info
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - lint-eslint
+      - lint-prettier
+      - ts-check
+      - test-unit:
+          requires:
+            - ts-check
+      - build:
+          requires:
+            - lint-eslint
+            - lint-prettier
+            - ts-check
+            - test-unit
