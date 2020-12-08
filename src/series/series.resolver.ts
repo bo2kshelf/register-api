@@ -7,6 +7,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import {BookSeriesConnection} from '../books/connection/series.connection';
 import {CreateSeriesInput} from './dto/create-series.input';
 import {Series} from './schema/series.schema';
 import {SeriesService} from './series.service';
@@ -23,6 +24,11 @@ export class SeriesResolver {
   @ResolveField(() => ID)
   id(@Parent() series: Series): string {
     return this.seriesService.id(series);
+  }
+
+  @ResolveField(() => [BookSeriesConnection])
+  async books(@Parent() series: Series) {
+    return series.books;
   }
 
   @Mutation(() => Series, {nullable: false})

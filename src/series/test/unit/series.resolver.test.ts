@@ -2,6 +2,7 @@ import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
+import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesResolver} from '../../series.resolver';
 import {SeriesService} from '../../series.service';
@@ -12,6 +13,7 @@ describe('SeriesResolver', () => {
   let module: TestingModule;
 
   let seriesModel: Model<Series>;
+  let bookModel: Model<Book>;
 
   let seriesService: SeriesService;
   let seriesResolver: SeriesResolver;
@@ -26,7 +28,10 @@ describe('SeriesResolver', () => {
         MongooseModule.forRootAsync({
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
-        MongooseModule.forFeature([{name: Series.name, schema: SeriesSchema}]),
+        MongooseModule.forFeature([
+          {name: Series.name, schema: SeriesSchema},
+          {name: Book.name, schema: BookSchema},
+        ]),
       ],
       providers: [
         {
@@ -42,6 +47,7 @@ describe('SeriesResolver', () => {
     }).compile();
 
     seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
+    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
 
     seriesService = module.get<SeriesService>(SeriesService);
     seriesResolver = module.get<SeriesResolver>(SeriesResolver);
@@ -64,8 +70,25 @@ describe('SeriesResolver', () => {
   });
 
   describe('Series()', () => {
+    let book: Book;
+
+    beforeAll(async () => {
+      book = await bookModel.create({
+        title: 'よふかしのうた(1)',
+        authors: [],
+      });
+    });
+
+    afterAll(async () => {
+      await bookModel.deleteMany({});
+    });
+
     it('存在するならばそれを返す', async () => {
-      const newSeries = await seriesModel.create({title: 'よふかしのうた'});
+      const newSeries = await seriesModel.create({
+        title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
+        relatedBooks: [],
+      });
 
       jest.spyOn(seriesService, 'getById').mockResolvedValueOnce(newSeries);
 
@@ -93,7 +116,11 @@ describe('SeriesResolver', () => {
 
   describe('id()', () => {
     it('適切なIDを返す', async () => {
-      const newSeries = await seriesModel.create({title: 'よふかしのうた'});
+      const newSeries = await seriesModel.create({
+        title: 'よふかしのうた',
+        books: [],
+        relatedBooks: [],
+      });
 
       const actual = await seriesResolver.id(newSeries);
 
@@ -102,16 +129,54 @@ describe('SeriesResolver', () => {
   });
 
   describe('createSeries()', () => {
+    let book: Book;
+
+    beforeAll(async () => {
+      book = await bookModel.create({
+        title: 'よふかしのうた(1)',
+        authors: [],
+      });
+    });
+
+    afterAll(async () => {
+      await bookModel.deleteMany({});
+    });
+
     it('全てのプロパティが存在する', async () => {
-      const newSeries = await seriesModel.create({title: 'よふかしのうた'});
+      const newSeries = await seriesModel.create({
+        title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
+        relatedBooks: [book._id],
+      });
 
       jest.spyOn(seriesService, 'create').mockResolvedValueOnce(newSeries);
 
       const actual = await seriesResolver.createSeries({
         title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
+        relatedBooks: [book._id],
       });
 
       expect(actual).toHaveProperty('title', 'よふかしのうた');
+      expect(actual).toHaveProperty('relatedBooks');
+    });
+
+    it('relatedBooksが欠落していても通る', async () => {
+      const newSeries = await seriesModel.create({
+        title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
+        relatedBooks: [],
+      });
+
+      jest.spyOn(seriesService, 'create').mockResolvedValueOnce(newSeries);
+
+      const actual = await seriesResolver.createSeries({
+        title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
+      });
+
+      expect(actual).toHaveProperty('title', 'よふかしのうた');
+      expect(actual).toHaveProperty('relatedBooks');
     });
   });
 });
