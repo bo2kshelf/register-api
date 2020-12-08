@@ -1,4 +1,3 @@
-import {HttpModule} from '@nestjs/common';
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
@@ -32,7 +31,6 @@ describe('BookService', () => {
           {name: Book.name, schema: BookSchema},
           {name: Author.name, schema: AuthorSchema},
         ]),
-        HttpModule,
       ],
       providers: [BooksService],
     }).compile();

@@ -1,4 +1,3 @@
-import {HttpModule} from '@nestjs/common';
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
@@ -27,7 +26,6 @@ describe('AuthorService', () => {
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
         MongooseModule.forFeature([{name: Author.name, schema: AuthorSchema}]),
-        HttpModule,
       ],
       providers: [AuthorsService],
     }).compile();
