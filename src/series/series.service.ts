@@ -26,7 +26,7 @@ export class SeriesService {
 
     if (series) return series;
 
-    throw new Error(`Series associated with ID "${id}" doesn't exist.`);
+    throw new MongooseNotExistError(Series.name, 'id', id);
   }
 
   async create({

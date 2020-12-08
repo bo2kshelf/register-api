@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
+import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
 import {Author} from './schema/author.schema';
 
 @Injectable()
@@ -19,7 +20,7 @@ export class AuthorsService {
 
     if (author) return author;
 
-    throw new Error(`Author associated with ID "${id}" doesn't exist.`);
+    throw new MongooseNotExistError(Author.name, 'id', id);
   }
 
   async create(data: {name: string}): Promise<Author> {

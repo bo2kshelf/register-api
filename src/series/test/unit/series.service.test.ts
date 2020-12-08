@@ -89,9 +89,7 @@ describe('SeriesService', () => {
     it('存在しない場合はError', async () => {
       await expect(() =>
         seriesService.getById('5fccac3585e5265603349e97'),
-      ).rejects.toThrow(
-        `Series associated with ID "5fccac3585e5265603349e97" doesn't exist.`,
-      );
+      ).rejects.toThrow(MongooseNotExistError);
     });
   });
 

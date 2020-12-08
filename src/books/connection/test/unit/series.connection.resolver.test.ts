@@ -2,6 +2,7 @@ import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
+import {MongooseNotExistError} from '../../../../error/mongoose-not-exist.error';
 import {BooksService} from '../../../books.service';
 import {Book, BookSchema} from '../../../schema/book.schema';
 import {BookSeriesConnectionResolver} from '../../series.connection.resolver';
@@ -83,17 +84,11 @@ describe('BookSeriesConnectionResolver', () => {
     it('存在しない場合はError', async () => {
       jest
         .spyOn(booksService, 'getById')
-        .mockRejectedValueOnce(
-          new Error(
-            `Not exist Book document for "id:5fccac3585e5265603349e97"`,
-          ),
-        );
+        .mockRejectedValueOnce(new MongooseNotExistError(Book.name, 'id'));
 
       await expect(() =>
         connectionResolver.book({id: '5fccac3585e5265603349e97', serial: 1}),
-      ).rejects.toThrow(
-        `Not exist Book document for "id:5fccac3585e5265603349e97"`,
-      );
+      ).rejects.toThrow(MongooseNotExistError);
     });
   });
 });

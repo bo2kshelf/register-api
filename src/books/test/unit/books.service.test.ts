@@ -4,6 +4,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
+import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
 
@@ -96,9 +97,7 @@ describe('BookService', () => {
     it('存在しない場合はError', async () => {
       await expect(() =>
         bookService.getById('5fccac3585e5265603349e97'),
-      ).rejects.toThrow(
-        `Not exist Book document for "id:5fccac3585e5265603349e97"`,
-      );
+      ).rejects.toThrow(MongooseNotExistError);
     });
   });
 
@@ -174,7 +173,7 @@ describe('BookService', () => {
           title: 'よふかしのうた(1)',
           authors: [{id: author._id}],
         }),
-      ).rejects.toThrow(`Not exist Author documents for given propertiy "id"`);
+      ).rejects.toThrow(MongooseNotExistError);
     });
   });
 });
