@@ -8,6 +8,9 @@ export class Series extends Document {
   @Prop()
   @Field(() => String)
   title!: string;
+
+  @Prop()
+  relatedBooks!: string[];
 }
 
 export const SeriesSchema = SchemaFactory.createForClass(Series);
