@@ -70,9 +70,23 @@ describe('SeriesResolver', () => {
   });
 
   describe('Series()', () => {
+    let book: Book;
+
+    beforeAll(async () => {
+      book = await bookModel.create({
+        title: 'よふかしのうた(1)',
+        authors: [],
+      });
+    });
+
+    afterAll(async () => {
+      await bookModel.deleteMany({});
+    });
+
     it('存在するならばそれを返す', async () => {
       const newSeries = await seriesModel.create({
         title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
         relatedBooks: [],
       });
 
@@ -104,6 +118,7 @@ describe('SeriesResolver', () => {
     it('適切なIDを返す', async () => {
       const newSeries = await seriesModel.create({
         title: 'よふかしのうた',
+        books: [],
         relatedBooks: [],
       });
 
@@ -130,6 +145,7 @@ describe('SeriesResolver', () => {
     it('全てのプロパティが存在する', async () => {
       const newSeries = await seriesModel.create({
         title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
         relatedBooks: [book._id],
       });
 
@@ -137,6 +153,7 @@ describe('SeriesResolver', () => {
 
       const actual = await seriesResolver.createSeries({
         title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
         relatedBooks: [book._id],
       });
 
@@ -147,6 +164,7 @@ describe('SeriesResolver', () => {
     it('relatedBooksが欠落していても通る', async () => {
       const newSeries = await seriesModel.create({
         title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
         relatedBooks: [],
       });
 
@@ -154,6 +172,7 @@ describe('SeriesResolver', () => {
 
       const actual = await seriesResolver.createSeries({
         title: 'よふかしのうた',
+        books: [{id: book._id, serial: 1}],
       });
 
       expect(actual).toHaveProperty('title', 'よふかしのうた');

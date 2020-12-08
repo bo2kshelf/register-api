@@ -4,6 +4,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
+import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
@@ -62,6 +63,7 @@ describe('SeriesService', () => {
     it('ObjectIDを取得', async () => {
       const newSeries = await seriesModel.create({
         title: 'よふかしのうた',
+        books: [],
         relatedBooks: [],
       });
 
@@ -75,6 +77,7 @@ describe('SeriesService', () => {
     it('存在する場合はそれを返す', async () => {
       const newSeries = await seriesModel.create({
         title: 'よふかしのうた',
+        books: [],
         relatedBooks: [],
       });
 
@@ -93,11 +96,16 @@ describe('SeriesService', () => {
   });
 
   describe('create()', () => {
-    let book: Book;
+    let book1: Book;
+    let book2: Book;
 
     beforeEach(async () => {
-      book = await bookModel.create({
+      book1 = await bookModel.create({
         title: 'よふかしのうた(1)',
+        authors: [],
+      });
+      book2 = await bookModel.create({
+        title: 'よふかしのうた(2)',
         authors: [],
       });
     });
@@ -109,15 +117,63 @@ describe('SeriesService', () => {
     it('全てのプロパティが存在する', async () => {
       const actual = await seriesService.create({
         title: 'よふかしのうた',
-        relatedBooks: [book._id],
+        books: [{id: book1._id, serial: 1}],
+        relatedBooks: [book1._id],
       });
 
       expect(actual).toHaveProperty('title', 'よふかしのうた');
       expect(actual).toHaveProperty('relatedBooks');
     });
 
+    it('booksが空の場合はError', async () => {
+      await expect(() =>
+        seriesService.create({
+          title: 'よふかしのうた',
+          books: [],
+        }),
+      ).rejects.toThrow(`The property "book" is empty`);
+    });
+
+    it('booksのIDが重複している場合Error', async () => {
+      await expect(() =>
+        seriesService.create({
+          title: 'よふかしのうた',
+          books: [
+            {id: book1._id, serial: 1},
+            {id: book1._id, serial: 2},
+          ],
+        }),
+      ).rejects.toThrow(`Duplicate in the property "books"`);
+    });
+
+    it('booksのserialが重複している場合Error', async () => {
+      await expect(() =>
+        seriesService.create({
+          title: 'よふかしのうた',
+          books: [
+            {id: book1._id, serial: 1},
+            {id: book2._id, serial: 1},
+          ],
+        }),
+      ).rejects.toThrow(`Duplicate in the property "books"`);
+    });
+
+    it('idに結びついたbooksが存在しない場合はError', async () => {
+      await bookModel.deleteMany({});
+
+      await expect(() =>
+        seriesService.create({
+          title: 'よふかしのうた',
+          books: [{id: book1._id, serial: 1}],
+        }),
+      ).rejects.toThrow(MongooseNotExistError);
+    });
+
     it('relatedBooksが欠落しても通る', async () => {
-      const actual = await seriesService.create({title: 'よふかしのうた'});
+      const actual = await seriesService.create({
+        title: 'よふかしのうた',
+        books: [{id: book1._id, serial: 1}],
+      });
 
       expect(actual).toHaveProperty('title', 'よふかしのうた');
       expect(actual).toHaveProperty('relatedBooks');
@@ -127,7 +183,8 @@ describe('SeriesService', () => {
       await expect(() =>
         seriesService.create({
           title: 'よふかしのうた',
-          relatedBooks: [book._id, book._id],
+          books: [{id: book1._id, serial: 1}],
+          relatedBooks: [book1._id, book1._id],
         }),
       ).rejects.toThrow(`Duplicate in the property "relatedBooks"`);
     });
@@ -138,11 +195,10 @@ describe('SeriesService', () => {
       await expect(() =>
         seriesService.create({
           title: 'よふかしのうた',
-          relatedBooks: [book._id],
+          books: [{id: book1._id, serial: 1}],
+          relatedBooks: [book1._id],
         }),
-      ).rejects.toThrow(
-        `Not exist Book documents for given propertiy "relatedBooks"`,
-      );
+      ).rejects.toThrow(MongooseNotExistError);
     });
   });
 });

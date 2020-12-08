@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
+import {BookSeriesConnection} from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
 import {Series} from './schema/series.schema';
@@ -28,14 +29,30 @@ export class SeriesService {
   }
 
   async create({
+    books,
     relatedBooks = [],
     ...data
   }: {
     title: string;
     relatedBooks?: string[];
+    books: BookSeriesConnection[];
   }): Promise<Series> {
+    if (books.length === 0) throw new Error(`The property "book" is empty`);
+
+    if (new Set(books.map(({id}) => id)).size !== books.length)
+      throw new Error(`Duplicate in the property "books"`);
+
+    if (new Set(books.map(({serial}) => serial)).size !== books.length)
+      throw new Error(`Duplicate in the property "books"`);
+
     if (new Set(relatedBooks).size !== relatedBooks.length)
       throw new Error(`Duplicate in the property "relatedBooks"`);
+
+    if (
+      (await this.bookModel.find({_id: books.map(({id}) => id)})).length !==
+      books.length
+    )
+      throw new MongooseNotExistError(Book.name, 'books');
 
     if (
       (await this.bookModel.find({_id: relatedBooks})).length !==
@@ -43,6 +60,6 @@ export class SeriesService {
     )
       throw new MongooseNotExistError(Book.name, 'relatedBooks');
 
-    return this.seriesModel.create({relatedBooks, ...data});
+    return this.seriesModel.create({books, relatedBooks, ...data});
   }
 }
