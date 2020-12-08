@@ -8,10 +8,6 @@ pre-push:
   commands:
     ts-check:
       run: tsc --noEmit
-    schema-generate:
-      run: |
-        yarn run schema-generate &&
-        test -z "$(git status schema.graphql -s)"; exit $?
 
 pre-commit:
   parallel: true
