@@ -1,5 +1,5 @@
 import {Field, InputType} from '@nestjs/graphql';
-import {BookAuthorConnectionInput} from '../connection/author.connection';
+import {AuthorBookConnectionInput} from '../../authors/connection/book.connection';
 
 @InputType()
 export class CreateBookInput {
@@ -9,7 +9,7 @@ export class CreateBookInput {
   @Field({nullable: true})
   isbn?: string;
 
-  @Field(() => [BookAuthorConnectionInput])
+  @Field(() => [AuthorBookConnectionInput])
   authors!: {
     id: string;
     roles?: string[];

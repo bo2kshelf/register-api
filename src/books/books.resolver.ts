@@ -7,8 +7,8 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import {AuthorBookConnection} from '../authors/connection/book.connection';
 import {BooksService} from './books.service';
-import {BookAuthorConnection} from './connection/author.connection';
 import {CreateBookInput} from './dto/create-book.input';
 import {Book} from './schema/book.schema';
 
@@ -26,9 +26,9 @@ export class BooksResolver {
     return this.bookService.id(book);
   }
 
-  @ResolveField(() => [BookAuthorConnection])
-  async authors(@Parent() book: Book): Promise<BookAuthorConnection[]> {
-    return [];
+  @ResolveField(() => [AuthorBookConnection])
+  async authors(@Parent() book: Book) {
+    return book.authors;
   }
 
   @Mutation(() => Book, {nullable: false})
