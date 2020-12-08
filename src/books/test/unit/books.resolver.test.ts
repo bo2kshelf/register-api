@@ -2,6 +2,7 @@ import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
+import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
@@ -12,6 +13,7 @@ describe('BookResolver', () => {
   let module: TestingModule;
 
   let bookModel: Model<Book>;
+  let authorModel: Model<Author>;
 
   let bookService: BooksService;
   let bookResolver: BooksResolver;
@@ -26,7 +28,10 @@ describe('BookResolver', () => {
         MongooseModule.forRootAsync({
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
-        MongooseModule.forFeature([{name: Book.name, schema: BookSchema}]),
+        MongooseModule.forFeature([
+          {name: Book.name, schema: BookSchema},
+          {name: Author.name, schema: AuthorSchema},
+        ]),
       ],
       providers: [
         {
@@ -42,6 +47,7 @@ describe('BookResolver', () => {
     }).compile();
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
 
     bookService = module.get<BooksService>(BooksService);
     bookResolver = module.get<BooksResolver>(BooksResolver);
@@ -64,10 +70,21 @@ describe('BookResolver', () => {
   });
 
   describe('book()', () => {
+    let author: Author;
+
+    beforeAll(async () => {
+      author = await authorModel.create({name: 'コトヤマ'});
+    });
+
+    afterAll(async () => {
+      await authorModel.deleteMany({});
+    });
+
     it('存在するならばそれを返す', async () => {
       const newBook = await bookModel.create({
         title: 'よふかしのうた(1)',
         isbn: '978-4091294920',
+        authors: [{id: author._id}],
       });
 
       jest.spyOn(bookService, 'getById').mockResolvedValueOnce(newBook);
@@ -97,7 +114,10 @@ describe('BookResolver', () => {
 
   describe('id()', () => {
     it('適切なIDを返す', async () => {
-      const newBook = await bookModel.create({title: 'よふかしのうた(1)'});
+      const newBook = await bookModel.create({
+        title: 'よふかしのうた(1)',
+        authors: [],
+      });
 
       const actual = await bookResolver.id(newBook);
 
@@ -106,10 +126,21 @@ describe('BookResolver', () => {
   });
 
   describe('createBook()', () => {
+    let author: Author;
+
+    beforeAll(async () => {
+      author = await authorModel.create({name: 'コトヤマ'});
+    });
+
+    afterAll(async () => {
+      await authorModel.deleteMany({});
+    });
+
     it('全てのプロパティが存在する', async () => {
       const newBook = await bookModel.create({
         title: 'よふかしのうた(1)',
         isbn: '978-4091294920',
+        authors: [{id: author._id, roles: ['原作']}],
       });
 
       jest.spyOn(bookService, 'create').mockResolvedValueOnce(newBook);
@@ -117,21 +148,25 @@ describe('BookResolver', () => {
       const actual = await bookResolver.createBook({
         title: 'よふかしのうた(1)',
         isbn: '978-4091294920',
+        authors: [{id: author._id, roles: ['原作']}],
       });
 
       expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
       expect(actual).toHaveProperty('isbn', '978-4091294920');
+      expect(actual).toHaveProperty('authors');
     });
 
-    it('ISBNが欠落', async () => {
+    it('iSBNが欠落しても通る', async () => {
       const newBook = await bookModel.create({
         title: 'よふかしのうた(1)',
+        authors: [{id: author._id}],
       });
 
       jest.spyOn(bookService, 'create').mockResolvedValueOnce(newBook);
 
       const actual = await bookResolver.createBook({
         title: 'よふかしのうた(1)',
+        authors: [{id: author._id}],
       });
 
       expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
