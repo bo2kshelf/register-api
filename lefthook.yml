@@ -35,7 +35,7 @@ pre-commit:
     validate-renovate:
       files: git diff --name-only --staged
       glob: '.renovaterc'
-      run: npx --package renovate -c 'renovate-config-validator'
+      run: npm run lint:renovate
     validate-circleci:
       files: git diff --name-only --staged
       glob: '.circleci/*.yml'
