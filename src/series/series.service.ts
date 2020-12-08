@@ -4,6 +4,7 @@ import {Model} from 'mongoose';
 import {BookSeriesConnection} from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {isArrayUnique} from '../util';
 import {Series} from './schema/series.schema';
 
 @Injectable()
@@ -39,13 +40,13 @@ export class SeriesService {
   }): Promise<Series> {
     if (books.length === 0) throw new Error(`The property "book" is empty`);
 
-    if (new Set(books.map(({id}) => id)).size !== books.length)
+    if (!isArrayUnique(books.map(({id}) => id)))
       throw new Error(`Duplicate in the property "books"`);
 
-    if (new Set(books.map(({serial}) => serial)).size !== books.length)
+    if (!isArrayUnique(books.map(({serial}) => serial)))
       throw new Error(`Duplicate in the property "books"`);
 
-    if (new Set(relatedBooks).size !== relatedBooks.length)
+    if (!isArrayUnique(relatedBooks))
       throw new Error(`Duplicate in the property "relatedBooks"`);
 
     if (
