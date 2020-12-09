@@ -3,8 +3,8 @@
   "exclude": [
     "node_modules",
     "dist/",
+    "src/generate-graphql-sdl.ts",
     "docker/",
-    "**/scripts/",
     "**/test/",
     "**/*.test.ts"
   ]

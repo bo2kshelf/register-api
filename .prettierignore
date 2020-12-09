@@ -6,4 +6,4 @@ dist/
 docker/
 !docker/docker-compose*.yml
 
-schema.graphql
+schema.graphqls
