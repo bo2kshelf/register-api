@@ -3,6 +3,7 @@ import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 import {Author} from '../authors/schema/author.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {isArrayUnique} from '../util';
 import {Book} from './schema/book.schema';
 
 @Injectable()
@@ -39,7 +40,7 @@ export class BooksService {
 
     const authorIDs = authors.map(({id: author}) => author);
 
-    if (new Set(authorIDs).size !== authorIDs.length)
+    if (!isArrayUnique(authorIDs))
       throw new Error(`Duplicate ID of the author in the property "authors"`);
 
     const author = await Promise.all(

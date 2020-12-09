@@ -3,6 +3,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
+import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesResolver} from '../../series.resolver';
 import {SeriesService} from '../../series.service';
@@ -101,16 +102,16 @@ describe('SeriesResolver', () => {
       jest
         .spyOn(seriesService, 'getById')
         .mockRejectedValueOnce(
-          new Error(
-            `Series associated with ID "5fccac3585e5265603349e97" doesn't exist.`,
+          new MongooseNotExistError(
+            Series.name,
+            'id',
+            '5fccac3585e5265603349e97',
           ),
         );
 
       await expect(() =>
         seriesResolver.series('5fccac3585e5265603349e97'),
-      ).rejects.toThrow(
-        `Series associated with ID "5fccac3585e5265603349e97" doesn't exist.`,
-      );
+      ).rejects.toThrow(MongooseNotExistError);
     });
   });
 

@@ -3,6 +3,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
+import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
@@ -99,16 +100,16 @@ describe('BookResolver', () => {
       jest
         .spyOn(bookService, 'getById')
         .mockRejectedValueOnce(
-          new Error(
-            `Book associated with ID "5fccac3585e5265603349e97" doesn't exist.`,
+          new MongooseNotExistError(
+            Book.name,
+            'id',
+            '5fccac3585e5265603349e97',
           ),
         );
 
       await expect(() =>
         bookResolver.book('5fccac3585e5265603349e97'),
-      ).rejects.toThrow(
-        `Book associated with ID "5fccac3585e5265603349e97" doesn't exist.`,
-      );
+      ).rejects.toThrow(MongooseNotExistError);
     });
   });
 
