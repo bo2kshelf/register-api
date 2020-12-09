@@ -2,11 +2,11 @@
   "scripts": {
     "order": [
       "build",
+      "generate-sdl",
       "dev",
       "debug",
       "start",
       "test",
-      "schema-generate",
       "clean",
       "ts-check",
       "lint",

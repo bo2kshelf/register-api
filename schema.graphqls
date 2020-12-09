@@ -1,0 +1,67 @@
+type Author {
+  name: String!
+  id: ID!
+}
+
+type AuthorBookConnection {
+  id: String!
+  roles: [String!]
+  author: Author!
+}
+
+type Book {
+  title: String!
+  isbn: String
+  id: ID!
+  authors: [AuthorBookConnection!]!
+}
+
+type BookSeriesConnection {
+  id: String!
+  serial: Float!
+  book: Book!
+}
+
+type Series {
+  title: String!
+  id: ID!
+  books: [BookSeriesConnection!]!
+}
+
+type Query {
+  author(id: ID!): Author!
+  book(id: ID!): Book!
+  series(id: ID!): Series!
+}
+
+type Mutation {
+  createAuthor(data: CreateAuthorInput!): Author!
+  createBook(data: CreateBookInput!): Book!
+  createSeries(data: CreateSeriesInput!): Series!
+}
+
+input CreateAuthorInput {
+  name: String!
+}
+
+input CreateBookInput {
+  title: String!
+  isbn: String
+  authors: [CreateBookAuthorsInput!]!
+}
+
+input CreateBookAuthorsInput {
+  id: String!
+  roles: [String!]
+}
+
+input CreateSeriesInput {
+  title: String!
+  books: [CreateSeriesBooksInput!]!
+  relatedBooks: [String!]
+}
+
+input CreateSeriesBooksInput {
+  id: String!
+  serial: Float!
+}
