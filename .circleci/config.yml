@@ -97,6 +97,8 @@ workflows:
     jobs:
       - lint-eslint
       - lint-prettier
+      - docker/hadolint:
+          dockerfiles: Dockerfile
       - ts-check
       - check-sdl:
           requires:
