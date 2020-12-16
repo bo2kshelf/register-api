@@ -7,8 +7,10 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import {PaginatedBookConnection} from '../books/connection/paginated.connection';
 import {AuthorsService} from './authors.service';
 import {CreateAuthorInput} from './dto/create-author.input';
+import {AuthorResolveBooksArgsType} from './dto/resolve-books.argstype';
 import {Author} from './schema/author.schema';
 
 @Resolver(() => Author)
@@ -23,6 +25,16 @@ export class AuthorsResolver {
   @ResolveField(() => ID)
   id(@Parent() author: Author): string {
     return this.authorsService.id(author);
+  }
+
+  @ResolveField(() => PaginatedBookConnection)
+  async books(
+    @Parent() author: Author,
+
+    @Args({type: () => AuthorResolveBooksArgsType})
+    args: AuthorResolveBooksArgsType,
+  ) {
+    return this.authorsService.books(author, args);
   }
 
   @Mutation(() => Author, {nullable: false})

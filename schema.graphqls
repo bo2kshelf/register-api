@@ -1,19 +1,42 @@
+type Book {
+  title: String!
+  isbn: String
+  id: ID!
+  authors: [AuthorBookConnection!]!
+}
+
+type BookAggregate {
+  count: Int!
+}
+
+type BookPageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  startCursor: String
+  endCursor: String
+}
+
+type BookEdgeType {
+  node: Book!
+  cursor: String!
+}
+
+type PaginatedBookConnection {
+  aggregate: BookAggregate!
+  pageInfo: BookPageInfo!
+  edges: [BookEdgeType!]!
+}
+
 type Author {
   name: String!
   id: ID!
+  books(after: String, first: Int, before: String, last: Int): PaginatedBookConnection!
 }
 
 type AuthorBookConnection {
   id: String!
   roles: [String!]
   author: Author!
-}
-
-type Book {
-  title: String!
-  isbn: String
-  id: ID!
-  authors: [AuthorBookConnection!]!
 }
 
 type BookSeriesConnection {
