@@ -1,9 +1,10 @@
-import {Field, ObjectType} from '@nestjs/graphql';
+import {Field, ID, ObjectType} from '@nestjs/graphql';
+import {ObjectId} from 'mongodb';
 
 @ObjectType()
 export class AuthorBookConnection {
-  @Field(() => String)
-  id!: string;
+  @Field(() => ID)
+  id!: ObjectId;
 
   @Field(() => [String], {nullable: true})
   roles?: string[];

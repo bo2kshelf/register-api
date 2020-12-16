@@ -1,5 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
+import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
@@ -13,16 +14,16 @@ export class AuthorsService {
     private readonly authorModel: Model<Author>,
   ) {}
 
-  id(author: Author): string {
+  id(author: Author): ObjectId {
     return author._id;
   }
 
-  async getById(id: string): Promise<Author> {
+  async getById(id: ObjectId): Promise<Author> {
     const author = await this.authorModel.findById(id);
 
     if (author) return author;
 
-    throw new MongooseNotExistError(Author.name, 'id', id);
+    throw new MongooseNotExistError(Author.name, 'id', id.toHexString());
   }
 
   async create(data: {name: string}): Promise<Author> {
