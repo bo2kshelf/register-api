@@ -23,7 +23,7 @@ export class BooksResolver {
   }
 
   @ResolveField(() => ID)
-  id(@Parent() book: Book): string {
+  id(@Parent() book: Book): ObjectId {
     return this.bookService.id(book);
   }
 

@@ -16,7 +16,7 @@ export class BooksService {
     private readonly authorModel: Model<Author>,
   ) {}
 
-  id(book: Book): string {
+  id(book: Book): ObjectId {
     return book._id;
   }
 
@@ -33,7 +33,7 @@ export class BooksService {
     ...data
   }: {
     title: string;
-    authors: {id: string; roles?: string[]}[];
+    authors: {id: ObjectId; roles?: string[]}[];
     isbn?: string;
   }): Promise<Book> {
     if (authors.length === 0)
