@@ -1,5 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
+import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Author} from '../authors/schema/author.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
@@ -51,6 +52,12 @@ export class BooksService {
 
     if (author.length > 0) throw new MongooseNotExistError(Author.name, 'id');
 
-    return this.bookModel.create({authors, ...data});
+    return this.bookModel.create({
+      authors: authors.map(({id, ...props}) => ({
+        ...props,
+        id: new ObjectId(id),
+      })),
+      ...data,
+    });
   }
 }
