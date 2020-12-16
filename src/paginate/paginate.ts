@@ -55,19 +55,17 @@ export type PagingMeta =
   | {pagingType: 'backward'; before?: string; last: number}
   | {pagingType: 'none'};
 
-function getMeta(args: RequiredPaginationArgs): PagingMeta {
+export function getMeta(args: RequiredPaginationArgs): PagingMeta {
   const {first = 0, last = 0, after, before} = args;
 
   if (Boolean(first) || Boolean(after))
     return {pagingType: 'forward', after, first};
   else if (Boolean(last) || Boolean(before))
-    return {pagingType: 'forward', after, first};
+    return {pagingType: 'backward', before, last};
   else return {pagingType: 'none'};
 }
 
-export function getPagingParameters(args: RequiredPaginationArgs) {
-  const meta = getMeta(args);
-
+export function getPagingParameters(meta: PagingMeta) {
   switch (meta.pagingType) {
     case 'forward': {
       return {
@@ -80,9 +78,7 @@ export function getPagingParameters(args: RequiredPaginationArgs) {
       let limit = last;
       let offset = Relay.cursorToOffset(before!) - last;
 
-      // Check to see if our before-page is underflowing past the 0th item
       if (offset < 0) {
-        // Adjust the limit with the underflow value
         limit = Math.max(last + offset, 0);
         offset = 0;
       }
@@ -100,26 +96,17 @@ export async function getConnectionFromMongooseModel<T extends Document>(
   connArgs: RequiredPaginationArgs,
   model: Model<T>,
 ) {
-  const {limit, offset: skip} = getPagingParameters(connArgs);
+  const {limit, offset: skip} = getPagingParameters(getMeta(connArgs));
   const count: number = await model
-    .aggregate([
-      ...countAggregate,
-      {
-        $count: 'count',
-      },
-    ])
+    .aggregate([...countAggregate, {$count: 'count'}])
     .then((result) => result?.[0]?.count || 0);
   const aggregated =
     count > 0
       ? await model.aggregate(
           [
             ...entitiesAggregate,
-            skip && {
-              $skip: skip,
-            },
-            limit && {
-              $limit: limit,
-            },
+            skip && {$skip: skip},
+            limit && {$limit: limit},
           ].filter(Boolean),
         )
       : [];
