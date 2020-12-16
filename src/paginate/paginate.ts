@@ -91,10 +91,10 @@ export function getPagingParameters(meta: PagingMeta) {
 }
 
 export async function getConnectionFromMongooseModel<T extends Document>(
+  model: Model<T>,
+  connArgs: RequiredPaginationArgs,
   countAggregate: Parameters<Model<T>['aggregate']>[0],
   entitiesAggregate: Parameters<Model<T>['aggregate']>[0],
-  connArgs: RequiredPaginationArgs,
-  model: Model<T>,
 ) {
   const {limit, offset: skip} = getPagingParameters(getMeta(connArgs));
   const count: number = await model

@@ -32,6 +32,8 @@ export class AuthorsService {
   async books(author: Author, args: RequiredPaginationArgs) {
     const authorId = this.id(author);
     return getConnectionFromMongooseModel(
+      this.authorModel,
+      args,
       [
         {$match: {_id: authorId}},
         {
@@ -58,8 +60,6 @@ export class AuthorsService {
         {$replaceRoot: {newRoot: '$books'}},
         {$sort: {_id: 1}},
       ],
-      args,
-      this.authorModel,
     );
   }
 }
