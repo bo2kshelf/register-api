@@ -20,12 +20,12 @@ export class BooksService {
     return book._id;
   }
 
-  async getById(id: string): Promise<Book> {
+  async getById(id: ObjectId): Promise<Book> {
     const book = await this.bookModel.findById(id);
 
     if (book) return book;
 
-    throw new MongooseNotExistError(Book.name, 'id', id);
+    throw new MongooseNotExistError(Book.name, 'id', id.toHexString());
   }
 
   async create({

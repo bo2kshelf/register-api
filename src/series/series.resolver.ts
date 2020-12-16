@@ -7,6 +7,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import {ObjectId} from 'mongodb';
 import {BookSeriesConnection} from '../books/connection/series.connection';
 import {CreateSeriesInput} from './dto/create-series.input';
 import {Series} from './schema/series.schema';
@@ -17,12 +18,12 @@ export class SeriesResolver {
   constructor(private seriesService: SeriesService) {}
 
   @Query(() => Series, {nullable: false})
-  async series(@Args('id', {type: () => ID}) id: string): Promise<Series> {
+  async series(@Args('id', {type: () => ID}) id: ObjectId): Promise<Series> {
     return this.seriesService.getById(id);
   }
 
   @ResolveField(() => ID)
-  id(@Parent() series: Series): string {
+  id(@Parent() series: Series): ObjectId {
     return this.seriesService.id(series);
   }
 

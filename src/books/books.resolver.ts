@@ -7,6 +7,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import {ObjectId} from 'mongodb';
 import {AuthorBookConnection} from '../authors/connection/book.connection';
 import {BooksService} from './books.service';
 import {CreateBookInput} from './dto/create-book.input';
@@ -17,7 +18,7 @@ export class BooksResolver {
   constructor(private bookService: BooksService) {}
 
   @Query(() => Book, {nullable: false})
-  async book(@Args('id', {type: () => ID}) id: string): Promise<Book> {
+  async book(@Args('id', {type: () => ID}) id: ObjectId): Promise<Book> {
     return this.bookService.getById(id);
   }
 

@@ -1,4 +1,5 @@
-import {Field, InputType} from '@nestjs/graphql';
+import {Field, ID, InputType} from '@nestjs/graphql';
+import {ObjectId} from 'mongodb';
 
 @InputType()
 export class CreateSeriesInput {
@@ -8,14 +9,14 @@ export class CreateSeriesInput {
   @Field(() => [CreateSeriesBooksInput])
   books!: CreateSeriesBooksInput[];
 
-  @Field(() => [String], {nullable: true})
-  relatedBooks?: string[];
+  @Field(() => [ID], {nullable: true})
+  relatedBooks?: ObjectId[];
 }
 
 @InputType()
 export class CreateSeriesBooksInput {
-  @Field(() => String)
-  id!: string;
+  @Field(() => ID)
+  id!: ObjectId;
 
   @Field()
   serial!: number;
