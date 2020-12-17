@@ -1,9 +1,11 @@
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
+import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
@@ -86,8 +88,8 @@ describe('SeriesService', () => {
 
     it('存在しない場合はError', async () => {
       await expect(() =>
-        seriesService.getById('5fccac3585e5265603349e97'),
-      ).rejects.toThrow(MongooseNotExistError);
+        seriesService.getById(new ObjectId('5fccac3585e5265603349e97')),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 

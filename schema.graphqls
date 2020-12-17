@@ -34,13 +34,13 @@ type Author {
 }
 
 type AuthorBookConnection {
-  id: String!
+  id: ID!
   roles: [String!]
   author: Author!
 }
 
 type BookSeriesConnection {
-  id: String!
+  id: ID!
   serial: Float!
   book: Book!
 }
@@ -74,17 +74,17 @@ input CreateBookInput {
 }
 
 input CreateBookAuthorsInput {
-  id: String!
+  id: ID!
   roles: [String!]
 }
 
 input CreateSeriesInput {
   title: String!
   books: [CreateSeriesBooksInput!]!
-  relatedBooks: [String!]
+  relatedBooks: [ID!]
 }
 
 input CreateSeriesBooksInput {
-  id: String!
+  id: ID!
   serial: Float!
 }

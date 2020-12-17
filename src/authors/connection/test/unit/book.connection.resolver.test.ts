@@ -1,8 +1,9 @@
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
+import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {MongooseNotExistError} from '../../../../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {AuthorsService} from '../../../authors.service';
 import {Author, AuthorSchema} from '../../../schema/author.schema';
 import {AuthorBookConnectionResolver} from '../../book.connection.resolver';
@@ -70,7 +71,7 @@ describe('AuthorBookConnectionResolver', () => {
       jest.spyOn(authorService, 'getById').mockResolvedValueOnce(newAuthor);
 
       const actual = await connectionResolver.author({
-        id: '5fccac3585e5265603349e97',
+        id: new ObjectId('5fccac3585e5265603349e97'),
       });
 
       expect(actual).toHaveProperty('name', 'コトヤマ');
@@ -80,16 +81,17 @@ describe('AuthorBookConnectionResolver', () => {
       jest
         .spyOn(authorService, 'getById')
         .mockRejectedValueOnce(
-          new MongooseNotExistError(
+          new NoDocumentForObjectIdError(
             Author.name,
-            'id',
-            '5fccac3585e5265603349e97',
+            new ObjectId('5fccac3585e5265603349e97'),
           ),
         );
 
       await expect(() =>
-        connectionResolver.author({id: '5fccac3585e5265603349e97'}),
-      ).rejects.toThrow(MongooseNotExistError);
+        connectionResolver.author({
+          id: new ObjectId('5fccac3585e5265603349e97'),
+        }),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });

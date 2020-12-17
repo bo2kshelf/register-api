@@ -4,6 +4,7 @@ import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Author} from '../authors/schema/author.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {isArrayUnique} from '../util';
 import {Book} from './schema/book.schema';
 
@@ -16,16 +17,16 @@ export class BooksService {
     private readonly authorModel: Model<Author>,
   ) {}
 
-  id(book: Book): string {
+  id(book: Book): ObjectId {
     return book._id;
   }
 
-  async getById(id: string): Promise<Book> {
+  async getById(id: ObjectId): Promise<Book> {
     const book = await this.bookModel.findById(id);
 
     if (book) return book;
 
-    throw new MongooseNotExistError(Book.name, 'id', id);
+    throw new NoDocumentForObjectIdError(Book.name, id);
   }
 
   async create({
@@ -33,7 +34,7 @@ export class BooksService {
     ...data
   }: {
     title: string;
-    authors: {id: string; roles?: string[]}[];
+    authors: {id: ObjectId; roles?: string[]}[];
     isbn?: string;
   }): Promise<Book> {
     if (authors.length === 0)

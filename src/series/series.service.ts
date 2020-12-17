@@ -1,9 +1,11 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
+import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {BookSeriesConnection} from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {isArrayUnique} from '../util';
 import {Series} from './schema/series.schema';
 
@@ -17,16 +19,16 @@ export class SeriesService {
     private readonly bookModel: Model<Book>,
   ) {}
 
-  id(series: Series): string {
+  id(series: Series): ObjectId {
     return series._id;
   }
 
-  async getById(id: string): Promise<Series> {
+  async getById(id: ObjectId): Promise<Series> {
     const series = await this.seriesModel.findById(id);
 
     if (series) return series;
 
-    throw new MongooseNotExistError(Series.name, 'id', id);
+    throw new NoDocumentForObjectIdError(Series.name, id);
   }
 
   async create({
@@ -35,7 +37,7 @@ export class SeriesService {
     ...data
   }: {
     title: string;
-    relatedBooks?: string[];
+    relatedBooks?: ObjectId[];
     books: BookSeriesConnection[];
   }): Promise<Series> {
     if (books.length === 0) throw new Error(`The property "book" is empty`);

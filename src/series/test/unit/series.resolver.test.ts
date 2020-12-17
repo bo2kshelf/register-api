@@ -1,5 +1,6 @@
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
+import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
@@ -110,7 +111,7 @@ describe('SeriesResolver', () => {
         );
 
       await expect(() =>
-        seriesResolver.series('5fccac3585e5265603349e97'),
+        seriesResolver.series(new ObjectId('5fccac3585e5265603349e97')),
       ).rejects.toThrow(MongooseNotExistError);
     });
   });
