@@ -4,6 +4,8 @@ import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
+import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
+import {EmptyArrayError} from '../../../error/empty-array.error';
 import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {BooksService} from '../../books.service';
@@ -153,7 +155,7 @@ describe('BookService', () => {
           title: 'よふかしのうた(1)',
           authors: [{id: author._id}, {id: author._id}],
         }),
-      ).rejects.toThrow(`Duplicate ID of the author in the property "authors"`);
+      ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
     it('authorsが空の場合はError', async () => {
@@ -162,7 +164,7 @@ describe('BookService', () => {
           title: 'よふかしのうた(1)',
           authors: [],
         }),
-      ).rejects.toThrow(`The property "authors" is empty.`);
+      ).rejects.toThrow(EmptyArrayError);
     });
 
     it('idに結びついたauthorが存在しない場合はError', async () => {
