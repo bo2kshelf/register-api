@@ -4,7 +4,6 @@ import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Author} from '../authors/schema/author.schema';
 import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
-import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {Book} from './schema/book.schema';
 
@@ -43,13 +42,15 @@ export class BooksService {
 
     checkIfArrayUnique(authorIds, 'authors.id');
 
-    const author = await Promise.all(
-      authorIds.map((id) =>
-        this.authorModel.findById(id).then((author) => (author ? false : id)),
-      ),
-    ).then((array) => array.filter(Boolean));
+    const actualIds: ObjectId[] = (
+      await this.authorModel.find({_id: authorIds})
+    ).map(({_id}) => _id);
 
-    if (author.length > 0) throw new MongooseNotExistError(Author.name, 'id');
+    if (actualIds.length < authors.length)
+      throw new NoDocumentForObjectIdError(
+        Author.name,
+        authorIds.find((id) => !actualIds.includes(id))!,
+      );
 
     return this.bookModel.create({
       authors,

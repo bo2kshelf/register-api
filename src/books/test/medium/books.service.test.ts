@@ -6,7 +6,6 @@ import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
@@ -175,7 +174,7 @@ describe('BookService', () => {
           title: 'よふかしのうた(1)',
           authors: [{id: author._id}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });

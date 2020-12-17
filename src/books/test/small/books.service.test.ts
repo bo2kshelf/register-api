@@ -5,7 +5,6 @@ import {Model} from 'mongoose';
 import {Author} from '../../../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {BooksService} from '../../books.service';
 import {Book} from '../../schema/book.schema';
@@ -27,7 +26,7 @@ describe('BookService', () => {
         },
         {
           provide: getModelToken(Author.name),
-          useValue: {findById() {}, create() {}},
+          useValue: {findById() {}, create() {}, find() {}},
         },
         BooksService,
       ],
@@ -144,16 +143,15 @@ describe('BookService', () => {
       const existId = new ObjectId();
 
       jest
-        .spyOn(authorModel, 'findById')
-        .mockResolvedValue({_id: existId} as Author)
-        .mockResolvedValue(null);
+        .spyOn(authorModel, 'find')
+        .mockResolvedValue([{_id: existId}] as Author[]);
 
       await expect(() =>
         bookService.create({
           title: 'title',
           authors: [{id: existId}, {id: new ObjectId()}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });
