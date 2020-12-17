@@ -1,6 +1,7 @@
 import {Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 import {Author, AuthorSchema} from '../authors/schema/author.schema';
+import {ObjectIdScalar} from '../scalar/objectid.scalar';
 import {BooksResolver} from './books.resolver';
 import {BooksService} from './books.service';
 import {
@@ -17,6 +18,7 @@ import {Book, BookSchema} from './schema/book.schema';
     ]),
   ],
   providers: [
+    ObjectIdScalar,
     BooksService,
     BooksResolver,
     BookSeriesConnectionResolver,

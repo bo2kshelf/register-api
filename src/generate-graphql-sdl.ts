@@ -12,6 +12,7 @@ import {AuthorsResolver} from './authors/authors.resolver';
 import {AuthorBookConnectionResolver} from './authors/connection/book.connection.resolver';
 import {BooksResolver} from './books/books.resolver';
 import {BookSeriesConnectionResolver} from './books/connection/series.connection.resolver';
+import {ObjectIdScalar} from './scalar/objectid.scalar';
 import {SeriesResolver} from './series/series.resolver';
 
 const schemaPath = path.resolve(process.cwd(), 'schema.graphqls');
@@ -22,13 +23,16 @@ const schemaPath = path.resolve(process.cwd(), 'schema.graphqls');
     await app.init();
     await app
       .get(GraphQLSchemaFactory)
-      .create([
-        AuthorsResolver,
-        AuthorBookConnectionResolver,
-        BooksResolver,
-        BookSeriesConnectionResolver,
-        SeriesResolver,
-      ])
+      .create(
+        [
+          AuthorsResolver,
+          AuthorBookConnectionResolver,
+          BooksResolver,
+          BookSeriesConnectionResolver,
+          SeriesResolver,
+        ],
+        [ObjectIdScalar],
+      )
       .then((schema) => printSchema(schema))
       .then((data) => promisify(writeFile)(schemaPath, data));
   } catch (error) {

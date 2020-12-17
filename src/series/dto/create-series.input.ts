@@ -15,7 +15,7 @@ export class CreateSeriesInput {
 
 @InputType()
 export class CreateSeriesBooksInput {
-  @Field(() => ID)
+  @Field(() => ObjectId)
   id!: ObjectId;
 
   @Field()
