@@ -9,7 +9,7 @@
     "debug": "nest start --watch --debug ",
     "start": "nest start",
     "start:prod": "node dist/main",
-    "test:local:unit": "yarn run test:unit",
+    "test:small": "scripty",
     "test:unit": "scripty",
     "clean": "rimraf dist/ coverage/",
     "ts-check": "tsc --noEmit",
