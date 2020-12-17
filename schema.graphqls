@@ -1,9 +1,12 @@
 type Book {
   title: String!
   isbn: String
-  id: ID!
+  id: ObjectId!
   authors: [AuthorBookConnection!]!
 }
+
+"""Date custom scalar type"""
+scalar ObjectId
 
 type BookAggregate {
   count: Int!
@@ -29,24 +32,24 @@ type PaginatedBookConnection {
 
 type Author {
   name: String!
-  id: ID!
+  id: ObjectId!
   books(after: String, first: Int, before: String, last: Int): PaginatedBookConnection!
 }
 
 type AuthorBookConnection {
-  id: ID!
+  id: ObjectId!
   roles: [String!]
   author: Author!
 }
 
 type BookSeriesConnection {
-  id: ID!
+  id: ObjectId!
   serial: Float!
   book: Book!
 }
 
 type BookSeriesRelatedBookConnection {
-  id: ID!
+  id: ObjectId!
 }
 
 type BookSeriesConnectionAggregate {
@@ -95,15 +98,15 @@ type PaginatedBookSeriesRelatedBookConnection {
 
 type Series {
   title: String!
-  id: ID!
+  id: ObjectId!
   books(after: String, first: Int, before: String, last: Int): PaginatedBookSeriesConnection!
   relatedBooks(after: String, first: Int, before: String, last: Int): PaginatedBookSeriesRelatedBookConnection!
 }
 
 type Query {
-  author(id: ID!): Author!
-  book(id: ID!): Book!
-  series(id: ID!): Series!
+  author(id: ObjectId!): Author!
+  book(id: ObjectId!): Book!
+  series(id: ObjectId!): Series!
 }
 
 type Mutation {
@@ -123,7 +126,7 @@ input CreateBookInput {
 }
 
 input CreateBookAuthorsInput {
-  id: ID!
+  id: ObjectId!
   roles: [String!]
 }
 
@@ -134,10 +137,10 @@ input CreateSeriesInput {
 }
 
 input CreateSeriesBooksInput {
-  id: ID!
+  id: ObjectId!
   serial: Float!
 }
 
 input CreateSeriesRelatedBooksInput {
-  id: ID!
+  id: ObjectId!
 }
