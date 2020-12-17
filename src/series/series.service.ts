@@ -5,6 +5,7 @@ import {Model} from 'mongoose';
 import {BookSeriesConnection} from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {isArrayUnique} from '../util';
 import {Series} from './schema/series.schema';
 
@@ -27,7 +28,7 @@ export class SeriesService {
 
     if (series) return series;
 
-    throw new MongooseNotExistError(Series.name, 'id', id.toHexString());
+    throw new NoDocumentForObjectIdError(Series.name, id);
   }
 
   async create({
