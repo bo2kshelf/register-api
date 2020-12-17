@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
 import {getConnectionFromMongooseModel} from '../paginate/paginate';
 import {Author} from './schema/author.schema';
@@ -23,7 +23,7 @@ export class AuthorsService {
 
     if (author) return author;
 
-    throw new MongooseNotExistError(Author.name, 'id', id.toHexString());
+    throw new NoDocumentForObjectIdError(Author.name, id);
   }
 
   async create(data: {name: string}): Promise<Author> {

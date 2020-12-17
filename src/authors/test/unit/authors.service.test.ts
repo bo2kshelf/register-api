@@ -2,10 +2,11 @@ import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {lorem} from 'faker';
 import * as Relay from 'graphql-relay';
+import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {AuthorsService} from '../../authors.service';
 import {Author, AuthorSchema} from '../../schema/author.schema';
 
@@ -88,8 +89,8 @@ describe('AuthorService', () => {
 
     it('存在しない場合はError', async () => {
       await expect(() =>
-        authorService.getById('5fccac3585e5265603349e97'),
-      ).rejects.toThrow(MongooseNotExistError);
+        authorService.getById(new ObjectId('5fccac3585e5265603349e97')),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 

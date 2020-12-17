@@ -1,5 +1,6 @@
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
+import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
@@ -87,7 +88,7 @@ describe('AuthorResolver', () => {
         );
 
       await expect(() =>
-        authorResolver.author('5fccac3585e5265603349e97'),
+        authorResolver.author(new ObjectId('5fccac3585e5265603349e97')),
       ).rejects.toThrow(MongooseNotExistError);
     });
   });
