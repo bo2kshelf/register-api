@@ -116,7 +116,7 @@ describe('SeriesService', () => {
       const actual = await seriesService.create({
         title: 'よふかしのうた',
         books: [{id: book1._id, serial: 1}],
-        relatedBooks: [book1._id],
+        relatedBooks: [{id: book1._id}],
       });
 
       expect(actual).toHaveProperty('title', 'よふかしのうた');
@@ -182,7 +182,7 @@ describe('SeriesService', () => {
         seriesService.create({
           title: 'よふかしのうた',
           books: [{id: book1._id, serial: 1}],
-          relatedBooks: [book1._id, book1._id],
+          relatedBooks: [{id: book1._id}, {id: book1._id}],
         }),
       ).rejects.toThrow(`Duplicate in the property "relatedBooks"`);
     });
@@ -194,7 +194,7 @@ describe('SeriesService', () => {
         seriesService.create({
           title: 'よふかしのうた',
           books: [{id: book1._id, serial: 1}],
-          relatedBooks: [book1._id],
+          relatedBooks: [{id: book1._id}],
         }),
       ).rejects.toThrow(MongooseNotExistError);
     });

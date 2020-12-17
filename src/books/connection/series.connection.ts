@@ -15,3 +15,14 @@ export class BookSeriesConnection {
 export class PaginatedBookSeriesConnection extends Paginated(
   BookSeriesConnection,
 ) {}
+
+@ObjectType()
+export class BookSeriesRelatedBookConnection {
+  @Field(() => ID)
+  id!: ObjectId;
+}
+
+@ObjectType()
+export class PaginatedBookSeriesRelationalBookConnection extends Paginated(
+  BookSeriesRelatedBookConnection,
+) {}

@@ -97,7 +97,7 @@ describe('SeriesService', () => {
           {id: new ObjectId(), serial: 1},
           {id: new ObjectId(), serial: 2},
         ],
-        relatedBooks: [new ObjectId(), new ObjectId()],
+        relatedBooks: [{id: new ObjectId()}, {id: new ObjectId()}],
       });
 
       expect(actual).toBeDefined();
@@ -140,7 +140,7 @@ describe('SeriesService', () => {
       ).rejects.toThrow(`Duplicate in the property "books"`);
     });
 
-    it('booksのrelatedIdが重複していたら例外を投げる', async () => {
+    it('booksのrelatedBooksが重複していたら例外を投げる', async () => {
       const dupl = new ObjectId();
       await expect(() =>
         seriesService.create({
@@ -149,7 +149,7 @@ describe('SeriesService', () => {
             {id: new ObjectId(), serial: 1},
             {id: new ObjectId(), serial: 2},
           ],
-          relatedBooks: [dupl, dupl],
+          relatedBooks: [{id: dupl}, {id: dupl}],
         }),
       ).rejects.toThrow(`Duplicate in the property "relatedBooks"`);
     });
@@ -180,7 +180,7 @@ describe('SeriesService', () => {
         seriesService.create({
           title: 'title',
           books: [{id: new ObjectId(), serial: 1}],
-          relatedBooks: [new ObjectId(), new ObjectId()],
+          relatedBooks: [{id: new ObjectId()}, {id: new ObjectId()}],
         }),
       ).rejects.toThrow(MongooseNotExistError);
     });

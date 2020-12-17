@@ -9,8 +9,8 @@ export class CreateSeriesInput {
   @Field(() => [CreateSeriesBooksInput])
   books!: CreateSeriesBooksInput[];
 
-  @Field(() => [ID], {nullable: true})
-  relatedBooks?: ObjectId[];
+  @Field(() => [CreateSeriesRelatedBooksInput], {nullable: true})
+  relatedBooks?: CreateSeriesRelatedBooksInput[];
 }
 
 @InputType()
@@ -20,4 +20,10 @@ export class CreateSeriesBooksInput {
 
   @Field()
   serial!: number;
+}
+
+@InputType()
+export class CreateSeriesRelatedBooksInput {
+  @Field(() => ID)
+  id!: ObjectId;
 }
