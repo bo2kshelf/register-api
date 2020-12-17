@@ -13,7 +13,7 @@ export class BookSeriesConnection {
 
 @ObjectType()
 export class BookSeriesRelatedBookConnection {
-  @Field(() => ID)
+  @Field(() => ObjectId)
   id!: ObjectId;
 }
 
