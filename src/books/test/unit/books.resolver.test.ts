@@ -1,9 +1,10 @@
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
+import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
@@ -100,16 +101,15 @@ describe('BookResolver', () => {
       jest
         .spyOn(bookService, 'getById')
         .mockRejectedValueOnce(
-          new MongooseNotExistError(
+          new NoDocumentForObjectIdError(
             Book.name,
-            'id',
-            '5fccac3585e5265603349e97',
+            new ObjectId('5fccac3585e5265603349e97'),
           ),
         );
 
       await expect(() =>
-        bookResolver.book('5fccac3585e5265603349e97'),
-      ).rejects.toThrow(MongooseNotExistError);
+        bookResolver.book(new ObjectId('5fccac3585e5265603349e97')),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 

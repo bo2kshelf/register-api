@@ -4,6 +4,7 @@ import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Author} from '../authors/schema/author.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {isArrayUnique} from '../util';
 import {Book} from './schema/book.schema';
 
@@ -25,7 +26,7 @@ export class BooksService {
 
     if (book) return book;
 
-    throw new MongooseNotExistError(Book.name, 'id', id.toHexString());
+    throw new NoDocumentForObjectIdError(Book.name, id);
   }
 
   async create({
