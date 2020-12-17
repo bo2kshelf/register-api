@@ -7,11 +7,11 @@ import {
   BookSeriesRelatedBookConnection,
 } from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
+import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
 import {getConnectionFromMongooseModel} from '../paginate/paginate';
-import {isArrayUnique} from '../util';
 import {Series} from './schema/series.schema';
 
 @Injectable()
@@ -45,16 +45,19 @@ export class SeriesService {
     books: BookSeriesConnection[];
     relatedBooks?: BookSeriesRelatedBookConnection[];
   }): Promise<Series> {
-    if (books.length === 0) throw new Error(`The property "book" is empty`);
-
-    if (!isArrayUnique(books.map(({id}) => id)))
-      throw new Error(`Duplicate in the property "books"`);
-
-    if (!isArrayUnique(books.map(({serial}) => serial)))
-      throw new Error(`Duplicate in the property "books"`);
-
-    if (!isArrayUnique(relatedBooks.map(({id}) => id)))
-      throw new Error(`Duplicate in the property "relatedBooks"`);
+    checkIfNotArrayEmpty(books, 'books');
+    checkIfArrayUnique(
+      books.map(({id}) => id),
+      'books.id',
+    );
+    checkIfArrayUnique(
+      books.map(({serial}) => serial),
+      'books.id',
+    );
+    checkIfArrayUnique(
+      relatedBooks.map(({id}) => id),
+      'relatedBooks.id',
+    );
 
     if (
       (await this.bookModel.find({_id: books.map(({id}) => id)})).length !==
