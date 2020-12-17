@@ -7,8 +7,13 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
-import {BookSeriesConnection} from '../books/connection/series.connection';
+import {
+  PaginatedBookSeriesConnection,
+  PaginatedBookSeriesRelatedBookConnection,
+} from '../books/connection/series.connection';
 import {CreateSeriesInput} from './dto/create-series.input';
+import {SeriesResolveBooksArgsType} from './dto/resolve-books.argstype';
+import {SeriesResolveRelatedBooksArgsType} from './dto/resolve-related-books.argstype';
 import {Series} from './schema/series.schema';
 import {SeriesService} from './series.service';
 
@@ -28,9 +33,24 @@ export class SeriesResolver {
     return this.seriesService.id(series);
   }
 
-  @ResolveField(() => [BookSeriesConnection])
-  async books(@Parent() series: Series) {
-    return series.books;
+  @ResolveField(() => PaginatedBookSeriesConnection)
+  async books(
+    @Parent() series: Series,
+
+    @Args({type: () => SeriesResolveBooksArgsType})
+    args: SeriesResolveBooksArgsType,
+  ) {
+    return this.seriesService.books(series, args);
+  }
+
+  @ResolveField(() => PaginatedBookSeriesRelatedBookConnection)
+  async relatedBooks(
+    @Parent() series: Series,
+
+    @Args({type: () => SeriesResolveBooksArgsType})
+    args: SeriesResolveRelatedBooksArgsType,
+  ) {
+    return this.seriesService.relatedBooks(series, args);
   }
 
   @Mutation(() => Series, {nullable: false})

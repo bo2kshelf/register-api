@@ -4,7 +4,10 @@ import {Author, AuthorSchema} from '../authors/schema/author.schema';
 import {ObjectIdScalar} from '../scalar/objectid.scalar';
 import {BooksResolver} from './books.resolver';
 import {BooksService} from './books.service';
-import {BookSeriesConnectionResolver} from './connection/series.connection.resolver';
+import {
+  BookSeriesConnectionResolver,
+  BookSeriesRelatedBookConnectionResolver,
+} from './connection/series.connection.resolver';
 import {Book, BookSchema} from './schema/book.schema';
 
 @Module({
@@ -19,6 +22,7 @@ import {Book, BookSchema} from './schema/book.schema';
     BooksService,
     BooksResolver,
     BookSeriesConnectionResolver,
+    BookSeriesRelatedBookConnectionResolver,
   ],
   exports: [BooksService],
 })
