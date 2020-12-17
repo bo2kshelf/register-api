@@ -12,17 +12,17 @@ export class BookSeriesConnection {
 }
 
 @ObjectType()
-export class PaginatedBookSeriesConnection extends Paginated(
-  BookSeriesConnection,
-) {}
-
-@ObjectType()
 export class BookSeriesRelatedBookConnection {
   @Field(() => ID)
   id!: ObjectId;
 }
 
 @ObjectType()
-export class PaginatedBookSeriesRelationalBookConnection extends Paginated(
+export class PaginatedBookSeriesConnection extends Paginated(
+  BookSeriesConnection,
+) {}
+
+@ObjectType()
+export class PaginatedBookSeriesRelatedBookConnection extends Paginated(
   BookSeriesRelatedBookConnection,
 ) {}

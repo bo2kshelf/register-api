@@ -3,7 +3,10 @@ import {MongooseModule} from '@nestjs/mongoose';
 import {Author, AuthorSchema} from '../authors/schema/author.schema';
 import {BooksResolver} from './books.resolver';
 import {BooksService} from './books.service';
-import {BookSeriesConnectionResolver} from './connection/series.connection.resolver';
+import {
+  BookSeriesConnectionResolver,
+  BookSeriesRelatedBookConnectionResolver,
+} from './connection/series.connection.resolver';
 import {Book, BookSchema} from './schema/book.schema';
 
 @Module({
@@ -13,7 +16,12 @@ import {Book, BookSchema} from './schema/book.schema';
       {name: Author.name, schema: AuthorSchema},
     ]),
   ],
-  providers: [BooksService, BooksResolver, BookSeriesConnectionResolver],
+  providers: [
+    BooksService,
+    BooksResolver,
+    BookSeriesConnectionResolver,
+    BookSeriesRelatedBookConnectionResolver,
+  ],
   exports: [BooksService],
 })
 export class BooksModule {}

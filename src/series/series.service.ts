@@ -86,7 +86,18 @@ export class SeriesService {
     );
   }
 
-  async relatedBooks(series: Series) {
-    return series.relatedBooks;
+  async relatedBooks(series: Series, args: RequiredPaginationArgs) {
+    const seriesId = this.id(series);
+    return getConnectionFromMongooseModel(
+      this.seriesModel,
+      args,
+      [{$match: {_id: seriesId}}, {$unwind: {path: '$relatedBooks'}}],
+      [
+        {$match: {_id: seriesId}},
+        {$unwind: {path: '$relatedBooks'}},
+        {$replaceRoot: {newRoot: '$relatedBooks'}},
+        {$sort: {serial: 1}},
+      ],
+    );
   }
 }
