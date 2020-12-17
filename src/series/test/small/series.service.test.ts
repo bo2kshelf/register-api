@@ -5,7 +5,6 @@ import {Model} from 'mongoose';
 import {Book} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {Series} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
@@ -143,6 +142,13 @@ describe('SeriesService', () => {
     });
 
     it('booksのrelatedBooksが重複していたら例外を投げる', async () => {
+      jest
+        .spyOn(bookModel, 'find')
+        .mockResolvedValue([
+          {_id: new ObjectId()} as Book,
+          {_id: new ObjectId()} as Book,
+        ]);
+
       const dupl = new ObjectId();
       await expect(() =>
         seriesService.create({
@@ -170,7 +176,7 @@ describe('SeriesService', () => {
           ],
           relatedBooks: [],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
     it('relatedBooksで一つでも取得不可能なものがあった場合例外を投げる', async () => {
@@ -184,7 +190,7 @@ describe('SeriesService', () => {
           books: [{id: new ObjectId(), serial: 1}],
           relatedBooks: [{id: new ObjectId()}, {id: new ObjectId()}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });

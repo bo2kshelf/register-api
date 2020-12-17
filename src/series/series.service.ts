@@ -8,7 +8,6 @@ import {
 } from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
 import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
-import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
 import {getConnectionFromMongooseModel} from '../paginate/paginate';
@@ -46,30 +45,37 @@ export class SeriesService {
     relatedBooks?: BookSeriesRelatedBookConnection[];
   }): Promise<Series> {
     checkIfNotArrayEmpty(books, 'books');
-    checkIfArrayUnique(
-      books.map(({id}) => id),
-      'books.id',
-    );
+
     checkIfArrayUnique(
       books.map(({serial}) => serial),
-      'books.id',
-    );
-    checkIfArrayUnique(
-      relatedBooks.map(({id}) => id),
-      'relatedBooks.id',
+      'books.serial',
     );
 
-    if (
-      (await this.bookModel.find({_id: books.map(({id}) => id)})).length !==
-      books.length
-    )
-      throw new MongooseNotExistError(Book.name, 'books');
+    const bookIds = books.map(({id}) => id);
+    checkIfArrayUnique(bookIds, 'books.id');
 
-    if (
-      (await this.bookModel.find({_id: relatedBooks.map(({id}) => id)}))
-        .length !== relatedBooks.length
-    )
-      throw new MongooseNotExistError(Book.name, 'relatedBooks');
+    const actualBookIds: ObjectId[] = (
+      await this.bookModel.find({_id: bookIds})
+    ).map(({id}) => id);
+    if (actualBookIds.length < bookIds.length)
+      throw new NoDocumentForObjectIdError(
+        Book.name,
+        bookIds.find((id) => !actualBookIds.includes(id))!,
+      );
+
+    if (relatedBooks.length > 0) {
+      const relatedBookIds = relatedBooks.map(({id}) => id);
+      checkIfArrayUnique(relatedBookIds, 'relatedBooks.id');
+
+      const actualrelatedBookIds: ObjectId[] = (
+        await this.bookModel.find({_id: relatedBookIds})
+      ).map(({_id}) => _id);
+      if (actualrelatedBookIds.length < relatedBooks.length)
+        throw new NoDocumentForObjectIdError(
+          Book.name,
+          relatedBookIds.find((id) => !actualrelatedBookIds.includes(id))!,
+        );
+    }
 
     return this.seriesModel.create({books, relatedBooks, ...data});
   }

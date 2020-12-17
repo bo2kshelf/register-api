@@ -6,7 +6,6 @@ import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
@@ -166,7 +165,7 @@ describe('SeriesService', () => {
           title: 'よふかしのうた',
           books: [{id: book1._id, serial: 1}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
     it('relatedBooksが欠落しても通る', async () => {
@@ -198,7 +197,7 @@ describe('SeriesService', () => {
           books: [{id: book1._id, serial: 1}],
           relatedBooks: [{id: book1._id}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });
