@@ -4,6 +4,6 @@ import base from './jest.base.config';
 const config: Config.InitialOptions = {
   ...base,
   collectCoverage: true,
-  testMatch: ['<rootDir>/**/test/unit/*.test.ts'],
+  testMatch: ['<rootDir>/**/test/small/*.test.ts'],
 };
 export default config;

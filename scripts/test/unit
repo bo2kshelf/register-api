@@ -1,5 +1,0 @@
-#!/usr/bin/env sh
-
-echo $@
-
-jest --config=test/jest.unit.config.ts $@
