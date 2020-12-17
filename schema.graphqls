@@ -45,10 +45,59 @@ type BookSeriesConnection {
   book: Book!
 }
 
+type BookSeriesRelatedBookConnection {
+  id: ID!
+}
+
+type BookSeriesConnectionAggregate {
+  count: Int!
+}
+
+type BookSeriesConnectionPageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  startCursor: String
+  endCursor: String
+}
+
+type BookSeriesConnectionEdgeType {
+  node: BookSeriesConnection!
+  cursor: String!
+}
+
+type PaginatedBookSeriesConnection {
+  aggregate: BookSeriesConnectionAggregate!
+  pageInfo: BookSeriesConnectionPageInfo!
+  edges: [BookSeriesConnectionEdgeType!]!
+}
+
+type BookSeriesRelatedBookConnectionAggregate {
+  count: Int!
+}
+
+type BookSeriesRelatedBookConnectionPageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  startCursor: String
+  endCursor: String
+}
+
+type BookSeriesRelatedBookConnectionEdgeType {
+  node: BookSeriesRelatedBookConnection!
+  cursor: String!
+}
+
+type PaginatedBookSeriesRelatedBookConnection {
+  aggregate: BookSeriesRelatedBookConnectionAggregate!
+  pageInfo: BookSeriesRelatedBookConnectionPageInfo!
+  edges: [BookSeriesRelatedBookConnectionEdgeType!]!
+}
+
 type Series {
   title: String!
   id: ID!
-  books: [BookSeriesConnection!]!
+  books(after: String, first: Int, before: String, last: Int): PaginatedBookSeriesConnection!
+  relatedBooks(after: String, first: Int, before: String, last: Int): PaginatedBookSeriesRelatedBookConnection!
 }
 
 type Query {
@@ -81,10 +130,14 @@ input CreateBookAuthorsInput {
 input CreateSeriesInput {
   title: String!
   books: [CreateSeriesBooksInput!]!
-  relatedBooks: [ID!]
+  relatedBooks: [CreateSeriesRelatedBooksInput!]
 }
 
 input CreateSeriesBooksInput {
   id: ID!
   serial: Float!
+}
+
+input CreateSeriesRelatedBooksInput {
+  id: ID!
 }
