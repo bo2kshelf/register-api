@@ -6,6 +6,8 @@ import {BookSeriesConnection} from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
 import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
+import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
+import {getConnectionFromMongooseModel} from '../paginate/paginate';
 import {isArrayUnique} from '../util';
 import {Series} from './schema/series.schema';
 
@@ -64,5 +66,24 @@ export class SeriesService {
       throw new MongooseNotExistError(Book.name, 'relatedBooks');
 
     return this.seriesModel.create({books, relatedBooks, ...data});
+  }
+
+  async books(series: Series, args: RequiredPaginationArgs) {
+    const seriesId = this.id(series);
+    return getConnectionFromMongooseModel(
+      this.seriesModel,
+      args,
+      [{$match: {_id: seriesId}}, {$unwind: {path: '$books'}}],
+      [
+        {$match: {_id: seriesId}},
+        {$unwind: {path: '$books'}},
+        {$replaceRoot: {newRoot: '$books'}},
+        {$sort: {serial: 1}},
+      ],
+    );
+  }
+
+  async relatedBooks(series: Series) {
+    return series.relatedBooks;
   }
 }
