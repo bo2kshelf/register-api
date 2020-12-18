@@ -4,7 +4,8 @@ import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
+import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
+import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
@@ -129,7 +130,7 @@ describe('SeriesService', () => {
           title: 'よふかしのうた',
           books: [],
         }),
-      ).rejects.toThrow(`The property "book" is empty`);
+      ).rejects.toThrow(EmptyArrayError);
     });
 
     it('booksのIDが重複している場合Error', async () => {
@@ -141,7 +142,7 @@ describe('SeriesService', () => {
             {id: book1._id, serial: 2},
           ],
         }),
-      ).rejects.toThrow(`Duplicate in the property "books"`);
+      ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
     it('booksのserialが重複している場合Error', async () => {
@@ -153,7 +154,7 @@ describe('SeriesService', () => {
             {id: book2._id, serial: 1},
           ],
         }),
-      ).rejects.toThrow(`Duplicate in the property "books"`);
+      ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
     it('idに結びついたbooksが存在しない場合はError', async () => {
@@ -164,7 +165,7 @@ describe('SeriesService', () => {
           title: 'よふかしのうた',
           books: [{id: book1._id, serial: 1}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
     it('relatedBooksが欠落しても通る', async () => {
@@ -184,7 +185,7 @@ describe('SeriesService', () => {
           books: [{id: book1._id, serial: 1}],
           relatedBooks: [{id: book1._id}, {id: book1._id}],
         }),
-      ).rejects.toThrow(`Duplicate in the property "relatedBooks"`);
+      ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
     it('idに結びついたrelatedBooksが存在しない場合はError', async () => {
@@ -196,7 +197,7 @@ describe('SeriesService', () => {
           books: [{id: book1._id, serial: 1}],
           relatedBooks: [{id: book1._id}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });

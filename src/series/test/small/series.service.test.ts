@@ -3,7 +3,8 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Book} from '../../../books/schema/book.schema';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
+import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
+import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {Series} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
@@ -110,7 +111,7 @@ describe('SeriesService', () => {
           books: [],
           relatedBooks: [],
         }),
-      ).rejects.toThrow(`The property "book" is empty`);
+      ).rejects.toThrow(EmptyArrayError);
     });
 
     it('booksのidが重複していたら例外を投げる', async () => {
@@ -124,7 +125,7 @@ describe('SeriesService', () => {
           ],
           relatedBooks: [],
         }),
-      ).rejects.toThrow(`Duplicate in the property "books"`);
+      ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
     it('booksのserialが重複していたら例外を投げる', async () => {
@@ -137,10 +138,17 @@ describe('SeriesService', () => {
           ],
           relatedBooks: [],
         }),
-      ).rejects.toThrow(`Duplicate in the property "books"`);
+      ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
     it('booksのrelatedBooksが重複していたら例外を投げる', async () => {
+      jest
+        .spyOn(bookModel, 'find')
+        .mockResolvedValue([
+          {_id: new ObjectId()} as Book,
+          {_id: new ObjectId()} as Book,
+        ]);
+
       const dupl = new ObjectId();
       await expect(() =>
         seriesService.create({
@@ -151,7 +159,7 @@ describe('SeriesService', () => {
           ],
           relatedBooks: [{id: dupl}, {id: dupl}],
         }),
-      ).rejects.toThrow(`Duplicate in the property "relatedBooks"`);
+      ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
     it('booksで一つでも取得不可能なものがあった場合例外を投げる', async () => {
@@ -168,7 +176,7 @@ describe('SeriesService', () => {
           ],
           relatedBooks: [],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
     it('relatedBooksで一つでも取得不可能なものがあった場合例外を投げる', async () => {
@@ -182,7 +190,7 @@ describe('SeriesService', () => {
           books: [{id: new ObjectId(), serial: 1}],
           relatedBooks: [{id: new ObjectId()}, {id: new ObjectId()}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });
