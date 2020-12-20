@@ -11,6 +11,7 @@ import {
   PaginatedBookSeriesConnection,
   PaginatedBookSeriesRelatedBookConnection,
 } from '../books/connection/series.connection';
+import {AppendBookToSeriesArgs} from './dto/append-book-to-series.args';
 import {CreateSeriesInput} from './dto/create-series.input';
 import {SeriesResolveBooksArgsType} from './dto/resolve-books.argstype';
 import {SeriesResolveRelatedBooksArgsType} from './dto/resolve-related-books.argstype';
@@ -59,5 +60,13 @@ export class SeriesResolver {
     data: CreateSeriesInput,
   ): Promise<Series> {
     return this.seriesService.create(data);
+  }
+
+  @Mutation(() => Series, {nullable: false})
+  async addBookToSeriesBooks(
+    @Args({type: () => AppendBookToSeriesArgs})
+    {seriesId, bookId, serial}: AppendBookToSeriesArgs,
+  ): Promise<Series> {
+    return this.seriesService.appendBookToSeriesBooks(seriesId, bookId, serial);
   }
 }
