@@ -3,6 +3,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
+import {BookSeriesConnection} from '../../../books/connection/series.connection';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
@@ -48,6 +49,7 @@ describe('SeriesService', () => {
     jest.clearAllMocks();
 
     await seriesModel.deleteMany({});
+    await bookModel.deleteMany({});
   });
 
   afterAll(async () => {
@@ -197,6 +199,98 @@ describe('SeriesService', () => {
           books: [{id: book1._id, serial: 1}],
           relatedBooks: [{id: book1._id}],
         }),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+  });
+
+  describe('getLastSerial()', () => {
+    it('booksが一件もない場合は1を返す', async () => {
+      const newSeries = await seriesModel.create({
+        title: 'よふかしのうた',
+        books: [],
+        relatedBooks: [],
+      });
+
+      expect(seriesService.getLastSerial(newSeries)).toBe(1);
+    });
+
+    it('booksがある場合は最後の要素のserialを返す', async () => {
+      const newSeries = await seriesModel.create({
+        title: 'よふかしのうた',
+        books: [
+          {id: new ObjectId(), serial: 1},
+          {id: new ObjectId(), serial: 2},
+          {id: new ObjectId(), serial: 1.5},
+        ],
+        relatedBooks: [],
+      });
+
+      expect(seriesService.getLastSerial(newSeries)).toBe(2);
+    });
+  });
+
+  describe('appendBookToSeriesBooks()', () => {
+    it('serialがある場合', async () => {
+      const newBook = await bookModel.create({} as Book);
+
+      const newSeries = await seriesModel.create({
+        books: [
+          {id: new ObjectId(), serial: 1},
+          {id: new ObjectId(), serial: 2},
+          {id: new ObjectId(), serial: 3},
+        ],
+      } as Series);
+
+      const actual = await seriesService.appendBookToSeriesBooks(
+        newSeries,
+        newBook._id,
+        2.5,
+      );
+
+      expect(actual.books[3].serial).toBe(2.5);
+    });
+
+    it('serialが無い場合，最後のserialに1を足した値として追加', async () => {
+      const newBook = await bookModel.create({} as Book);
+
+      const newSeries = await seriesModel.create({
+        books: [{id: new ObjectId(), serial: 1}],
+      } as Series);
+
+      const actual = await seriesService.appendBookToSeriesBooks(
+        newSeries,
+        newBook._id,
+      );
+
+      expect(actual.books[1].serial).toBe(2);
+    });
+
+    it('serialが無くかつ最後のserialが小数点の場合，切り捨てた値に1を足した値として追加', async () => {
+      const newBook = await bookModel.create({} as Book);
+
+      const newSeries = await seriesModel.create({
+        books: [{id: new ObjectId(), serial: 1.5}],
+      } as Series);
+
+      const actual = await seriesService.appendBookToSeriesBooks(
+        newSeries,
+        newBook._id,
+      );
+
+      expect(actual.books[1].serial).toBe(2);
+    });
+
+    it('存在しないbookのIdを入力すると例外を投げる', async () => {
+      const newBook = await bookModel.create({} as Book);
+      const newBookId = newBook._id;
+      await bookModel.deleteOne(newBook);
+
+      const newSeries = await seriesModel.create({
+        books: [] as BookSeriesConnection[],
+      } as Series);
+
+      await expect(() =>
+        seriesService.appendBookToSeriesBooks(newSeries, newBookId),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });

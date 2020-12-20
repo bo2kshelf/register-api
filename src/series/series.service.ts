@@ -109,4 +109,26 @@ export class SeriesService {
       ],
     );
   }
+
+  getLastSerial(series: Series) {
+    if (series.books.length === 0) return 1;
+    return series.books.sort(
+      ({serial: serialA}, {serial: serialB}) => serialB - serialA,
+    )[0].serial;
+  }
+
+  async appendBookToSeriesBooks(
+    series: Series,
+    bookId: ObjectId,
+    serial?: number,
+  ) {
+    if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
+      throw new NoDocumentForObjectIdError(Book.name, bookId);
+
+    series.books.push({
+      id: bookId,
+      serial: serial || Math.floor(this.getLastSerial(series)) + 1,
+    });
+    return series.save();
+  }
 }
