@@ -118,17 +118,22 @@ export class SeriesService {
   }
 
   async appendBookToSeriesBooks(
-    series: Series,
+    seriesId: ObjectId,
     bookId: ObjectId,
-    serial?: number,
+    serial: number,
   ) {
     if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
       throw new NoDocumentForObjectIdError(Book.name, bookId);
 
-    series.books.push({
-      id: bookId,
-      serial: serial || Math.floor(this.getLastSerial(series)) + 1,
-    });
-    return series.save();
+    return this.seriesModel
+      .findByIdAndUpdate(
+        seriesId,
+        {$push: {books: {id: bookId, serial}}},
+        {new: true},
+      )
+      .then((actual) => {
+        if (actual) return actual;
+        throw new NoDocumentForObjectIdError(Series.name, seriesId);
+      });
   }
 }

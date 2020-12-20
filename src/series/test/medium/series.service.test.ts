@@ -203,34 +203,8 @@ describe('SeriesService', () => {
     });
   });
 
-  describe('getLastSerial()', () => {
-    it('booksが一件もない場合は1を返す', async () => {
-      const newSeries = await seriesModel.create({
-        title: 'よふかしのうた',
-        books: [],
-        relatedBooks: [],
-      });
-
-      expect(seriesService.getLastSerial(newSeries)).toBe(1);
-    });
-
-    it('booksがある場合は最後の要素のserialを返す', async () => {
-      const newSeries = await seriesModel.create({
-        title: 'よふかしのうた',
-        books: [
-          {id: new ObjectId(), serial: 1},
-          {id: new ObjectId(), serial: 2},
-          {id: new ObjectId(), serial: 1.5},
-        ],
-        relatedBooks: [],
-      });
-
-      expect(seriesService.getLastSerial(newSeries)).toBe(2);
-    });
-  });
-
   describe('appendBookToSeriesBooks()', () => {
-    it('serialがある場合', async () => {
+    it('正常に追加する', async () => {
       const newBook = await bookModel.create({} as Book);
 
       const newSeries = await seriesModel.create({
@@ -241,56 +215,41 @@ describe('SeriesService', () => {
         ],
       } as Series);
 
-      const actual = await seriesService.appendBookToSeriesBooks(
-        newSeries,
+      const actual: Series = await seriesService.appendBookToSeriesBooks(
+        newSeries._id,
         newBook._id,
-        2.5,
+        4,
       );
-
-      expect(actual.books[3].serial).toBe(2.5);
-    });
-
-    it('serialが無い場合，最後のserialに1を足した値として追加', async () => {
-      const newBook = await bookModel.create({} as Book);
-
-      const newSeries = await seriesModel.create({
-        books: [{id: new ObjectId(), serial: 1}],
-      } as Series);
-
-      const actual = await seriesService.appendBookToSeriesBooks(
-        newSeries,
-        newBook._id,
-      );
-
-      expect(actual.books[1].serial).toBe(2);
-    });
-
-    it('serialが無くかつ最後のserialが小数点の場合，切り捨てた値に1を足した値として追加', async () => {
-      const newBook = await bookModel.create({} as Book);
-
-      const newSeries = await seriesModel.create({
-        books: [{id: new ObjectId(), serial: 1.5}],
-      } as Series);
-
-      const actual = await seriesService.appendBookToSeriesBooks(
-        newSeries,
-        newBook._id,
-      );
-
-      expect(actual.books[1].serial).toBe(2);
+      expect(actual).toBeDefined();
+      expect(actual.books).toHaveLength(4);
     });
 
     it('存在しないbookのIdを入力すると例外を投げる', async () => {
       const newBook = await bookModel.create({} as Book);
       const newBookId = newBook._id;
-      await bookModel.deleteOne(newBook);
+      await newBook.deleteOne();
 
       const newSeries = await seriesModel.create({
         books: [] as BookSeriesConnection[],
       } as Series);
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(newSeries, newBookId),
+        seriesService.appendBookToSeriesBooks(newSeries._id, newBookId, 1),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    it('存在しないseriesのIdを入力すると例外を投げる', async () => {
+      const newBook = await bookModel.create({} as Book);
+      const newBookId = newBook._id;
+
+      const newSeries = await seriesModel.create({
+        books: [] as BookSeriesConnection[],
+      } as Series);
+      const newSeriesId = newSeries._id;
+      await newSeries.deleteOne();
+
+      await expect(() =>
+        seriesService.appendBookToSeriesBooks(newSeriesId, newBookId, 1),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });

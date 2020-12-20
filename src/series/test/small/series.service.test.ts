@@ -26,7 +26,7 @@ describe('SeriesService', () => {
           useValue: {
             async findById() {},
             async create() {},
-            async save() {},
+            async findByIdAndUpdate() {},
           },
         },
         {
@@ -219,56 +219,31 @@ describe('SeriesService', () => {
   });
 
   describe('appendBookToSeriesBooks()', () => {
-    it('serialがある場合', async () => {
+    it('正常に動作する', async () => {
       const series: Series = {
         books: [
           {serial: 1} as BookSeriesConnection,
           {serial: 2} as BookSeriesConnection,
           {serial: 3} as BookSeriesConnection,
         ] as BookSeriesConnection[],
-        save() {},
       } as Series;
 
       jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
 
-      const mockedSave = jest.spyOn(series, 'save');
+      const mockedFn = jest
+        .spyOn(seriesModel, 'findByIdAndUpdate')
+        .mockResolvedValueOnce({
+          ...series,
+          books: [...series.books, {serial: 2.5} as BookSeriesConnection],
+        } as Series);
 
-      await seriesService.appendBookToSeriesBooks(series, new ObjectId(), 2.5);
+      await seriesService.appendBookToSeriesBooks(
+        series._id,
+        new ObjectId(),
+        2.5,
+      );
 
-      expect(mockedSave).toHaveBeenCalled();
-      expect(series.books[3].serial).toBe(2.5);
-    });
-
-    it('serialが無い場合，最後のserialに1を足した値として追加', async () => {
-      const series: Series = {
-        books: [{serial: 1} as BookSeriesConnection],
-        save() {},
-      } as Series;
-
-      jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
-
-      const mockedSave = jest.spyOn(series, 'save');
-
-      await seriesService.appendBookToSeriesBooks(series, new ObjectId());
-
-      expect(mockedSave).toHaveBeenCalled();
-      expect(series.books[1].serial).toBe(2);
-    });
-
-    it('serialが無くかつ最後のserialが小数点の場合，切り捨てた値に1を足した値として追加', async () => {
-      const series: Series = {
-        books: [{serial: 1.5} as BookSeriesConnection],
-        save() {},
-      } as Series;
-
-      jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
-
-      const mockedSave = jest.spyOn(series, 'save');
-
-      await seriesService.appendBookToSeriesBooks(series, new ObjectId());
-
-      expect(mockedSave).toHaveBeenCalled();
-      expect(series.books[1].serial).toBe(2);
+      expect(mockedFn).toHaveBeenCalled();
     });
 
     it('存在しないbookのIdを入力すると例外を投げる', async () => {
@@ -276,8 +251,22 @@ describe('SeriesService', () => {
 
       await expect(() =>
         seriesService.appendBookToSeriesBooks(
-          {books: [] as BookSeriesConnection[]} as Series,
           new ObjectId(),
+          new ObjectId(),
+          1,
+        ),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    it('存在しないseriesのIdを入力すると例外を投げる', async () => {
+      jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
+      jest.spyOn(seriesModel, 'findByIdAndUpdate').mockResolvedValue(null);
+
+      await expect(() =>
+        seriesService.appendBookToSeriesBooks(
+          new ObjectId(),
+          new ObjectId(),
+          1,
         ),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
