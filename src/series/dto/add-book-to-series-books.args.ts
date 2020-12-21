@@ -3,7 +3,7 @@ import {IsPositive} from 'class-validator';
 import {ObjectId} from 'mongodb';
 
 @ArgsType()
-export class AppendBookToSeriesArgs {
+export class AddBookToSeriesBooksArgs {
   @Field(() => ObjectId)
   seriesId!: ObjectId;
 

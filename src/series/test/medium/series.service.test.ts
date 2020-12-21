@@ -206,7 +206,7 @@ describe('SeriesService', () => {
     });
   });
 
-  describe('appendBookToSeriesBooks()', () => {
+  describe('addBookToBooks()', () => {
     it('正常に追加する', async () => {
       const newBook = await bookModel.create({} as Book);
 
@@ -218,7 +218,7 @@ describe('SeriesService', () => {
         ],
       } as Series);
 
-      const actual: Series = await seriesService.appendBookToSeriesBooks(
+      const actual: Series = await seriesService.addBookToBooks(
         newSeries._id,
         newBook._id,
         4,
@@ -237,7 +237,7 @@ describe('SeriesService', () => {
       } as Series);
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(newSeries._id, newBookId, 1),
+        seriesService.addBookToBooks(newSeries._id, newBookId, 1),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
@@ -252,7 +252,7 @@ describe('SeriesService', () => {
       await newSeries.deleteOne();
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(newSeriesId, newBookId, 1),
+        seriesService.addBookToBooks(newSeriesId, newBookId, 1),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
@@ -268,7 +268,7 @@ describe('SeriesService', () => {
       } as Series);
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(newSeries._id, eixstBook._id, 4),
+        seriesService.addBookToBooks(newSeries._id, eixstBook._id, 4),
       ).rejects.toThrow(
         `Already exists serial 4 or book ${eixstBook._id.toHexString()} in series ${newSeries._id.toHexString()}.`,
       );
@@ -286,14 +286,14 @@ describe('SeriesService', () => {
       } as Series);
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(newSeries._id, newBook._id, 1),
+        seriesService.addBookToBooks(newSeries._id, newBook._id, 1),
       ).rejects.toThrow(
         `Already exists serial 1 or book ${newBook._id.toHexString()} in series ${newSeries._id.toHexString()}.`,
       );
     });
   });
 
-  describe('appendBookToRelatedBooks()', () => {
+  describe('addBookToRelatedBooks()', () => {
     it('正常に追加する', async () => {
       const newBook = await bookModel.create({} as Book);
 
@@ -305,7 +305,7 @@ describe('SeriesService', () => {
         ],
       } as Series);
 
-      const actual: Series = await seriesService.appendBookToRelatedBooks(
+      const actual: Series = await seriesService.addBookToRelatedBooks(
         newSeries._id,
         newBook._id,
       );
@@ -323,7 +323,7 @@ describe('SeriesService', () => {
       } as Series);
 
       await expect(() =>
-        seriesService.appendBookToRelatedBooks(newSeries._id, newBookId),
+        seriesService.addBookToRelatedBooks(newSeries._id, newBookId),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
@@ -338,7 +338,7 @@ describe('SeriesService', () => {
       await newSeries.deleteOne();
 
       await expect(() =>
-        seriesService.appendBookToRelatedBooks(newSeriesId, newBookId),
+        seriesService.addBookToRelatedBooks(newSeriesId, newBookId),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
@@ -354,7 +354,7 @@ describe('SeriesService', () => {
       } as Series);
 
       await expect(() =>
-        seriesService.appendBookToRelatedBooks(newSeries._id, eixstBook._id),
+        seriesService.addBookToRelatedBooks(newSeries._id, eixstBook._id),
       ).rejects.toThrow(
         `Already exists book ${eixstBook._id.toHexString()} in series ${newSeries._id.toHexString()}.`,
       );

@@ -117,11 +117,7 @@ export class SeriesService {
     )[0].serial;
   }
 
-  async appendBookToSeriesBooks(
-    seriesId: ObjectId,
-    bookId: ObjectId,
-    serial: number,
-  ) {
+  async addBookToBooks(seriesId: ObjectId, bookId: ObjectId, serial: number) {
     if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
       throw new NoDocumentForObjectIdError(Book.name, bookId);
 
@@ -149,7 +145,7 @@ export class SeriesService {
       });
   }
 
-  async appendBookToRelatedBooks(seriesId: ObjectId, bookId: ObjectId) {
+  async addBookToRelatedBooks(seriesId: ObjectId, bookId: ObjectId) {
     if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
       throw new NoDocumentForObjectIdError(Book.name, bookId);
 

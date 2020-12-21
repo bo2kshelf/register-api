@@ -222,7 +222,7 @@ describe('SeriesService', () => {
     });
   });
 
-  describe('appendBookToSeriesBooks()', () => {
+  describe('addBookToBooks()', () => {
     it('正常に動作する', async () => {
       const series: Series = {
         books: [
@@ -242,11 +242,7 @@ describe('SeriesService', () => {
           books: [...series.books, {serial: 2.5} as BookSeriesConnection],
         } as Series);
 
-      await seriesService.appendBookToSeriesBooks(
-        series._id,
-        new ObjectId(),
-        2.5,
-      );
+      await seriesService.addBookToBooks(series._id, new ObjectId(), 2.5);
 
       expect(mockedFn).toHaveBeenCalled();
     });
@@ -256,11 +252,7 @@ describe('SeriesService', () => {
       jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce(null);
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(
-          new ObjectId(),
-          new ObjectId(),
-          1,
-        ),
+        seriesService.addBookToBooks(new ObjectId(), new ObjectId(), 1),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
@@ -270,11 +262,7 @@ describe('SeriesService', () => {
       jest.spyOn(seriesModel, 'findByIdAndUpdate').mockResolvedValue(null);
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(
-          new ObjectId(),
-          new ObjectId(),
-          1,
-        ),
+        seriesService.addBookToBooks(new ObjectId(), new ObjectId(), 1),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
@@ -288,7 +276,7 @@ describe('SeriesService', () => {
       const seriesId = new ObjectId();
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(seriesId, bookId, 2),
+        seriesService.addBookToBooks(seriesId, bookId, 2),
       ).rejects.toThrow(
         `Already exists serial 2 or book ${bookId} in series ${seriesId}.`,
       );
@@ -304,14 +292,14 @@ describe('SeriesService', () => {
       const seriesId = new ObjectId();
 
       await expect(() =>
-        seriesService.appendBookToSeriesBooks(seriesId, bookId, 2),
+        seriesService.addBookToBooks(seriesId, bookId, 2),
       ).rejects.toThrow(
         `Already exists serial 2 or book ${bookId} in series ${seriesId}.`,
       );
     });
   });
 
-  describe('appendBookToRelatedBooks()', () => {
+  describe('addBookToRelatedBooks()', () => {
     it('正常に動作する', async () => {
       const series: Series = {
         relatedBooks: [
@@ -334,7 +322,7 @@ describe('SeriesService', () => {
           ],
         } as Series);
 
-      await seriesService.appendBookToRelatedBooks(series._id, new ObjectId());
+      await seriesService.addBookToRelatedBooks(series._id, new ObjectId());
 
       expect(mockedFn).toHaveBeenCalled();
     });
@@ -344,7 +332,7 @@ describe('SeriesService', () => {
       jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce(null);
 
       await expect(() =>
-        seriesService.appendBookToRelatedBooks(new ObjectId(), new ObjectId()),
+        seriesService.addBookToRelatedBooks(new ObjectId(), new ObjectId()),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
@@ -358,7 +346,7 @@ describe('SeriesService', () => {
       const seriesId = new ObjectId();
 
       await expect(() =>
-        seriesService.appendBookToRelatedBooks(seriesId, bookId),
+        seriesService.addBookToRelatedBooks(seriesId, bookId),
       ).rejects.toThrow(`Already exists book ${bookId} in series ${seriesId}.`);
     });
   });
