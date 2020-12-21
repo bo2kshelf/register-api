@@ -3,7 +3,10 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {BookSeriesConnection} from '../../../books/connection/series.connection';
+import {
+  BookSeriesConnection,
+  BookSeriesRelatedBookConnection,
+} from '../../../books/connection/series.connection';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
@@ -286,6 +289,74 @@ describe('SeriesService', () => {
         seriesService.appendBookToSeriesBooks(newSeries._id, newBook._id, 1),
       ).rejects.toThrow(
         `Already exists serial 1 or book ${newBook._id.toHexString()} in series ${newSeries._id.toHexString()}.`,
+      );
+    });
+  });
+
+  describe('appendBookToRelatedBooks()', () => {
+    it('正常に追加する', async () => {
+      const newBook = await bookModel.create({} as Book);
+
+      const newSeries = await seriesModel.create({
+        relatedBooks: [
+          {id: new ObjectId()},
+          {id: new ObjectId()},
+          {id: new ObjectId()},
+        ],
+      } as Series);
+
+      const actual: Series = await seriesService.appendBookToRelatedBooks(
+        newSeries._id,
+        newBook._id,
+      );
+      expect(actual).toBeDefined();
+      expect(actual.relatedBooks).toHaveLength(4);
+    });
+
+    it('存在しないbookのIdを入力すると例外を投げる', async () => {
+      const newBook = await bookModel.create({} as Book);
+      const newBookId = newBook._id;
+      await newBook.deleteOne();
+
+      const newSeries = await seriesModel.create({
+        relatedBooks: [] as BookSeriesRelatedBookConnection[],
+      } as Series);
+
+      await expect(() =>
+        seriesService.appendBookToRelatedBooks(newSeries._id, newBookId),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    it('存在しないseriesのIdを入力すると例外を投げる', async () => {
+      const newBook = await bookModel.create({} as Book);
+      const newBookId = newBook._id;
+
+      const newSeries = await seriesModel.create({
+        relatedBooks: [] as BookSeriesRelatedBookConnection[],
+      } as Series);
+      const newSeriesId = newSeries._id;
+      await newSeries.deleteOne();
+
+      await expect(() =>
+        seriesService.appendBookToRelatedBooks(newSeriesId, newBookId),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    it('bookが重複していると例外を投げる', async () => {
+      const eixstBook = await bookModel.create({} as Book);
+
+      const newSeries = await seriesModel.create({
+        relatedBooks: [
+          {id: new ObjectId()},
+          {id: new ObjectId()},
+          {id: eixstBook._id},
+        ],
+      } as Series);
+
+      await expect(() =>
+        seriesService.appendBookToRelatedBooks(newSeries._id, eixstBook._id),
+      ).rejects.toThrow(
+        `Already exists book ${eixstBook._id.toHexString()} in series ${newSeries._id.toHexString()}.`,
       );
     });
   });

@@ -148,4 +148,32 @@ export class SeriesService {
         throw new NoDocumentForObjectIdError(Series.name, seriesId);
       });
   }
+
+  async appendBookToRelatedBooks(seriesId: ObjectId, bookId: ObjectId) {
+    if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
+      throw new NoDocumentForObjectIdError(Book.name, bookId);
+
+    if (
+      await this.seriesModel
+        .findOne({
+          _id: seriesId,
+          'relatedBooks.id': bookId,
+        })
+        .then(Boolean)
+    )
+      throw new Error(
+        `Already exists book ${bookId.toHexString()} in series ${seriesId.toHexString()}.`,
+      );
+
+    return this.seriesModel
+      .findByIdAndUpdate(
+        seriesId,
+        {$push: {relatedBooks: {id: bookId}}},
+        {new: true},
+      )
+      .then((actual) => {
+        if (actual) return actual;
+        throw new NoDocumentForObjectIdError(Series.name, seriesId);
+      });
+  }
 }

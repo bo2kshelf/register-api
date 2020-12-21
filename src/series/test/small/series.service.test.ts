@@ -2,7 +2,10 @@ import {getModelToken} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {BookSeriesConnection} from '../../../books/connection/series.connection';
+import {
+  BookSeriesConnection,
+  BookSeriesRelatedBookConnection,
+} from '../../../books/connection/series.connection';
 import {Book} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
@@ -305,6 +308,58 @@ describe('SeriesService', () => {
       ).rejects.toThrow(
         `Already exists serial 2 or book ${bookId} in series ${seriesId}.`,
       );
+    });
+  });
+
+  describe('appendBookToRelatedBooks()', () => {
+    it('正常に動作する', async () => {
+      const series: Series = {
+        relatedBooks: [
+          {} as BookSeriesRelatedBookConnection,
+          {} as BookSeriesRelatedBookConnection,
+          {} as BookSeriesRelatedBookConnection,
+        ] as BookSeriesRelatedBookConnection[],
+      } as Series;
+
+      jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
+      jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce(null);
+
+      const mockedFn = jest
+        .spyOn(seriesModel, 'findByIdAndUpdate')
+        .mockResolvedValueOnce({
+          ...series,
+          relatedBooks: [
+            ...series.relatedBooks,
+            {} as BookSeriesRelatedBookConnection,
+          ],
+        } as Series);
+
+      await seriesService.appendBookToRelatedBooks(series._id, new ObjectId());
+
+      expect(mockedFn).toHaveBeenCalled();
+    });
+
+    it('存在しないbookのIdを入力すると例外を投げる', async () => {
+      jest.spyOn(bookModel, 'findById').mockResolvedValue(null);
+      jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce(null);
+
+      await expect(() =>
+        seriesService.appendBookToRelatedBooks(new ObjectId(), new ObjectId()),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    it('bookが重複していると例外を投げる', async () => {
+      const bookId = new ObjectId();
+      jest
+        .spyOn(bookModel, 'findById')
+        .mockResolvedValueOnce({_id: bookId} as Book);
+      jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce({} as Series);
+
+      const seriesId = new ObjectId();
+
+      await expect(() =>
+        seriesService.appendBookToRelatedBooks(seriesId, bookId),
+      ).rejects.toThrow(`Already exists book ${bookId} in series ${seriesId}.`);
     });
   });
 });
