@@ -113,6 +113,7 @@ type Mutation {
   createAuthor(data: CreateAuthorInput!): Author!
   createBook(data: CreateBookInput!): Book!
   createSeries(data: CreateSeriesInput!): Series!
+  addBookToSeriesBooks(seriesId: ObjectId!, bookId: ObjectId!, serial: Float!): Series!
 }
 
 input CreateAuthorInput {
