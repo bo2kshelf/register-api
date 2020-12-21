@@ -109,4 +109,67 @@ export class SeriesService {
       ],
     );
   }
+
+  getLastSerial(series: Series) {
+    if (series.books.length === 0) return 1;
+    return series.books.sort(
+      ({serial: serialA}, {serial: serialB}) => serialB - serialA,
+    )[0].serial;
+  }
+
+  async addBookToBooks(seriesId: ObjectId, bookId: ObjectId, serial: number) {
+    if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
+      throw new NoDocumentForObjectIdError(Book.name, bookId);
+
+    if (
+      await this.seriesModel
+        .findOne({
+          _id: seriesId,
+          $or: [{'books.serial': serial}, {'books.id': bookId}],
+        })
+        .then(Boolean)
+    )
+      throw new Error(
+        `Already exists serial ${serial} or book ${bookId.toHexString()} in series ${seriesId.toHexString()}.`,
+      );
+
+    return this.seriesModel
+      .findByIdAndUpdate(
+        seriesId,
+        {$push: {books: {id: bookId, serial}}},
+        {new: true},
+      )
+      .then((actual) => {
+        if (actual) return actual;
+        throw new NoDocumentForObjectIdError(Series.name, seriesId);
+      });
+  }
+
+  async addBookToRelatedBooks(seriesId: ObjectId, bookId: ObjectId) {
+    if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
+      throw new NoDocumentForObjectIdError(Book.name, bookId);
+
+    if (
+      await this.seriesModel
+        .findOne({
+          _id: seriesId,
+          'relatedBooks.id': bookId,
+        })
+        .then(Boolean)
+    )
+      throw new Error(
+        `Already exists book ${bookId.toHexString()} in series ${seriesId.toHexString()}.`,
+      );
+
+    return this.seriesModel
+      .findByIdAndUpdate(
+        seriesId,
+        {$push: {relatedBooks: {id: bookId}}},
+        {new: true},
+      )
+      .then((actual) => {
+        if (actual) return actual;
+        throw new NoDocumentForObjectIdError(Series.name, seriesId);
+      });
+  }
 }
