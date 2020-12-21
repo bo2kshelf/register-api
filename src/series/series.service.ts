@@ -125,6 +125,18 @@ export class SeriesService {
     if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
       throw new NoDocumentForObjectIdError(Book.name, bookId);
 
+    if (
+      await this.seriesModel
+        .findOne({
+          _id: seriesId,
+          $or: [{'books.serial': serial}, {'books.id': bookId}],
+        })
+        .then(Boolean)
+    )
+      throw new Error(
+        `Already exists serial ${serial} or book ${bookId.toHexString()} in series ${seriesId.toHexString()}.`,
+      );
+
     return this.seriesModel
       .findByIdAndUpdate(
         seriesId,

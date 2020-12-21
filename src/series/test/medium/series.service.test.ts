@@ -252,5 +252,41 @@ describe('SeriesService', () => {
         seriesService.appendBookToSeriesBooks(newSeriesId, newBookId, 1),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
+
+    it('bookが重複していると例外を投げる', async () => {
+      const eixstBook = await bookModel.create({} as Book);
+
+      const newSeries = await seriesModel.create({
+        books: [
+          {id: new ObjectId(), serial: 1},
+          {id: new ObjectId(), serial: 2},
+          {id: eixstBook._id, serial: 3},
+        ],
+      } as Series);
+
+      await expect(() =>
+        seriesService.appendBookToSeriesBooks(newSeries._id, eixstBook._id, 4),
+      ).rejects.toThrow(
+        `Already exists serial 4 or book ${eixstBook._id.toHexString()} in series ${newSeries._id.toHexString()}.`,
+      );
+    });
+
+    it('serialが重複していると例外を投げる', async () => {
+      const newBook = await bookModel.create({} as Book);
+
+      const newSeries = await seriesModel.create({
+        books: [
+          {id: new ObjectId(), serial: 1},
+          {id: new ObjectId(), serial: 2},
+          {id: new ObjectId(), serial: 3},
+        ],
+      } as Series);
+
+      await expect(() =>
+        seriesService.appendBookToSeriesBooks(newSeries._id, newBook._id, 1),
+      ).rejects.toThrow(
+        `Already exists serial 1 or book ${newBook._id.toHexString()} in series ${newSeries._id.toHexString()}.`,
+      );
+    });
   });
 });
