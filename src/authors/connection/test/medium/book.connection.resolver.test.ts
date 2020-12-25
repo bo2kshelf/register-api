@@ -6,7 +6,7 @@ import {Model} from 'mongoose';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {AuthorsService} from '../../../authors.service';
 import {Author, AuthorSchema} from '../../../schema/author.schema';
-import {AuthorBookConnectionResolver} from '../../book.connection.resolver';
+import {BookAuthorsConnectionResolver} from '../../book.connection.resolver';
 
 describe('AuthorBookConnectionResolver', () => {
   let mongoServer: MongoMemoryServer;
@@ -17,7 +17,7 @@ describe('AuthorBookConnectionResolver', () => {
 
   let authorService: AuthorsService;
 
-  let connectionResolver: AuthorBookConnectionResolver;
+  let connectionResolver: BookAuthorsConnectionResolver;
 
   beforeAll(async () => {
     mongoServer = new MongoMemoryServer();
@@ -36,15 +36,15 @@ describe('AuthorBookConnectionResolver', () => {
           provide: AuthorsService,
           useValue: {getById() {}},
         },
-        AuthorBookConnectionResolver,
+        BookAuthorsConnectionResolver,
       ],
     }).compile();
 
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
 
     authorService = module.get<AuthorsService>(AuthorsService);
-    connectionResolver = module.get<AuthorBookConnectionResolver>(
-      AuthorBookConnectionResolver,
+    connectionResolver = module.get<BookAuthorsConnectionResolver>(
+      BookAuthorsConnectionResolver,
     );
   });
 

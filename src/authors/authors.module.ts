@@ -3,7 +3,7 @@ import {MongooseModule} from '@nestjs/mongoose';
 import {PaginateModule} from '../paginate/paginate.module';
 import {AuthorsResolver} from './authors.resolver';
 import {AuthorsService} from './authors.service';
-import {AuthorBookConnectionResolver} from './connection/book.connection.resolver';
+import {BookAuthorsConnectionResolver} from './connection/book.connection.resolver';
 import {Author, AuthorSchema} from './schema/author.schema';
 
 @Module({
@@ -11,7 +11,7 @@ import {Author, AuthorSchema} from './schema/author.schema';
     MongooseModule.forFeature([{name: Author.name, schema: AuthorSchema}]),
     PaginateModule,
   ],
-  providers: [AuthorsService, AuthorsResolver, AuthorBookConnectionResolver],
+  providers: [AuthorsService, AuthorsResolver, BookAuthorsConnectionResolver],
   exports: [AuthorsService],
 })
 export class AuthorsModule {}

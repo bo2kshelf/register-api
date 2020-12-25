@@ -9,7 +9,7 @@ import {
   ResolveReference,
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
-import {AuthorBookConnection} from '../authors/connection/book.connection';
+import {BookAuthorsConnection} from '../authors/connection/book.connection';
 import {BooksService} from './books.service';
 import {CreateBookInput} from './dto/create-book.input';
 import {Book} from './schema/book.schema';
@@ -28,7 +28,7 @@ export class BooksResolver {
     return this.bookService.id(book);
   }
 
-  @ResolveField(() => [AuthorBookConnection])
+  @ResolveField(() => [BookAuthorsConnection])
   async authors(@Parent() book: Book) {
     return book.authors;
   }
