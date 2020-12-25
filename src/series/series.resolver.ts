@@ -1,5 +1,6 @@
 import {
   Args,
+  ID,
   Mutation,
   Parent,
   Query,
@@ -25,13 +26,11 @@ export class SeriesResolver {
   constructor(private seriesService: SeriesService) {}
 
   @Query(() => Series, {nullable: false})
-  async series(
-    @Args('id', {type: () => ObjectId}) id: ObjectId,
-  ): Promise<Series> {
+  async series(@Args('id', {type: () => ID}) id: ObjectId): Promise<Series> {
     return this.seriesService.getById(id);
   }
 
-  @ResolveField(() => ObjectId)
+  @ResolveField(() => ID)
   id(@Parent() series: Series): ObjectId {
     return this.seriesService.id(series);
   }

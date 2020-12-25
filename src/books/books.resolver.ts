@@ -1,5 +1,6 @@
 import {
   Args,
+  ID,
   Mutation,
   Parent,
   Query,
@@ -18,11 +19,11 @@ export class BooksResolver {
   constructor(private bookService: BooksService) {}
 
   @Query(() => Book, {nullable: false})
-  async book(@Args('id', {type: () => ObjectId}) id: ObjectId): Promise<Book> {
+  async book(@Args('id', {type: () => ID}) id: ObjectId): Promise<Book> {
     return this.bookService.getById(id);
   }
 
-  @ResolveField(() => ObjectId)
+  @ResolveField(() => ID)
   id(@Parent() book: Book): ObjectId {
     return this.bookService.id(book);
   }
