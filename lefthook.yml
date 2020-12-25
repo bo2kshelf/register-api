@@ -27,7 +27,7 @@ pre-commit:
     validate-codecov:
       files: git diff --name-only --staged
       glob: 'codecov.yml'
-      run: cat codecov.yml | curl --data-binary @- https://codecov.io/validate
+      run: yarn run lint:codecov
     validate-renovate:
       files: git diff --name-only --staged
       glob: '.renovaterc'
