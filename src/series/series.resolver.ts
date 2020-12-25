@@ -40,9 +40,9 @@ export class SeriesResolver {
     @Parent() series: Series,
 
     @Args({type: () => SeriesResolveBooksArgsType})
-    args: SeriesResolveBooksArgsType,
+    {orderBy, ...args}: SeriesResolveBooksArgsType,
   ) {
-    return this.seriesService.books(series, args);
+    return this.seriesService.books(series, args, orderBy);
   }
 
   @ResolveField(() => PaginatedBookSeriesRelatedBookConnection)
