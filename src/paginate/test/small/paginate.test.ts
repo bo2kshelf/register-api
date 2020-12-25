@@ -30,7 +30,7 @@ describe('PaginateService', () => {
         }),
       ).toStrictEqual({
         limit: 20,
-        offset: 0,
+        skip: 0,
       });
     });
     it('afterがあるforwardの場合', () => {
@@ -42,7 +42,7 @@ describe('PaginateService', () => {
         }),
       ).toStrictEqual({
         limit: 20,
-        offset: 11,
+        skip: 11,
       });
     });
 
@@ -55,7 +55,7 @@ describe('PaginateService', () => {
         }),
       ).toStrictEqual({
         limit: 15,
-        offset: 0,
+        skip: 0,
       });
     });
 
@@ -68,7 +68,7 @@ describe('PaginateService', () => {
         }),
       ).toStrictEqual({
         limit: 20,
-        offset: 10,
+        skip: 10,
       });
     });
 
