@@ -2,7 +2,6 @@
   "scripts": {
     "order": [
       "build",
-      "generate-sdl",
       "dev",
       "debug",
       "start",

@@ -4,7 +4,6 @@
   "scripts": {
     "prebuild": "run-s clean",
     "build": "nest build",
-    "generate-sdl": "ts-node src/generate-graphql-sdl.ts",
     "dev": "nest start --watch",
     "debug": "nest start --watch --debug ",
     "start": "nest start",
