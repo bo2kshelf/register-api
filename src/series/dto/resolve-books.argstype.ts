@@ -1,11 +1,11 @@
 import {ArgsType, Field, InputType} from '@nestjs/graphql';
 import {RequiredPaginationArgs} from '../../paginate/dto/required-pagination.argstype';
-import {OrderByDirection} from '../../paginate/enum/order-by-direction.enum';
+import {OrderDirection} from '../../paginate/enum/order-direction.enum';
 
 @InputType('SerialResolveBooksOrder')
 export class SerialResolveBooksOrderInput {
-  @Field((_type) => OrderByDirection, {nullable: true})
-  serial?: OrderByDirection;
+  @Field((_type) => OrderDirection, {nullable: true})
+  serial?: OrderDirection;
 }
 
 @ArgsType()

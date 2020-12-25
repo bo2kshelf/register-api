@@ -10,7 +10,7 @@ import {Book} from '../books/schema/book.schema';
 import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
-import {OrderByDirection} from '../paginate/enum/order-by-direction.enum';
+import {OrderDirection} from '../paginate/enum/order-direction.enum';
 import {PaginateService} from '../paginate/paginate.service';
 import {Series} from './schema/series.schema';
 
@@ -86,7 +86,7 @@ export class SeriesService {
   async books(
     series: Series,
     args: RequiredPaginationArgs,
-    orderBy?: {serial?: OrderByDirection},
+    orderBy?: {serial?: OrderDirection},
   ) {
     const seriesId = this.id(series);
     return this.paginateService.getConnectionFromMongooseModel(
@@ -97,7 +97,7 @@ export class SeriesService {
         {$match: {_id: seriesId}},
         {$unwind: {path: '$books'}},
         {$replaceRoot: {newRoot: '$books'}},
-        {$sort: {serial: orderBy?.serial?.valueOf() || OrderByDirection.ASC}},
+        {$sort: {serial: orderBy?.serial?.valueOf() || OrderDirection.ASC}},
       ],
     );
   }
