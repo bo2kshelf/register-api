@@ -5,6 +5,7 @@ import {
   Query,
   ResolveField,
   Resolver,
+  ResolveReference,
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
 import {
@@ -53,6 +54,11 @@ export class SeriesResolver {
     args: SeriesResolveRelatedBooksArgsType,
   ) {
     return this.seriesService.relatedBooks(series, args);
+  }
+
+  @ResolveReference()
+  resolveReference(reference: {__typename: string; id: ObjectId}) {
+    return this.series(reference.id);
   }
 
   @Mutation(() => Series, {nullable: false})

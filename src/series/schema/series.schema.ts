@@ -1,4 +1,4 @@
-import {Field, ObjectType} from '@nestjs/graphql';
+import {Directive, Field, ObjectType} from '@nestjs/graphql';
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import {Document} from 'mongoose';
 import {
@@ -8,6 +8,7 @@ import {
 
 @Schema()
 @ObjectType()
+@Directive('@key(fields: "id")')
 export class Series extends Document {
   @Prop()
   @Field(() => String)

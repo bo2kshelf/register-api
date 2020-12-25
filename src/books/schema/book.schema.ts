@@ -1,10 +1,11 @@
-import {Field, ObjectType} from '@nestjs/graphql';
+import {Directive, Field, ObjectType} from '@nestjs/graphql';
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Document} from 'mongoose';
 
 @Schema()
 @ObjectType()
+@Directive('@key(fields: "id")')
 export class Book extends Document {
   @Prop()
   @Field(() => String)

@@ -1,6 +1,6 @@
 import {Module} from '@nestjs/common';
 import {ConfigModule} from '@nestjs/config';
-import {GraphQLModule} from '@nestjs/graphql';
+import {GraphQLFederationModule} from '@nestjs/graphql';
 import {MongooseModule} from '@nestjs/mongoose';
 import {AuthorsModule} from './authors/authors.module';
 import {BooksModule} from './books/books.module';
@@ -10,7 +10,7 @@ import {SeriesModule} from './series/series.module';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot({
+    GraphQLFederationModule.forRoot({
       autoSchemaFile: true,
       context: ({req}) => ({req}),
     }),
