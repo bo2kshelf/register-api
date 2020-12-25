@@ -9,7 +9,7 @@ jobs:
   build:
     executor:
       name: 'node/default'
-      tag: '14.14'
+      tag: '14.15.3'
     steps:
       - checkout
       - node/install-packages:
@@ -21,7 +21,7 @@ jobs:
   lint-prettier:
     executor:
       name: 'node/default'
-      tag: '14.14'
+      tag: '14.15.3'
     steps:
       - checkout
       - node/install-packages:
@@ -31,7 +31,7 @@ jobs:
   lint-eslint:
     executor:
       name: 'node/default'
-      tag: '14.14'
+      tag: '14.15.3'
     steps:
       - checkout
       - node/install-packages:
@@ -49,7 +49,7 @@ jobs:
   ts-check:
     executor:
       name: 'node/default'
-      tag: '14.14'
+      tag: '14.15.3'
     steps:
       - checkout
       - node/install-packages:
@@ -59,7 +59,7 @@ jobs:
   test-small:
     executor:
       name: 'node/default'
-      tag: '14.14'
+      tag: '14.15.3'
     steps:
       - checkout
       - node/install-packages:
@@ -84,7 +84,7 @@ jobs:
   test-medium:
     executor:
       name: 'node/default'
-      tag: '14.14'
+      tag: '14.15.3'
     steps:
       - checkout
       - node/install-packages:
