@@ -56,17 +56,6 @@ jobs:
           pkg-manager: yarn
       - run: yarn run ts-check
 
-  check-sdl:
-    executor:
-      name: 'node/default'
-      tag: '14.14'
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: yarn
-      - run: yarn run generate-sdl
-      - run: test -z "$(git status schema.graphqls -s)"; exit $?
-
   test-small:
     executor:
       name: 'node/default'
@@ -126,9 +115,6 @@ workflows:
       - docker/hadolint:
           dockerfiles: Dockerfile
       - ts-check
-      - check-sdl:
-          requires:
-            - ts-check
       - test-small:
           requires:
             - ts-check
@@ -140,6 +126,5 @@ workflows:
             - lint-eslint
             - lint-prettier
             - ts-check
-            - check-sdl
             - test-small
             - test-medium
