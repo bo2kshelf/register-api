@@ -15,9 +15,9 @@ import {
 } from '../books/connection/series.connection';
 import {AddBookToSeriesBooksArgs} from './dto/add-book-to-series-books.args';
 import {AddBookToSeriesRelatedBooksArgs} from './dto/add-book-to-series-related-books.args';
+import {SeriesBooksArgs} from './dto/books.args';
 import {CreateSeriesInput} from './dto/create-series.input';
-import {SeriesResolveBooksArgs} from './dto/resolve-books.args';
-import {SeriesResolveRelatedBooksArgs} from './dto/resolve-related-books.args';
+import {SeriesRelatedBooksArgs} from './dto/related-books.args';
 import {Series} from './schema/series.schema';
 import {SeriesService} from './series.service';
 
@@ -39,8 +39,8 @@ export class SeriesResolver {
   async books(
     @Parent() series: Series,
 
-    @Args({type: () => SeriesResolveBooksArgs})
-    {orderBy, ...args}: SeriesResolveBooksArgs,
+    @Args({type: () => SeriesBooksArgs})
+    {orderBy, ...args}: SeriesBooksArgs,
   ) {
     return this.seriesService.books(series, args, orderBy);
   }
@@ -49,8 +49,8 @@ export class SeriesResolver {
   async relatedBooks(
     @Parent() series: Series,
 
-    @Args({type: () => SeriesResolveBooksArgs})
-    args: SeriesResolveRelatedBooksArgs,
+    @Args({type: () => SeriesBooksArgs})
+    args: SeriesRelatedBooksArgs,
   ) {
     return this.seriesService.relatedBooks(series, args);
   }
