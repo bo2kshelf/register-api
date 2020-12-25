@@ -4,7 +4,7 @@ import {PaginateService} from '../../paginate.service';
 
 jest.mock('graphql-relay');
 
-describe('PaginateService', () => {
+describe(PaginateService.name, () => {
   let module: TestingModule;
 
   let paginateService: PaginateService;

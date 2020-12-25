@@ -8,7 +8,7 @@ import {AuthorsService} from '../../../authors.service';
 import {Author, AuthorSchema} from '../../../schema/author.schema';
 import {BookAuthorsConnectionResolver} from '../../book.connection.resolver';
 
-describe('AuthorBookConnectionResolver', () => {
+describe(BookAuthorsConnectionResolver.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;

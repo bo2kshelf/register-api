@@ -14,7 +14,7 @@ import {PaginateService} from '../../../paginate/paginate.service';
 import {Series} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
-describe('SeriesService', () => {
+describe(SeriesService.name, () => {
   let module: TestingModule;
 
   let seriesModel: Model<Series>;

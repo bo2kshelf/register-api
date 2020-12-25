@@ -10,7 +10,7 @@ import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objecti
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
 
-describe('BookService', () => {
+describe(BooksService.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;

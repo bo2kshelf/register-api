@@ -8,7 +8,7 @@ import {BooksService} from '../../../books.service';
 import {Book, BookSchema} from '../../../schema/book.schema';
 import {SeriesBooksConnectionResolver} from '../../series.connection.resolver';
 
-describe('BookSeriesConnectionResolver', () => {
+describe(SeriesBooksConnectionResolver.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;

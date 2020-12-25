@@ -15,7 +15,7 @@ jest.mock('graphql-relay', () => ({
   ...jest.requireActual('graphql-relay')!,
 }));
 
-describe('AuthorService', () => {
+describe(AuthorsService.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;

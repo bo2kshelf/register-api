@@ -15,7 +15,7 @@ import {PaginateModule} from '../../../paginate/paginate.module';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
-describe('SeriesService', () => {
+describe(SeriesService.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;

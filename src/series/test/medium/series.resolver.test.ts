@@ -9,7 +9,7 @@ import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesResolver} from '../../series.resolver';
 import {SeriesService} from '../../series.service';
 
-describe('SeriesResolver', () => {
+describe(SeriesResolver.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;

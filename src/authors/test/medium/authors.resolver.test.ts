@@ -8,7 +8,7 @@ import {AuthorsResolver} from '../../authors.resolver';
 import {AuthorsService} from '../../authors.service';
 import {Author, AuthorSchema} from '../../schema/author.schema';
 
-describe('AuthorResolver', () => {
+describe(AuthorsResolver.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;

@@ -7,7 +7,7 @@ import {PaginateService} from '../../../paginate/paginate.service';
 import {AuthorsService} from '../../authors.service';
 import {Author} from '../../schema/author.schema';
 
-describe('AuthorService', () => {
+describe(AuthorsService.name, () => {
   let module: TestingModule;
 
   let authorModel: Model<Author>;
