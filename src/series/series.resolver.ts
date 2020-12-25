@@ -10,14 +10,14 @@ import {
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
 import {
-  PaginatedBookSeriesConnection,
-  PaginatedBookSeriesRelatedBookConnection,
+  PaginatedSeriesBooksConnection,
+  PaginatedSeriesRelatedBooksConnection,
 } from '../books/connection/series.connection';
 import {AddBookToSeriesBooksArgs} from './dto/add-book-to-series-books.args';
 import {AddBookToSeriesRelatedBooksArgs} from './dto/add-book-to-series-related-books.args';
+import {SeriesBooksArgs} from './dto/books.args';
 import {CreateSeriesInput} from './dto/create-series.input';
-import {SeriesResolveBooksArgsType} from './dto/resolve-books.argstype';
-import {SeriesResolveRelatedBooksArgsType} from './dto/resolve-related-books.argstype';
+import {SeriesRelatedBooksArgs} from './dto/related-books.args';
 import {Series} from './schema/series.schema';
 import {SeriesService} from './series.service';
 
@@ -35,22 +35,22 @@ export class SeriesResolver {
     return this.seriesService.id(series);
   }
 
-  @ResolveField(() => PaginatedBookSeriesConnection)
+  @ResolveField(() => PaginatedSeriesBooksConnection)
   async books(
     @Parent() series: Series,
 
-    @Args({type: () => SeriesResolveBooksArgsType})
-    {orderBy, ...args}: SeriesResolveBooksArgsType,
+    @Args({type: () => SeriesBooksArgs})
+    {orderBy, ...args}: SeriesBooksArgs,
   ) {
     return this.seriesService.books(series, args, orderBy);
   }
 
-  @ResolveField(() => PaginatedBookSeriesRelatedBookConnection)
+  @ResolveField(() => PaginatedSeriesRelatedBooksConnection)
   async relatedBooks(
     @Parent() series: Series,
 
-    @Args({type: () => SeriesResolveBooksArgsType})
-    args: SeriesResolveRelatedBooksArgsType,
+    @Args({type: () => SeriesBooksArgs})
+    args: SeriesRelatedBooksArgs,
   ) {
     return this.seriesService.relatedBooks(series, args);
   }

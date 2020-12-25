@@ -9,7 +9,7 @@ import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
 
-describe('BookResolver', () => {
+describe(BooksResolver.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;

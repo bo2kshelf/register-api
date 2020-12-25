@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import * as Relay from 'graphql-relay';
 import {Document, Model} from 'mongoose';
-import {RequiredPaginationArgs} from './dto/required-pagination.argstype';
+import {RequiredPaginationArgs} from './dto/required-pagination.args';
 
 export type PagingMeta =
   | {pagingType: 'forward'; after?: string; first: number}

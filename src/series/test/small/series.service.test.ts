@@ -3,8 +3,8 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {
-  BookSeriesConnection,
-  BookSeriesRelatedBookConnection,
+  SeriesBooksConnection,
+  SeriesRelatedBooksConnection,
 } from '../../../books/connection/series.connection';
 import {Book} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
@@ -14,7 +14,7 @@ import {PaginateService} from '../../../paginate/paginate.service';
 import {Series} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
-describe('SeriesService', () => {
+describe(SeriesService.name, () => {
   let module: TestingModule;
 
   let seriesModel: Model<Series>;
@@ -211,7 +211,7 @@ describe('SeriesService', () => {
     it('booksが一件もない場合は1を返す', () => {
       expect(
         seriesService.getLastSerial({
-          books: [] as BookSeriesConnection[],
+          books: [] as SeriesBooksConnection[],
         } as Series),
       ).toBe(1);
     });
@@ -220,9 +220,9 @@ describe('SeriesService', () => {
       expect(
         seriesService.getLastSerial({
           books: [
-            {serial: 1} as BookSeriesConnection,
-            {serial: 2} as BookSeriesConnection,
-            {serial: 1.5} as BookSeriesConnection,
+            {serial: 1} as SeriesBooksConnection,
+            {serial: 2} as SeriesBooksConnection,
+            {serial: 1.5} as SeriesBooksConnection,
           ],
         } as Series),
       ).toBe(2);
@@ -233,10 +233,10 @@ describe('SeriesService', () => {
     it('正常に動作する', async () => {
       const series: Series = {
         books: [
-          {serial: 1} as BookSeriesConnection,
-          {serial: 2} as BookSeriesConnection,
-          {serial: 3} as BookSeriesConnection,
-        ] as BookSeriesConnection[],
+          {serial: 1} as SeriesBooksConnection,
+          {serial: 2} as SeriesBooksConnection,
+          {serial: 3} as SeriesBooksConnection,
+        ] as SeriesBooksConnection[],
       } as Series;
 
       jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
@@ -246,7 +246,7 @@ describe('SeriesService', () => {
         .spyOn(seriesModel, 'findByIdAndUpdate')
         .mockResolvedValueOnce({
           ...series,
-          books: [...series.books, {serial: 2.5} as BookSeriesConnection],
+          books: [...series.books, {serial: 2.5} as SeriesBooksConnection],
         } as Series);
 
       await seriesService.addBookToBooks(series._id, new ObjectId(), 2.5);
@@ -310,10 +310,10 @@ describe('SeriesService', () => {
     it('正常に動作する', async () => {
       const series: Series = {
         relatedBooks: [
-          {} as BookSeriesRelatedBookConnection,
-          {} as BookSeriesRelatedBookConnection,
-          {} as BookSeriesRelatedBookConnection,
-        ] as BookSeriesRelatedBookConnection[],
+          {} as SeriesRelatedBooksConnection,
+          {} as SeriesRelatedBooksConnection,
+          {} as SeriesRelatedBooksConnection,
+        ] as SeriesRelatedBooksConnection[],
       } as Series;
 
       jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
@@ -325,7 +325,7 @@ describe('SeriesService', () => {
           ...series,
           relatedBooks: [
             ...series.relatedBooks,
-            {} as BookSeriesRelatedBookConnection,
+            {} as SeriesRelatedBooksConnection,
           ],
         } as Series);
 

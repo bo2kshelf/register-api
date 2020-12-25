@@ -1,9 +1,9 @@
 /* eslint-disable @shopify/typescript/prefer-pascal-case-enums */
 import {registerEnumType} from '@nestjs/graphql';
 
-export enum OrderByDirection {
+export enum OrderDirection {
   ASC = 1,
   DESC = -1,
 }
 
-registerEnumType(OrderByDirection, {name: 'OrderByDirection'});
+registerEnumType(OrderDirection, {name: 'OrderDirection'});

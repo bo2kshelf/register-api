@@ -5,7 +5,7 @@ import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book} from '../../schema/book.schema';
 
-describe('BookService', () => {
+describe(BooksService.name, () => {
   let module: TestingModule;
 
   let bookService: BooksService;

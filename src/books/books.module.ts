@@ -4,8 +4,8 @@ import {Author, AuthorSchema} from '../authors/schema/author.schema';
 import {BooksResolver} from './books.resolver';
 import {BooksService} from './books.service';
 import {
-  BookSeriesConnectionResolver,
-  BookSeriesRelatedBookConnectionResolver,
+  SeriesBooksConnectionResolver,
+  SeriesRelatedBooksConnectionResolver,
 } from './connection/series.connection.resolver';
 import {Book, BookSchema} from './schema/book.schema';
 
@@ -19,8 +19,8 @@ import {Book, BookSchema} from './schema/book.schema';
   providers: [
     BooksService,
     BooksResolver,
-    BookSeriesConnectionResolver,
-    BookSeriesRelatedBookConnectionResolver,
+    SeriesBooksConnectionResolver,
+    SeriesRelatedBooksConnectionResolver,
   ],
   exports: [BooksService],
 })

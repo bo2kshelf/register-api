@@ -11,8 +11,8 @@ import {
 import {ObjectId} from 'mongodb';
 import {PaginatedBookConnection} from '../books/connection/paginated.connection';
 import {AuthorsService} from './authors.service';
+import {AuthorBooksArgs} from './dto/books.args';
 import {CreateAuthorInput} from './dto/create-author.input';
-import {AuthorResolveBooksArgsType} from './dto/resolve-books.argstype';
 import {Author} from './schema/author.schema';
 
 @Resolver(() => Author)
@@ -33,8 +33,8 @@ export class AuthorsResolver {
   async books(
     @Parent() author: Author,
 
-    @Args({type: () => AuthorResolveBooksArgsType})
-    args: AuthorResolveBooksArgsType,
+    @Args({type: () => AuthorBooksArgs})
+    args: AuthorBooksArgs,
   ) {
     return this.authorsService.books(author, args);
   }
