@@ -5,6 +5,7 @@ import {
   Query,
   ResolveField,
   Resolver,
+  ResolveReference,
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
 import {AuthorBookConnection} from '../authors/connection/book.connection';
@@ -29,6 +30,11 @@ export class BooksResolver {
   @ResolveField(() => [AuthorBookConnection])
   async authors(@Parent() book: Book) {
     return book.authors;
+  }
+
+  @ResolveReference()
+  resolveReference(reference: {__typename: string; id: ObjectId}) {
+    return this.book(reference.id);
   }
 
   @Mutation(() => Book, {nullable: false})
