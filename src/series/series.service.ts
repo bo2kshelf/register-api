@@ -10,7 +10,7 @@ import {Book} from '../books/schema/book.schema';
 import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
-import {getConnectionFromMongooseModel} from '../paginate/paginate';
+import {PaginateService} from '../paginate/paginate.service';
 import {Series} from './schema/series.schema';
 
 @Injectable()
@@ -21,6 +21,8 @@ export class SeriesService {
 
     @InjectModel(Book.name)
     private readonly bookModel: Model<Book>,
+
+    private readonly paginateService: PaginateService,
   ) {}
 
   id(series: Series): ObjectId {
@@ -82,7 +84,7 @@ export class SeriesService {
 
   async books(series: Series, args: RequiredPaginationArgs) {
     const seriesId = this.id(series);
-    return getConnectionFromMongooseModel(
+    return this.paginateService.getConnectionFromMongooseModel(
       this.seriesModel,
       args,
       [{$match: {_id: seriesId}}, {$unwind: {path: '$books'}}],
@@ -97,7 +99,7 @@ export class SeriesService {
 
   async relatedBooks(series: Series, args: RequiredPaginationArgs) {
     const seriesId = this.id(series);
-    return getConnectionFromMongooseModel(
+    return this.paginateService.getConnectionFromMongooseModel(
       this.seriesModel,
       args,
       [{$match: {_id: seriesId}}, {$unwind: {path: '$relatedBooks'}}],

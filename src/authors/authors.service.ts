@@ -4,7 +4,7 @@ import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
-import {getConnectionFromMongooseModel} from '../paginate/paginate';
+import {PaginateService} from '../paginate/paginate.service';
 import {Author} from './schema/author.schema';
 
 @Injectable()
@@ -12,6 +12,7 @@ export class AuthorsService {
   constructor(
     @InjectModel(Author.name)
     private readonly authorModel: Model<Author>,
+    private readonly paginateService: PaginateService,
   ) {}
 
   id(author: Author): ObjectId {
@@ -32,7 +33,7 @@ export class AuthorsService {
 
   async books(author: Author, args: RequiredPaginationArgs) {
     const authorId = this.id(author);
-    return getConnectionFromMongooseModel(
+    return this.paginateService.getConnectionFromMongooseModel(
       this.authorModel,
       args,
       [

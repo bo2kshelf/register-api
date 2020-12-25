@@ -1,6 +1,7 @@
 import {Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 import {Book, BookSchema} from '../books/schema/book.schema';
+import {PaginateModule} from '../paginate/paginate.module';
 import {Series, SeriesSchema} from './schema/series.schema';
 import {SeriesResolver} from './series.resolver';
 import {SeriesService} from './series.service';
@@ -11,6 +12,7 @@ import {SeriesService} from './series.service';
       {name: Series.name, schema: SeriesSchema},
       {name: Book.name, schema: BookSchema},
     ]),
+    PaginateModule,
   ],
   providers: [SeriesService, SeriesResolver],
   exports: [SeriesService],

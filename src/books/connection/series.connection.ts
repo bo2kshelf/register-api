@@ -1,6 +1,6 @@
 import {Field, ID, ObjectType} from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
-import {Paginated} from '../../paginate/paginate';
+import {PaginatedFactory} from '../../paginate/paginated.factory';
 
 @ObjectType()
 export class BookSeriesConnection {
@@ -18,11 +18,11 @@ export class BookSeriesRelatedBookConnection {
 }
 
 @ObjectType()
-export class PaginatedBookSeriesConnection extends Paginated(
+export class PaginatedBookSeriesConnection extends PaginatedFactory(
   BookSeriesConnection,
 ) {}
 
 @ObjectType()
-export class PaginatedBookSeriesRelatedBookConnection extends Paginated(
+export class PaginatedBookSeriesRelatedBookConnection extends PaginatedFactory(
   BookSeriesRelatedBookConnection,
 ) {}
