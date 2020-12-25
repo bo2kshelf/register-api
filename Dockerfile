@@ -1,4 +1,4 @@
-FROM node:14 AS build
+FROM node:14.15.3 AS build
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY src ./src
 RUN yarn install --frozen-lockfile
 RUN yarn build
 
-FROM node:14-slim
+FROM node:14.15.3-slim
 
 WORKDIR /app
 
