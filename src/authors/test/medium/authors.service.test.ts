@@ -7,6 +7,7 @@ import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {PaginateModule} from '../../../paginate/paginate.module';
 import {AuthorsService} from '../../authors.service';
 import {Author, AuthorSchema} from '../../schema/author.schema';
 
@@ -38,6 +39,7 @@ describe('AuthorService', () => {
           {name: Author.name, schema: AuthorSchema},
           {name: Book.name, schema: BookSchema},
         ]),
+        PaginateModule,
       ],
       providers: [AuthorsService],
     }).compile();

@@ -11,6 +11,7 @@ import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {PaginateModule} from '../../../paginate/paginate.module';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
@@ -38,6 +39,7 @@ describe('SeriesService', () => {
           {name: Book.name, schema: BookSchema},
           {name: Series.name, schema: SeriesSchema},
         ]),
+        PaginateModule,
       ],
       providers: [SeriesService],
     }).compile();

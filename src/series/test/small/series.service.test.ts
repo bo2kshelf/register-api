@@ -10,6 +10,7 @@ import {Book} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {PaginateService} from '../../../paginate/paginate.service';
 import {Series} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
@@ -38,6 +39,12 @@ describe('SeriesService', () => {
           useValue: {
             async findById() {},
             async find() {},
+          },
+        },
+        {
+          provide: PaginateService,
+          useValue: {
+            getConnectionFromMongooseModel() {},
           },
         },
         SeriesService,
