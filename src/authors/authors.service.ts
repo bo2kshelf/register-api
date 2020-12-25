@@ -3,7 +3,7 @@ import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
-import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
+import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
 import {PaginateService} from '../paginate/paginate.service';
 import {Author} from './schema/author.schema';
 

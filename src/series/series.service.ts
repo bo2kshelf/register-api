@@ -9,7 +9,7 @@ import {
 import {Book} from '../books/schema/book.schema';
 import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
-import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
+import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
 import {OrderDirection} from '../paginate/enum/order-direction.enum';
 import {PaginateService} from '../paginate/paginate.service';
 import {Series} from './schema/series.schema';

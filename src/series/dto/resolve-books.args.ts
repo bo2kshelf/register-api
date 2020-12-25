@@ -1,5 +1,5 @@
 import {ArgsType, Field, InputType} from '@nestjs/graphql';
-import {RequiredPaginationArgs} from '../../paginate/dto/required-pagination.argstype';
+import {RequiredPaginationArgs} from '../../paginate/dto/required-pagination.args';
 import {OrderDirection} from '../../paginate/enum/order-direction.enum';
 
 @InputType('SerialResolveBooksOrder')
@@ -9,7 +9,7 @@ export class SerialResolveBooksOrderInput {
 }
 
 @ArgsType()
-export class SeriesResolveBooksArgsType extends RequiredPaginationArgs {
+export class SeriesResolveBooksArgs extends RequiredPaginationArgs {
   @Field((_type) => SerialResolveBooksOrderInput, {nullable: true})
   orderBy?: SerialResolveBooksOrderInput;
 }
