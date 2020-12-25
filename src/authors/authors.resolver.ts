@@ -1,10 +1,12 @@
 import {
   Args,
+  ID,
   Mutation,
   Parent,
   Query,
   ResolveField,
   Resolver,
+  ResolveReference,
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
 import {PaginatedBookConnection} from '../books/connection/paginated.connection';
@@ -18,13 +20,11 @@ export class AuthorsResolver {
   constructor(private authorsService: AuthorsService) {}
 
   @Query(() => Author, {nullable: false})
-  async author(
-    @Args('id', {type: () => ObjectId}) id: ObjectId,
-  ): Promise<Author> {
+  async author(@Args('id', {type: () => ID}) id: ObjectId): Promise<Author> {
     return this.authorsService.getById(id);
   }
 
-  @ResolveField(() => ObjectId)
+  @ResolveField(() => ID)
   id(@Parent() author: Author): ObjectId {
     return this.authorsService.id(author);
   }
@@ -37,6 +37,11 @@ export class AuthorsResolver {
     args: AuthorResolveBooksArgsType,
   ) {
     return this.authorsService.books(author, args);
+  }
+
+  @ResolveReference()
+  resolveReference(reference: {__typename: string; id: ObjectId}) {
+    return this.author(reference.id);
   }
 
   @Mutation(() => Author, {nullable: false})

@@ -3,9 +3,8 @@ import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Author} from '../authors/schema/author.schema';
-import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
-import {isArrayUnique} from '../util';
 import {Book} from './schema/book.schema';
 
 @Injectable()
@@ -37,27 +36,24 @@ export class BooksService {
     authors: {id: ObjectId; roles?: string[]}[];
     isbn?: string;
   }): Promise<Book> {
-    if (authors.length === 0)
-      throw new Error(`The property "authors" is empty.`);
+    checkIfNotArrayEmpty(authors, 'authors');
 
-    const authorIDs = authors.map(({id: author}) => author);
+    const authorIds = authors.map(({id: author}) => author);
 
-    if (!isArrayUnique(authorIDs))
-      throw new Error(`Duplicate ID of the author in the property "authors"`);
+    checkIfArrayUnique(authorIds, 'authors.id');
 
-    const author = await Promise.all(
-      authorIDs.map((id) =>
-        this.authorModel.findById(id).then((author) => (author ? false : id)),
-      ),
-    ).then((array) => array.filter(Boolean));
+    const actualIds: ObjectId[] = (
+      await this.authorModel.find({_id: authorIds})
+    ).map(({_id}) => _id);
 
-    if (author.length > 0) throw new MongooseNotExistError(Author.name, 'id');
+    if (actualIds.length < authors.length)
+      throw new NoDocumentForObjectIdError(
+        Author.name,
+        authorIds.find((id) => !actualIds.includes(id))!,
+      );
 
     return this.bookModel.create({
-      authors: authors.map(({id, ...props}) => ({
-        ...props,
-        id: new ObjectId(id),
-      })),
+      authors,
       ...data,
     });
   }

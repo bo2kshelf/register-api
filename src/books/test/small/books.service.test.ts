@@ -3,7 +3,8 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Author} from '../../../authors/schema/author.schema';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
+import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
+import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {BooksService} from '../../books.service';
 import {Book} from '../../schema/book.schema';
@@ -25,7 +26,7 @@ describe('BookService', () => {
         },
         {
           provide: getModelToken(Author.name),
-          useValue: {findById() {}, create() {}},
+          useValue: {findById() {}, create() {}, find() {}},
         },
         BooksService,
       ],
@@ -127,7 +128,7 @@ describe('BookService', () => {
     it('authorsが空配列ならば例外を投げる', async () => {
       await expect(() =>
         bookService.create({title: 'title', authors: []}),
-      ).rejects.toThrow(`The property "authors" is empty.`);
+      ).rejects.toThrow(EmptyArrayError);
     });
 
     it('authorsのidが重複していたら例外を投げる', async () => {
@@ -135,23 +136,22 @@ describe('BookService', () => {
 
       await expect(() =>
         bookService.create({title: 'title', authors: [{id: dupl}, {id: dupl}]}),
-      ).rejects.toThrow(`Duplicate ID of the author in the property "authors"`);
+      ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
     it('authorsのidが一つでも存在しなければ例外を投げる', async () => {
       const existId = new ObjectId();
 
       jest
-        .spyOn(authorModel, 'findById')
-        .mockResolvedValue({_id: existId} as Author)
-        .mockResolvedValue(null);
+        .spyOn(authorModel, 'find')
+        .mockResolvedValue([{_id: existId}] as Author[]);
 
       await expect(() =>
         bookService.create({
           title: 'title',
           authors: [{id: existId}, {id: new ObjectId()}],
         }),
-      ).rejects.toThrow(MongooseNotExistError);
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });

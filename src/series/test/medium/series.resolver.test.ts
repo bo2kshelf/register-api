@@ -4,7 +4,7 @@ import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesResolver} from '../../series.resolver';
 import {SeriesService} from '../../series.service';
@@ -103,16 +103,12 @@ describe('SeriesResolver', () => {
       jest
         .spyOn(seriesService, 'getById')
         .mockRejectedValueOnce(
-          new MongooseNotExistError(
-            Series.name,
-            'id',
-            '5fccac3585e5265603349e97',
-          ),
+          new NoDocumentForObjectIdError(Series.name, new ObjectId()),
         );
 
-      await expect(() =>
-        seriesResolver.series(new ObjectId('5fccac3585e5265603349e97')),
-      ).rejects.toThrow(MongooseNotExistError);
+      await expect(() => seriesResolver.series(new ObjectId())).rejects.toThrow(
+        NoDocumentForObjectIdError,
+      );
     });
   });
 

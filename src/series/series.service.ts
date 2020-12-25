@@ -7,11 +7,10 @@ import {
   BookSeriesRelatedBookConnection,
 } from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
-import {MongooseNotExistError} from '../error/mongoose-not-exist.error';
+import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.argstype';
 import {getConnectionFromMongooseModel} from '../paginate/paginate';
-import {isArrayUnique} from '../util';
 import {Series} from './schema/series.schema';
 
 @Injectable()
@@ -45,28 +44,38 @@ export class SeriesService {
     books: BookSeriesConnection[];
     relatedBooks?: BookSeriesRelatedBookConnection[];
   }): Promise<Series> {
-    if (books.length === 0) throw new Error(`The property "book" is empty`);
+    checkIfNotArrayEmpty(books, 'books');
 
-    if (!isArrayUnique(books.map(({id}) => id)))
-      throw new Error(`Duplicate in the property "books"`);
+    checkIfArrayUnique(
+      books.map(({serial}) => serial),
+      'books.serial',
+    );
 
-    if (!isArrayUnique(books.map(({serial}) => serial)))
-      throw new Error(`Duplicate in the property "books"`);
+    const bookIds = books.map(({id}) => id);
+    checkIfArrayUnique(bookIds, 'books.id');
 
-    if (!isArrayUnique(relatedBooks.map(({id}) => id)))
-      throw new Error(`Duplicate in the property "relatedBooks"`);
+    const actualBookIds: ObjectId[] = (
+      await this.bookModel.find({_id: bookIds})
+    ).map(({id}) => id);
+    if (actualBookIds.length < bookIds.length)
+      throw new NoDocumentForObjectIdError(
+        Book.name,
+        bookIds.find((id) => !actualBookIds.includes(id))!,
+      );
 
-    if (
-      (await this.bookModel.find({_id: books.map(({id}) => id)})).length !==
-      books.length
-    )
-      throw new MongooseNotExistError(Book.name, 'books');
+    if (relatedBooks.length > 0) {
+      const relatedBookIds = relatedBooks.map(({id}) => id);
+      checkIfArrayUnique(relatedBookIds, 'relatedBooks.id');
 
-    if (
-      (await this.bookModel.find({_id: relatedBooks.map(({id}) => id)}))
-        .length !== relatedBooks.length
-    )
-      throw new MongooseNotExistError(Book.name, 'relatedBooks');
+      const actualrelatedBookIds: ObjectId[] = (
+        await this.bookModel.find({_id: relatedBookIds})
+      ).map(({_id}) => _id);
+      if (actualrelatedBookIds.length < relatedBooks.length)
+        throw new NoDocumentForObjectIdError(
+          Book.name,
+          relatedBookIds.find((id) => !actualrelatedBookIds.includes(id))!,
+        );
+    }
 
     return this.seriesModel.create({books, relatedBooks, ...data});
   }
@@ -99,5 +108,68 @@ export class SeriesService {
         {$sort: {serial: 1}},
       ],
     );
+  }
+
+  getLastSerial(series: Series) {
+    if (series.books.length === 0) return 1;
+    return series.books.sort(
+      ({serial: serialA}, {serial: serialB}) => serialB - serialA,
+    )[0].serial;
+  }
+
+  async addBookToBooks(seriesId: ObjectId, bookId: ObjectId, serial: number) {
+    if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
+      throw new NoDocumentForObjectIdError(Book.name, bookId);
+
+    if (
+      await this.seriesModel
+        .findOne({
+          _id: seriesId,
+          $or: [{'books.serial': serial}, {'books.id': bookId}],
+        })
+        .then(Boolean)
+    )
+      throw new Error(
+        `Already exists serial ${serial} or book ${bookId.toHexString()} in series ${seriesId.toHexString()}.`,
+      );
+
+    return this.seriesModel
+      .findByIdAndUpdate(
+        seriesId,
+        {$push: {books: {id: bookId, serial}}},
+        {new: true},
+      )
+      .then((actual) => {
+        if (actual) return actual;
+        throw new NoDocumentForObjectIdError(Series.name, seriesId);
+      });
+  }
+
+  async addBookToRelatedBooks(seriesId: ObjectId, bookId: ObjectId) {
+    if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
+      throw new NoDocumentForObjectIdError(Book.name, bookId);
+
+    if (
+      await this.seriesModel
+        .findOne({
+          _id: seriesId,
+          'relatedBooks.id': bookId,
+        })
+        .then(Boolean)
+    )
+      throw new Error(
+        `Already exists book ${bookId.toHexString()} in series ${seriesId.toHexString()}.`,
+      );
+
+    return this.seriesModel
+      .findByIdAndUpdate(
+        seriesId,
+        {$push: {relatedBooks: {id: bookId}}},
+        {new: true},
+      )
+      .then((actual) => {
+        if (actual) return actual;
+        throw new NoDocumentForObjectIdError(Series.name, seriesId);
+      });
   }
 }

@@ -3,7 +3,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {MongooseNotExistError} from '../../../error/mongoose-not-exist.error';
+import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {AuthorsResolver} from '../../authors.resolver';
 import {AuthorsService} from '../../authors.service';
 import {Author, AuthorSchema} from '../../schema/author.schema';
@@ -80,16 +80,12 @@ describe('AuthorResolver', () => {
       jest
         .spyOn(authorService, 'getById')
         .mockRejectedValueOnce(
-          new MongooseNotExistError(
-            Author.name,
-            'id',
-            '5fccac3585e5265603349e97',
-          ),
+          new NoDocumentForObjectIdError(Author.name, new ObjectId()),
         );
 
-      await expect(() =>
-        authorResolver.author(new ObjectId('5fccac3585e5265603349e97')),
-      ).rejects.toThrow(MongooseNotExistError);
+      await expect(() => authorResolver.author(new ObjectId())).rejects.toThrow(
+        NoDocumentForObjectIdError,
+      );
     });
   });
 
