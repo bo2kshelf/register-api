@@ -4,8 +4,8 @@ import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {
-  BookSeriesConnection,
-  BookSeriesRelatedBookConnection,
+  SeriesBooksConnection,
+  SeriesRelatedBooksConnection,
 } from '../../../books/connection/series.connection';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
@@ -235,7 +235,7 @@ describe('SeriesService', () => {
       await newBook.deleteOne();
 
       const newSeries = await seriesModel.create({
-        books: [] as BookSeriesConnection[],
+        books: [] as SeriesBooksConnection[],
       } as Series);
 
       await expect(() =>
@@ -248,7 +248,7 @@ describe('SeriesService', () => {
       const newBookId = newBook._id;
 
       const newSeries = await seriesModel.create({
-        books: [] as BookSeriesConnection[],
+        books: [] as SeriesBooksConnection[],
       } as Series);
       const newSeriesId = newSeries._id;
       await newSeries.deleteOne();
@@ -321,7 +321,7 @@ describe('SeriesService', () => {
       await newBook.deleteOne();
 
       const newSeries = await seriesModel.create({
-        relatedBooks: [] as BookSeriesRelatedBookConnection[],
+        relatedBooks: [] as SeriesRelatedBooksConnection[],
       } as Series);
 
       await expect(() =>
@@ -334,7 +334,7 @@ describe('SeriesService', () => {
       const newBookId = newBook._id;
 
       const newSeries = await seriesModel.create({
-        relatedBooks: [] as BookSeriesRelatedBookConnection[],
+        relatedBooks: [] as SeriesRelatedBooksConnection[],
       } as Series);
       const newSeriesId = newSeries._id;
       await newSeries.deleteOne();

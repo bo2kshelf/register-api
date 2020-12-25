@@ -3,7 +3,7 @@ import {ObjectId} from 'mongodb';
 import {PaginatedFactory} from '../../paginate/paginated.factory';
 
 @ObjectType()
-export class BookSeriesConnection {
+export class SeriesBooksConnection {
   @Field(() => ID)
   id!: ObjectId;
 
@@ -12,17 +12,17 @@ export class BookSeriesConnection {
 }
 
 @ObjectType()
-export class BookSeriesRelatedBookConnection {
+export class SeriesRelatedBooksConnection {
   @Field(() => ID)
   id!: ObjectId;
 }
 
 @ObjectType()
-export class PaginatedBookSeriesConnection extends PaginatedFactory(
-  BookSeriesConnection,
+export class PaginatedSeriesBooksConnection extends PaginatedFactory(
+  SeriesBooksConnection,
 ) {}
 
 @ObjectType()
-export class PaginatedBookSeriesRelatedBookConnection extends PaginatedFactory(
-  BookSeriesRelatedBookConnection,
+export class PaginatedSeriesRelatedBooksConnection extends PaginatedFactory(
+  SeriesRelatedBooksConnection,
 ) {}

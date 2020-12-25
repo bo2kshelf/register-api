@@ -3,8 +3,8 @@ import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {
-  BookSeriesConnection,
-  BookSeriesRelatedBookConnection,
+  SeriesBooksConnection,
+  SeriesRelatedBooksConnection,
 } from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
 import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
@@ -44,8 +44,8 @@ export class SeriesService {
     ...data
   }: {
     title: string;
-    books: BookSeriesConnection[];
-    relatedBooks?: BookSeriesRelatedBookConnection[];
+    books: SeriesBooksConnection[];
+    relatedBooks?: SeriesRelatedBooksConnection[];
   }): Promise<Series> {
     checkIfNotArrayEmpty(books, 'books');
 

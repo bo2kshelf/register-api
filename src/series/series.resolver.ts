@@ -10,8 +10,8 @@ import {
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
 import {
-  PaginatedBookSeriesConnection,
-  PaginatedBookSeriesRelatedBookConnection,
+  PaginatedSeriesBooksConnection,
+  PaginatedSeriesRelatedBooksConnection,
 } from '../books/connection/series.connection';
 import {AddBookToSeriesBooksArgs} from './dto/add-book-to-series-books.args';
 import {AddBookToSeriesRelatedBooksArgs} from './dto/add-book-to-series-related-books.args';
@@ -35,7 +35,7 @@ export class SeriesResolver {
     return this.seriesService.id(series);
   }
 
-  @ResolveField(() => PaginatedBookSeriesConnection)
+  @ResolveField(() => PaginatedSeriesBooksConnection)
   async books(
     @Parent() series: Series,
 
@@ -45,7 +45,7 @@ export class SeriesResolver {
     return this.seriesService.books(series, args, orderBy);
   }
 
-  @ResolveField(() => PaginatedBookSeriesRelatedBookConnection)
+  @ResolveField(() => PaginatedSeriesRelatedBooksConnection)
   async relatedBooks(
     @Parent() series: Series,
 

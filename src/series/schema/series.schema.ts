@@ -2,8 +2,8 @@ import {Directive, Field, ObjectType} from '@nestjs/graphql';
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import {Document} from 'mongoose';
 import {
-  BookSeriesConnection,
-  BookSeriesRelatedBookConnection,
+  SeriesBooksConnection,
+  SeriesRelatedBooksConnection,
 } from '../../books/connection/series.connection';
 
 @Schema()
@@ -14,11 +14,11 @@ export class Series extends Document {
   @Field(() => String)
   title!: string;
 
-  @Prop(() => [BookSeriesConnection])
-  books!: BookSeriesConnection[];
+  @Prop(() => [SeriesBooksConnection])
+  books!: SeriesBooksConnection[];
 
-  @Prop(() => [BookSeriesRelatedBookConnection])
-  relatedBooks!: BookSeriesRelatedBookConnection[];
+  @Prop(() => [SeriesRelatedBooksConnection])
+  relatedBooks!: SeriesRelatedBooksConnection[];
 }
 
 export const SeriesSchema = SchemaFactory.createForClass(Series);

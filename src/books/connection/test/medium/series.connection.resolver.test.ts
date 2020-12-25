@@ -6,7 +6,7 @@ import {Model} from 'mongoose';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {BooksService} from '../../../books.service';
 import {Book, BookSchema} from '../../../schema/book.schema';
-import {BookSeriesConnectionResolver} from '../../series.connection.resolver';
+import {SeriesBooksConnectionResolver} from '../../series.connection.resolver';
 
 describe('BookSeriesConnectionResolver', () => {
   let mongoServer: MongoMemoryServer;
@@ -17,7 +17,7 @@ describe('BookSeriesConnectionResolver', () => {
 
   let booksService: BooksService;
 
-  let connectionResolver: BookSeriesConnectionResolver;
+  let connectionResolver: SeriesBooksConnectionResolver;
 
   beforeAll(async () => {
     mongoServer = new MongoMemoryServer();
@@ -36,15 +36,15 @@ describe('BookSeriesConnectionResolver', () => {
           provide: BooksService,
           useValue: {getById() {}},
         },
-        BookSeriesConnectionResolver,
+        SeriesBooksConnectionResolver,
       ],
     }).compile();
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
 
     booksService = module.get<BooksService>(BooksService);
-    connectionResolver = module.get<BookSeriesConnectionResolver>(
-      BookSeriesConnectionResolver,
+    connectionResolver = module.get<SeriesBooksConnectionResolver>(
+      SeriesBooksConnectionResolver,
     );
   });
 
