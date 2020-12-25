@@ -2,8 +2,8 @@
 import {registerEnumType} from '@nestjs/graphql';
 
 export enum OrderByDirection {
-  ASC = 'ASC',
-  DESC = 'DESC',
+  ASC = 1,
+  DESC = -1,
 }
 
 registerEnumType(OrderByDirection, {name: 'OrderByDirection'});
