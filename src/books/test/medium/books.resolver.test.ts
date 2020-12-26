@@ -155,6 +155,8 @@ describe(BooksResolver.name, () => {
       expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
       expect(actual).toHaveProperty('isbn', '978-4091294920');
       expect(actual).toHaveProperty('authors');
+      expect(actual.authors).toHaveLength(1);
+      expect(typeof actual.authors[0].id).not.toBe('string');
     });
 
     it('iSBNが欠落しても通る', async () => {
