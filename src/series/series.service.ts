@@ -7,11 +7,13 @@ import {
   SeriesRelatedBooksConnection,
 } from '../books/connection/series.connection';
 import {Book} from '../books/schema/book.schema';
-import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
+import {DuplicateValueInArrayError} from '../error/duplicate-values-in-array.error';
+import {EmptyArrayError} from '../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
 import {OrderDirection} from '../paginate/enum/order-direction.enum';
 import {PaginateService} from '../paginate/paginate.service';
+import {isArrayUnique} from '../util';
 import {Series} from './schema/series.schema';
 
 @Injectable()
@@ -47,15 +49,14 @@ export class SeriesService {
     books: SeriesBooksConnection[];
     relatedBooks?: SeriesRelatedBooksConnection[];
   }): Promise<Series> {
-    checkIfNotArrayEmpty(books, 'books');
+    if (books.length === 0) throw new EmptyArrayError('books');
 
-    checkIfArrayUnique(
-      books.map(({serial}) => serial),
-      'books.serial',
-    );
+    if (!isArrayUnique(books.map(({serial}) => serial)))
+      throw new DuplicateValueInArrayError('books.serial');
 
     const bookIds = books.map(({id}) => id);
-    checkIfArrayUnique(bookIds, 'books.id');
+    if (!isArrayUnique(bookIds))
+      throw new DuplicateValueInArrayError('books.id');
 
     const actualBookIds: ObjectId[] = (
       await this.bookModel.find({_id: bookIds})
@@ -68,7 +69,8 @@ export class SeriesService {
 
     if (relatedBooks.length > 0) {
       const relatedBookIds = relatedBooks.map(({id}) => id);
-      checkIfArrayUnique(relatedBookIds, 'relatedBooks.id');
+      if (!isArrayUnique(relatedBookIds))
+        throw new DuplicateValueInArrayError('relatedBooks.id');
 
       const actualrelatedBookIds: ObjectId[] = (
         await this.bookModel.find({_id: relatedBookIds})
