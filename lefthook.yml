@@ -7,15 +7,15 @@ pre-push:
   parallel:
   commands:
     ts-check:
-      run: tsc --noEmit
+      run: yarn run ts-check
 
 pre-commit:
   parallel: true
   commands:
     eslint:
-      run: npm run lint:eslint
+      run: yarn run lint:eslint
     prettier:
-      run: npm run lint:prettier
+      run: yarn run lint:prettier
     hadolint:
       files: git diff --name-only --staged
       glob: '*Dockerfile*'
@@ -27,12 +27,8 @@ pre-commit:
     validate-renovate:
       files: git diff --name-only --staged
       glob: '.renovaterc'
-      run: npm run lint:renovate
+      run: yarn run lint:renovate
     validate-circleci:
       files: git diff --name-only --staged
       glob: '.circleci/*.yml'
-      run: |
-        docker run \
-          -v $(pwd)/.circleci:/go/.circleci \
-          -it --rm circleci/circleci-cli \
-          circleci config validate
+      run: yarn run lint:circleci
