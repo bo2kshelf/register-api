@@ -1,9 +1,12 @@
+import {ConfigType} from '@nestjs/config';
 import {NestFactory} from '@nestjs/core';
+import appConfig from './app.config';
 import {AppModule} from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // eslint-disable-next-line no-process-env
-  await app.listen(process.env.PORT || 4000);
+  const configService: ConfigType<typeof appConfig> = app.get(appConfig.KEY);
+
+  await app.listen(configService.port);
 }
 bootstrap();
