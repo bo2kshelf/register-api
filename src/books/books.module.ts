@@ -6,7 +6,7 @@ import {BooksService} from './books.service';
 import {
   SeriesBooksConnectionResolver,
   SeriesRelatedBooksConnectionResolver,
-} from './connection/series.connection.resolver';
+} from './connection/series-connection.resolver';
 import {Book, BookSchema} from './schema/book.schema';
 
 @Module({

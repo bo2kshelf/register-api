@@ -4,7 +4,7 @@ import {Document} from 'mongoose';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
-} from '../../books/connection/series.connection';
+} from '../../books/connection/series-connection.entity';
 
 @Schema()
 @ObjectType()

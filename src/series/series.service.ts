@@ -5,7 +5,7 @@ import {Model} from 'mongoose';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
-} from '../books/connection/series.connection';
+} from '../books/connection/series-connection.entity';
 import {Book} from '../books/schema/book.schema';
 import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';

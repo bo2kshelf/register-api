@@ -6,7 +6,7 @@ import {Model} from 'mongoose';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {AuthorsService} from '../../../authors.service';
 import {Author, AuthorSchema} from '../../../schema/author.schema';
-import {BookAuthorsConnectionResolver} from '../../book.connection.resolver';
+import {BookAuthorsConnectionResolver} from '../../book-connection.resolver';
 
 describe(BookAuthorsConnectionResolver.name, () => {
   let mongoServer: MongoMemoryServer;
