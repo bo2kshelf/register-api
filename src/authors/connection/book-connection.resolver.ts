@@ -1,7 +1,7 @@
 import {Parent, ResolveField, Resolver} from '@nestjs/graphql';
 import {AuthorsService} from '../authors.service';
 import {Author} from '../schema/author.schema';
-import {BookAuthorsConnection} from './book.connection';
+import {BookAuthorsConnection} from './book-connection.entity';
 
 @Resolver(() => BookAuthorsConnection)
 export class BookAuthorsConnectionResolver {

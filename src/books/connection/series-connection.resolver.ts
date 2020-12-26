@@ -4,7 +4,7 @@ import {Book} from '../schema/book.schema';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
-} from './series.connection';
+} from './series-connection.entity';
 
 @Resolver(() => SeriesBooksConnection)
 export class SeriesBooksConnectionResolver {

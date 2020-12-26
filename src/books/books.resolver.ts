@@ -9,7 +9,7 @@ import {
   ResolveReference,
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
-import {BookAuthorsConnection} from '../authors/connection/book.connection';
+import {BookAuthorsConnection} from '../authors/connection/book-connection.entity';
 import {BooksService} from './books.service';
 import {CreateBookInput} from './dto/create-book.input';
 import {Book} from './schema/book.schema';

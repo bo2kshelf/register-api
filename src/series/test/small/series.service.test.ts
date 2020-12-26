@@ -5,7 +5,7 @@ import {Model} from 'mongoose';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
-} from '../../../books/connection/series.connection';
+} from '../../../books/connection/series-connection.entity';
 import {Book} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';

@@ -12,7 +12,7 @@ import {ObjectId} from 'mongodb';
 import {
   PaginatedSeriesBooksConnection,
   PaginatedSeriesRelatedBooksConnection,
-} from '../books/connection/series.connection';
+} from '../books/connection/series-connection.entity';
 import {AddBookToSeriesBooksArgs} from './dto/add-book-to-series-books.args';
 import {AddBookToSeriesRelatedBooksArgs} from './dto/add-book-to-series-related-books.args';
 import {SeriesBooksArgs} from './dto/books.args';
