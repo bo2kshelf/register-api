@@ -63,9 +63,19 @@ export class SeriesResolver {
   @Mutation(() => Series, {nullable: false})
   async createSeries(
     @Args('data', {type: () => CreateSeriesInput})
-    data: CreateSeriesInput,
+    {books, relatedBooks, ...data}: CreateSeriesInput,
   ): Promise<Series> {
-    return this.seriesService.create(data);
+    return this.seriesService.create({
+      books: books.map(({id, ...rest}) => ({
+        id: new ObjectId(id),
+        ...rest,
+      })),
+      relatedBooks: books.map(({id, ...rest}) => ({
+        id: new ObjectId(id),
+        ...rest,
+      })),
+      ...data,
+    });
   }
 
   @Mutation(() => Series, {nullable: false})
@@ -73,7 +83,11 @@ export class SeriesResolver {
     @Args({type: () => AddBookToSeriesBooksArgs})
     {seriesId, bookId, serial}: AddBookToSeriesBooksArgs,
   ): Promise<Series> {
-    return this.seriesService.addBookToBooks(seriesId, bookId, serial);
+    return this.seriesService.addBookToBooks(
+      new ObjectId(seriesId),
+      new ObjectId(bookId),
+      serial,
+    );
   }
 
   @Mutation(() => Series, {nullable: false})
@@ -81,6 +95,9 @@ export class SeriesResolver {
     @Args({type: () => AddBookToSeriesRelatedBooksArgs})
     {seriesId, bookId}: AddBookToSeriesRelatedBooksArgs,
   ): Promise<Series> {
-    return this.seriesService.addBookToRelatedBooks(seriesId, bookId);
+    return this.seriesService.addBookToRelatedBooks(
+      new ObjectId(seriesId),
+      new ObjectId(bookId),
+    );
   }
 }

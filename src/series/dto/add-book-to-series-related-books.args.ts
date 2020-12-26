@@ -1,11 +1,10 @@
 import {ArgsType, Field, ID} from '@nestjs/graphql';
-import {ObjectId} from 'mongodb';
 
 @ArgsType()
 export class AddBookToSeriesRelatedBooksArgs {
   @Field(() => ID)
-  seriesId!: ObjectId;
+  seriesId!: string;
 
   @Field(() => ID)
-  bookId!: ObjectId;
+  bookId!: string;
 }
