@@ -11,6 +11,8 @@ RUN yarn build
 
 FROM node:14.15.3-slim
 
+ENV PORT 4000
+
 WORKDIR /app
 
 COPY package.json yarn.lock ./
@@ -18,6 +20,6 @@ COPY --from=build /app/dist ./dist
 
 RUN yarn install --frozen-lockfile --production
 
-EXPOSE 4000
+EXPOSE $PORT
 
 CMD ["node", "dist/main.js"]
