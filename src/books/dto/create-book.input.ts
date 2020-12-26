@@ -1,5 +1,4 @@
 import {Field, ID, InputType} from '@nestjs/graphql';
-import {ObjectId} from 'mongodb';
 
 @InputType()
 export class CreateBookInput {
@@ -10,16 +9,13 @@ export class CreateBookInput {
   isbn?: string;
 
   @Field(() => [CreateBookAuthorsInput])
-  authors!: {
-    id: ObjectId;
-    roles?: string[];
-  }[];
+  authors!: CreateBookAuthorsInput[];
 }
 
 @InputType()
 export class CreateBookAuthorsInput {
   @Field(() => ID)
-  id!: ObjectId;
+  id!: string;
 
   @Field(() => [String], {nullable: true})
   roles?: string[];

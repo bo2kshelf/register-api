@@ -156,7 +156,14 @@ describe(SeriesResolver.name, () => {
       });
 
       expect(actual).toHaveProperty('title', 'よふかしのうた');
+
+      expect(actual).toHaveProperty('books');
+      expect(actual.books).toHaveLength(1);
+      expect(typeof actual.books[0].id).not.toBe('string');
+
       expect(actual).toHaveProperty('relatedBooks');
+      expect(actual.relatedBooks).toHaveLength(1);
+      expect(typeof actual.relatedBooks[0].id).not.toBe('string');
     });
 
     it('relatedBooksが欠落していても通る', async () => {

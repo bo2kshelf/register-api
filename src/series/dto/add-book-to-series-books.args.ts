@@ -1,14 +1,13 @@
 import {ArgsType, Field, ID} from '@nestjs/graphql';
 import {IsPositive} from 'class-validator';
-import {ObjectId} from 'mongodb';
 
 @ArgsType()
 export class AddBookToSeriesBooksArgs {
   @Field(() => ID)
-  seriesId!: ObjectId;
+  seriesId!: string;
 
   @Field(() => ID)
-  bookId!: ObjectId;
+  bookId!: string;
 
   @Field()
   @IsPositive()

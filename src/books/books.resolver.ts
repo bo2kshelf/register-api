@@ -41,8 +41,14 @@ export class BooksResolver {
   @Mutation(() => Book, {nullable: false})
   async createBook(
     @Args('data', {type: () => CreateBookInput})
-    data: CreateBookInput,
+    {authors, ...data}: CreateBookInput,
   ): Promise<Book> {
-    return this.bookService.create(data);
+    return this.bookService.create({
+      authors: authors.map(({id, ...rest}) => ({
+        id: new ObjectId(id),
+        ...rest,
+      })),
+      ...data,
+    });
   }
 }
