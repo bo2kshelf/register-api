@@ -1,3 +1,5 @@
 #!/usr/bin/env sh
 
-docker run -i --rm hadolint/hadolint < Dockerfile
+for dockerfile in ${@:-$(git ls-files | grep Dockerfile)}; do
+  docker run -i --rm hadolint/hadolint < $dockerfile
+done
