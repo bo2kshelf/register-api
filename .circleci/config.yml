@@ -7,9 +7,8 @@ orbs:
 
 jobs:
   build:
-    executor:
-      name: 'node/default'
-      tag: '14.15.3'
+    docker:
+      - image: circleci/node:14.15.3
     steps:
       - checkout
       - node/install-packages:
@@ -19,9 +18,8 @@ jobs:
           path: ./dist
 
   lint-prettier:
-    executor:
-      name: 'node/default'
-      tag: '14.15.3'
+    docker:
+      - image: circleci/node:14.15.3
     steps:
       - checkout
       - node/install-packages:
@@ -29,9 +27,8 @@ jobs:
       - run: yarn run lint:prettier
 
   lint-eslint:
-    executor:
-      name: 'node/default'
-      tag: '14.15.3'
+    docker:
+      - image: circleci/node:14.15.3
     steps:
       - checkout
       - node/install-packages:
@@ -47,9 +44,8 @@ jobs:
           path: ./junit
 
   ts-check:
-    executor:
-      name: 'node/default'
-      tag: '14.15.3'
+    docker:
+      - image: circleci/node:14.15.3
     steps:
       - checkout
       - node/install-packages:
@@ -57,9 +53,8 @@ jobs:
       - run: yarn run ts-check
 
   test-small:
-    executor:
-      name: 'node/default'
-      tag: '14.15.3'
+    docker:
+      - image: circleci/node:14.15.3
     steps:
       - checkout
       - node/install-packages:
@@ -82,9 +77,8 @@ jobs:
           file: ./coverage/lcov.info
 
   test-medium:
-    executor:
-      name: 'node/default'
-      tag: '14.15.3'
+    docker:
+      - image: circleci/node:14.15.3
     steps:
       - checkout
       - node/install-packages:
