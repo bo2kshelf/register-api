@@ -5,5 +5,13 @@ const config: Config.InitialOptions = {
   testEnvironment: 'node',
   rootDir: '../src',
   coverageDirectory: '../coverage',
+  coveragePathIgnorePatterns: [
+    '.args.ts',
+    '.input.ts',
+    '.enum.ts',
+    '.schema.ts',
+    '.entity.ts',
+    '.factory.ts',
+  ],
 };
 export default config;
