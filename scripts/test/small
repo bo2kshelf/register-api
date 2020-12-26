@@ -1,5 +1,3 @@
 #!/usr/bin/env sh
 
-echo $@
-
 jest --config=test/jest.small.config.ts $@
