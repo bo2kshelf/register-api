@@ -3,8 +3,10 @@ import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Author} from '../authors/schema/author.schema';
-import {checkIfArrayUnique, checkIfNotArrayEmpty} from '../common';
+import {DuplicateValueInArrayError} from '../error/duplicate-values-in-array.error';
+import {EmptyArrayError} from '../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
+import {isArrayUnique} from '../util';
 import {Book} from './schema/book.schema';
 
 @Injectable()
@@ -36,11 +38,12 @@ export class BooksService {
     authors: {id: ObjectId; roles?: string[]}[];
     isbn?: string;
   }): Promise<Book> {
-    checkIfNotArrayEmpty(authors, 'authors');
+    if (authors.length === 0) throw new EmptyArrayError('authors');
 
     const authorIds = authors.map(({id: author}) => author);
 
-    checkIfArrayUnique(authorIds, 'authors.id');
+    if (!isArrayUnique(authorIds))
+      throw new DuplicateValueInArrayError('authors.id');
 
     const actualIds: ObjectId[] = (
       await this.authorModel.find({_id: authorIds})
