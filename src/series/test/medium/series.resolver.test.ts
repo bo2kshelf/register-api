@@ -106,9 +106,9 @@ describe(SeriesResolver.name, () => {
           new NoDocumentForObjectIdError(Series.name, new ObjectId()),
         );
 
-      await expect(() => seriesResolver.series(new ObjectId())).rejects.toThrow(
-        NoDocumentForObjectIdError,
-      );
+      await expect(() =>
+        seriesResolver.series(new ObjectId().toHexString()),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 

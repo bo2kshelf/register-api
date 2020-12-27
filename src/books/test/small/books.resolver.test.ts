@@ -42,7 +42,7 @@ describe(BooksService.name, () => {
     it('book.serviceから正常に取得できた場合はそのまま返す', async () => {
       jest.spyOn(bookService, 'getById').mockResolvedValueOnce({} as Book);
 
-      const actual = bookResolver.book(new ObjectId());
+      const actual = bookResolver.book(new ObjectId().toHexString());
 
       expect(actual).toBeDefined();
     });
@@ -53,9 +53,9 @@ describe(BooksService.name, () => {
         .mockRejectedValueOnce(
           new NoDocumentForObjectIdError(Book.name, new ObjectId()),
         );
-      await expect(() => bookResolver.book(new ObjectId())).rejects.toThrow(
-        NoDocumentForObjectIdError,
-      );
+      await expect(() =>
+        bookResolver.book(new ObjectId().toHexString()),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 });

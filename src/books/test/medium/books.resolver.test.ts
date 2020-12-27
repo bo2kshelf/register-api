@@ -108,7 +108,7 @@ describe(BooksResolver.name, () => {
         );
 
       await expect(() =>
-        bookResolver.book(new ObjectId('5fccac3585e5265603349e97')),
+        bookResolver.book('5fccac3585e5265603349e97'),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });

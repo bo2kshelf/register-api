@@ -26,8 +26,11 @@ export class SeriesResolver {
   constructor(private seriesService: SeriesService) {}
 
   @Query(() => Series, {nullable: false})
-  async series(@Args('id', {type: () => ID}) id: ObjectId): Promise<Series> {
-    return this.seriesService.getById(id);
+  async series(
+    @Args('id', {type: () => ID})
+    id: string,
+  ): Promise<Series> {
+    return this.seriesService.getById(new ObjectId(id));
   }
 
   @ResolveField(() => ID)
@@ -56,7 +59,7 @@ export class SeriesResolver {
   }
 
   @ResolveReference()
-  resolveReference(reference: {__typename: string; id: ObjectId}) {
+  resolveReference(reference: {__typename: string; id: string}) {
     return this.series(reference.id);
   }
 
