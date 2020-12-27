@@ -20,12 +20,15 @@ export class AuthorsResolver {
   constructor(private authorsService: AuthorsService) {}
 
   @Query(() => Author, {nullable: false})
-  async author(@Args('id', {type: () => ID}) id: ObjectId): Promise<Author> {
-    return this.authorsService.getById(id);
+  async author(
+    @Args('id', {type: () => ID})
+    id: string,
+  ): Promise<Author> {
+    return this.authorsService.getById(new ObjectId(id));
   }
 
   @ResolveField(() => ID)
-  id(@Parent() author: Author): ObjectId {
+  id(@Parent() author: Author) {
     return this.authorsService.id(author);
   }
 
@@ -40,7 +43,7 @@ export class AuthorsResolver {
   }
 
   @ResolveReference()
-  resolveReference(reference: {__typename: string; id: ObjectId}) {
+  resolveReference(reference: {__typename: string; id: string}) {
     return this.author(reference.id);
   }
 

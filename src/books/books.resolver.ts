@@ -19,8 +19,11 @@ export class BooksResolver {
   constructor(private bookService: BooksService) {}
 
   @Query(() => Book, {nullable: false})
-  async book(@Args('id', {type: () => ID}) id: ObjectId): Promise<Book> {
-    return this.bookService.getById(id);
+  async book(
+    @Args('id', {type: () => ID})
+    id: string,
+  ): Promise<Book> {
+    return this.bookService.getById(new ObjectId(id));
   }
 
   @ResolveField(() => ID)
@@ -34,7 +37,7 @@ export class BooksResolver {
   }
 
   @ResolveReference()
-  resolveReference(reference: {__typename: string; id: ObjectId}) {
+  resolveReference(reference: {__typename: string; id: string}) {
     return this.book(reference.id);
   }
 

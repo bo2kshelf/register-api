@@ -83,9 +83,9 @@ describe(AuthorsResolver.name, () => {
           new NoDocumentForObjectIdError(Author.name, new ObjectId()),
         );
 
-      await expect(() => authorResolver.author(new ObjectId())).rejects.toThrow(
-        NoDocumentForObjectIdError,
-      );
+      await expect(() =>
+        authorResolver.author(new ObjectId().toHexString()),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 
