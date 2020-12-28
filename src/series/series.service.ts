@@ -28,6 +28,10 @@ export class SeriesService {
     private readonly paginateService: PaginateService,
   ) {}
 
+  async all(): Promise<Series[]> {
+    return this.seriesModel.find();
+  }
+
   id(series: Series): ObjectId {
     return series._id;
   }

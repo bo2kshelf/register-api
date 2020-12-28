@@ -18,6 +18,10 @@ export class BooksService {
     private readonly authorModel: Model<Author>,
   ) {}
 
+  async all(): Promise<Book[]> {
+    return this.bookModel.find();
+  }
+
   id(book: Book): ObjectId {
     return book._id;
   }
