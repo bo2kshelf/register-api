@@ -33,6 +33,11 @@ export class SeriesResolver {
     return this.seriesService.getById(new ObjectId(id));
   }
 
+  @Query(() => [Series], {nullable: false})
+  async allSeries(): Promise<Series[]> {
+    return this.seriesService.all();
+  }
+
   @ResolveField(() => ID)
   id(@Parent() series: Series): ObjectId {
     return this.seriesService.id(series);

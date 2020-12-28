@@ -27,6 +27,11 @@ export class AuthorsResolver {
     return this.authorsService.getById(new ObjectId(id));
   }
 
+  @Query(() => [Author], {nullable: false})
+  async allAuthors(): Promise<Author[]> {
+    return this.authorsService.all();
+  }
+
   @ResolveField(() => ID)
   id(@Parent() author: Author) {
     return this.authorsService.id(author);

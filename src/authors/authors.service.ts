@@ -19,6 +19,10 @@ export class AuthorsService {
     return author._id;
   }
 
+  async all(): Promise<Author[]> {
+    return this.authorModel.find();
+  }
+
   async getById(id: ObjectId): Promise<Author> {
     const author = await this.authorModel.findById(id);
 

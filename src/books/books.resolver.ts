@@ -26,6 +26,11 @@ export class BooksResolver {
     return this.bookService.getById(new ObjectId(id));
   }
 
+  @Query(() => [Book], {nullable: false})
+  async allBooks(): Promise<Book[]> {
+    return this.bookService.all();
+  }
+
   @ResolveField(() => ID)
   id(@Parent() book: Book): ObjectId {
     return this.bookService.id(book);
