@@ -2,6 +2,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Book} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {RelayConnection} from '../../../paginate/paginate.service';
 import {AuthorsResolver} from '../../authors.resolver';
 import {AuthorsService} from '../../authors.service';
 import {AuthorBooksArgs} from '../../dto/books.args';
@@ -90,11 +91,9 @@ describe(AuthorsResolver.name, () => {
 
   describe('books()', () => {
     it('Serviceから正常に取得できたらそれを返す', async () => {
-      jest.spyOn(authorsService, 'books').mockResolvedValue({
-        aggregate: {count: 0},
-        pageInfo: {},
-        edges: [],
-      });
+      jest
+        .spyOn(authorsService, 'books')
+        .mockResolvedValue({} as RelayConnection<Book>);
 
       const actual = await authorsResolver.books(
         {} as Author,

@@ -8,6 +8,14 @@ export type PagingMeta =
   | {pagingType: 'backward'; before?: string; last: number}
   | {pagingType: 'none'};
 
+export interface RelayConnection<S> {
+  aggregate: {
+    count: number;
+  };
+  edges: Relay.Edge<S>[];
+  pageInfo: Relay.PageInfo;
+}
+
 @Injectable()
 export class PaginateService {
   constructor() {}
@@ -33,12 +41,12 @@ export class PaginateService {
     }
   }
 
-  async getConnectionFromMongooseModel<T extends Document>(
+  async getConnectionFromMongooseModel<T extends Document, S>(
     model: Model<T>,
     connArgs: RequiredPaginationArgs,
     countAggregate: Parameters<Model<T>['aggregate']>[0],
     entitiesAggregate: Parameters<Model<T>['aggregate']>[0],
-  ) {
+  ): Promise<RelayConnection<S>> {
     const {limit, skip} = this.getPagingParameters(connArgs);
     const count: number = await model
       .aggregate([...countAggregate, {$count: 'count'}])
