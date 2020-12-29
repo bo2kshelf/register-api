@@ -1,27 +1,25 @@
 import {getModelToken, MongooseModule} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
-import {lorem} from 'faker';
-import * as Relay from 'graphql-relay';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {Book, BookSchema} from '../../../books/schema/book.schema';
+import {Book} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
-import {PaginateModule} from '../../../paginate/paginate.module';
+import {
+  PaginateService,
+  RelayConnection,
+} from '../../../paginate/paginate.service';
 import {AuthorsService} from '../../authors.service';
 import {Author, AuthorSchema} from '../../schema/author.schema';
-
-jest.mock('graphql-relay', () => ({
-  ...jest.requireActual('graphql-relay')!,
-}));
 
 describe(AuthorsService.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;
 
-  let bookModel: Model<Book>;
   let authorModel: Model<Author>;
+
+  let paginateService: PaginateService;
 
   let authorService: AuthorsService;
 
@@ -33,19 +31,24 @@ describe(AuthorsService.name, () => {
     module = await Test.createTestingModule({
       imports: [
         MongooseModule.forRootAsync({
-          useFactory: async () => ({uri: await mongoServer.getUri()}),
+          useFactory: async () => ({
+            uri: await mongoServer.getUri(),
+          }),
         }),
-        MongooseModule.forFeature([
-          {name: Author.name, schema: AuthorSchema},
-          {name: Book.name, schema: BookSchema},
-        ]),
-        PaginateModule,
+        MongooseModule.forFeature([{name: Author.name, schema: AuthorSchema}]),
       ],
-      providers: [AuthorsService],
+      providers: [
+        {
+          provide: PaginateService,
+          useValue: {getConnectionFromMongooseModel() {}},
+        },
+        AuthorsService,
+      ],
     }).compile();
 
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+
+    paginateService = module.get<PaginateService>(PaginateService);
 
     authorService = module.get<AuthorsService>(AuthorsService);
   });
@@ -68,112 +71,78 @@ describe(AuthorsService.name, () => {
 
   describe('id()', () => {
     it('ObjectIDを取得', async () => {
-      const newAuthor = await authorModel.create({
-        name: 'コトヤマ',
-      });
-
+      const expected = new ObjectId();
+      const newAuthor = await authorModel.create({_id: expected, name: 'Name'});
       const actual = authorService.id(newAuthor);
 
-      expect(actual).toBe(newAuthor._id);
+      expect(actual).toBe(expected);
     });
   });
 
   describe('getById()', () => {
-    it('存在する場合はそれを返す', async () => {
-      const newAuthor = await authorModel.create({
-        name: 'コトヤマ',
-      });
-
-      const actual = await authorService.getById(authorService.id(newAuthor));
-
-      expect(actual).toHaveProperty('name', 'コトヤマ');
+    let author: Author;
+    let authorId: ObjectId;
+    beforeEach(async () => {
+      author = await authorModel.create({name: 'Name'});
+      authorId = author._id;
     });
 
-    it('存在しない場合はError', async () => {
-      await expect(() =>
-        authorService.getById(new ObjectId('5fccac3585e5265603349e97')),
-      ).rejects.toThrow(NoDocumentForObjectIdError);
+    it('存在する場合はそれを返す', async () => {
+      const actual = await authorService.getById(authorId);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('_id', authorId);
+      expect(actual).toHaveProperty('name', author.name);
+    });
+
+    it('存在しない場合は例外を投げる', async () => {
+      await author.remove();
+      await expect(() => authorService.getById(authorId)).rejects.toThrow(
+        NoDocumentForObjectIdError,
+      );
+    });
+  });
+
+  describe('all()', () => {
+    it('何もなければ空配列を返す', async () => {
+      const actual = await authorService.all();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(0);
+    });
+
+    it('存在するならば配列を返す', async () => {
+      for (let i = 0; i < 5; i++) await authorModel.create({name: 'Name'});
+
+      const actual = await authorService.all();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(5);
     });
   });
 
   describe('create()', () => {
-    it('全てのプロパティが存在する', async () => {
-      const actual = await authorService.create({name: 'コトヤマ'});
+    it('正常に生成できたらそれを返す', async () => {
+      const actual = await authorService.create({name: 'Name'});
 
-      expect(actual).toHaveProperty('name', 'コトヤマ');
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('name', 'Name');
     });
   });
 
   describe('books()', () => {
     let author: Author;
     beforeEach(async () => {
-      author = await authorModel.create({name: 'コトヤマ'});
-      for (let i = 0; i < 30; i++) {
-        await bookModel.create({
-          title: lorem.word(),
-          authors: [{id: author._id}],
-        });
-      }
+      author = await authorModel.create({name: 'Name'});
     });
 
-    it('firstのみ指定', async () => {
-      const actual = await authorService.books(author, {first: 10});
-      expect(actual).toHaveProperty('aggregate', {count: 30});
+    it('受け取ったものをそのまま返す', async () => {
+      jest
+        .spyOn(paginateService, 'getConnectionFromMongooseModel')
+        .mockResolvedValueOnce({} as RelayConnection<Book>);
 
-      expect(actual).toHaveProperty('pageInfo');
-      expect(actual.pageInfo).toHaveProperty('startCursor');
-      expect(actual.pageInfo).toHaveProperty('endCursor');
-      expect(actual.pageInfo).toHaveProperty('hasPreviousPage', false);
-      expect(actual.pageInfo).toHaveProperty('hasNextPage', true);
-
-      expect(actual).toHaveProperty('edges');
-      expect(actual.edges).toHaveLength(10);
-    });
-
-    it('firstのみ指定(max < first)', async () => {
-      const actual = await authorService.books(author, {first: 40});
-      expect(actual).toHaveProperty('aggregate', {count: 30});
-
-      expect(actual).toHaveProperty('pageInfo');
-      expect(actual.pageInfo).toHaveProperty('startCursor');
-      expect(actual.pageInfo).toHaveProperty('endCursor');
-      expect(actual.pageInfo).toHaveProperty('hasPreviousPage', false);
-      expect(actual.pageInfo).toHaveProperty('hasNextPage', false);
-
-      expect(actual).toHaveProperty('edges');
-      expect(actual.edges).toHaveLength(30);
-    });
-
-    it('firstとafterを指定', async () => {
-      jest.spyOn(Relay, 'cursorToOffset').mockReturnValueOnce(10);
-
-      const actual = await authorService.books(author, {
-        first: 10,
-        after: '10',
-      });
-
-      expect(actual).toHaveProperty('aggregate', {count: 30});
-
-      expect(actual).toHaveProperty('pageInfo');
-
-      expect(actual).toHaveProperty('edges');
-      expect(actual.edges).toHaveLength(10);
-    });
-
-    it('beforeとlastを指定', async () => {
-      jest.spyOn(Relay, 'cursorToOffset').mockReturnValueOnce(10);
-
-      const actual = await authorService.books(author, {
-        last: 10,
-        before: '20',
-      });
-
-      expect(actual).toHaveProperty('aggregate', {count: 30});
-
-      expect(actual).toHaveProperty('pageInfo');
-
-      expect(actual).toHaveProperty('edges');
-      expect(actual.edges).toHaveLength(10);
+      const actual = await authorService.books(author, {});
+      expect(actual).toBeDefined();
     });
   });
 });

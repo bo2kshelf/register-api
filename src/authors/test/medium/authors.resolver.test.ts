@@ -3,7 +3,12 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
+import {Book} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {
+  PaginateService,
+  RelayConnection,
+} from '../../../paginate/paginate.service';
 import {AuthorsResolver} from '../../authors.resolver';
 import {AuthorsService} from '../../authors.service';
 import {Author, AuthorSchema} from '../../schema/author.schema';
@@ -14,6 +19,8 @@ describe(AuthorsResolver.name, () => {
   let module: TestingModule;
 
   let authorModel: Model<Author>;
+
+  let paginateService: PaginateService;
 
   let authorService: AuthorsService;
   let authorResolver: AuthorsResolver;
@@ -32,18 +39,17 @@ describe(AuthorsResolver.name, () => {
       ],
       providers: [
         {
-          provide: AuthorsService,
-          useValue: {
-            getById() {},
-            id: (Author: Author) => Author._id,
-            create() {},
-          },
+          provide: PaginateService,
+          useValue: {getConnectionFromMongooseModel() {}},
         },
         AuthorsResolver,
+        AuthorsService,
       ],
     }).compile();
 
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+
+    paginateService = module.get<PaginateService>(PaginateService);
 
     authorService = module.get<AuthorsService>(AuthorsService);
     authorResolver = module.get<AuthorsResolver>(AuthorsResolver);
@@ -65,49 +71,80 @@ describe(AuthorsResolver.name, () => {
     expect(authorResolver).toBeDefined();
   });
 
-  describe('Author()', () => {
+  describe('author()', () => {
+    let author: Author;
+    let authorId: ObjectId;
+    beforeEach(async () => {
+      author = await authorModel.create({name: 'Name'});
+      authorId = author._id;
+    });
+
     it('存在するならばそれを返す', async () => {
-      const newAuthor = await authorModel.create({name: 'コトヤマ'});
+      const actual = await authorResolver.author(authorId.toHexString());
 
-      jest.spyOn(authorService, 'getById').mockResolvedValueOnce(newAuthor);
-
-      const actual = await authorResolver.author(newAuthor._id);
-
-      expect(actual).toHaveProperty('name', 'コトヤマ');
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('_id', authorId);
+      expect(actual).toHaveProperty('name', author.name);
     });
 
     it('存在しない場合はErrorを返す', async () => {
-      jest
-        .spyOn(authorService, 'getById')
-        .mockRejectedValueOnce(
-          new NoDocumentForObjectIdError(Author.name, new ObjectId()),
-        );
-
+      await author.remove();
       await expect(() =>
-        authorResolver.author(new ObjectId().toHexString()),
+        authorResolver.author(authorId.toHexString()),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
   });
 
+  describe('allAuthors()', () => {
+    it('何もなければ空配列を返す', async () => {
+      const actual = await authorResolver.allAuthors();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(0);
+    });
+
+    it('存在するならば配列を返す', async () => {
+      for (let i = 0; i < 5; i++) await authorModel.create({name: 'Name'});
+
+      const actual = await authorResolver.allAuthors();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(5);
+    });
+  });
+
   describe('id()', () => {
-    it('適切なIDを返す', async () => {
-      const newAuthor = await authorModel.create({name: 'コトヤマ'});
+    it('StringとしてIDを取得', async () => {
+      const newAuthor = await authorModel.create({name: 'Name'});
+      const expected = newAuthor._id.toHexString();
+      const actual = authorResolver.id(newAuthor);
 
-      const actual = await authorResolver.id(newAuthor);
+      expect(actual).toBe(expected);
+    });
+  });
 
-      expect(actual).toBe(newAuthor._id);
+  describe('books()', () => {
+    let author: Author;
+    beforeEach(async () => {
+      author = await authorModel.create({name: 'Name'});
+    });
+
+    it('受け取ったものをそのまま返す', async () => {
+      jest
+        .spyOn(authorService, 'books')
+        .mockResolvedValueOnce({} as RelayConnection<Book>);
+
+      const actual = await authorService.books(author, {});
+      expect(actual).toBeDefined();
     });
   });
 
   describe('createAuthor()', () => {
-    it('全てのプロパティが存在する', async () => {
-      const newAuthor = await authorModel.create({name: 'コトヤマ'});
+    it('正常に生成できたらそれを返す', async () => {
+      const actual = await authorResolver.createAuthor({name: 'Name'});
 
-      jest.spyOn(authorService, 'create').mockResolvedValueOnce(newAuthor);
-
-      const actual = await authorResolver.createAuthor({name: 'コトヤマ'});
-
-      expect(actual).toHaveProperty('name', 'コトヤマ');
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('name', 'Name');
     });
   });
 });
