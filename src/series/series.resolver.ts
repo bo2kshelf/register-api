@@ -78,7 +78,7 @@ export class SeriesResolver {
         id: new ObjectId(id),
         ...rest,
       })),
-      relatedBooks: books.map(({id, ...rest}) => ({
+      relatedBooks: relatedBooks?.map(({id, ...rest}) => ({
         id: new ObjectId(id),
         ...rest,
       })),
