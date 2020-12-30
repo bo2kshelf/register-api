@@ -6,6 +6,7 @@ import {Author} from '../../../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {modelMockFactory} from '../../../mongoose/model.mock.factory';
 import {BooksService} from '../../books.service';
 import {Book} from '../../schema/book.schema';
 
@@ -22,19 +23,11 @@ describe(BooksService.name, () => {
       providers: [
         {
           provide: getModelToken(Book.name),
-          useValue: {
-            findById() {},
-            create() {},
-            find() {},
-          },
+          useFactory: modelMockFactory,
         },
         {
           provide: getModelToken(Author.name),
-          useValue: {
-            findById() {},
-            create() {},
-            find() {},
-          },
+          useFactory: modelMockFactory,
         },
         BooksService,
       ],

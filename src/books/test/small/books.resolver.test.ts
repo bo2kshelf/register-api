@@ -5,6 +5,8 @@ import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book} from '../../schema/book.schema';
 
+jest.mock('../../books.service');
+
 describe(BooksResolver.name, () => {
   let module: TestingModule;
 
@@ -13,18 +15,7 @@ describe(BooksResolver.name, () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      providers: [
-        {
-          provide: BooksService,
-          useValue: {
-            id() {},
-            all() {},
-            getById() {},
-            create() {},
-          },
-        },
-        BooksResolver,
-      ],
+      providers: [BooksService, BooksResolver],
     }).compile();
 
     booksService = module.get<BooksService>(BooksService);

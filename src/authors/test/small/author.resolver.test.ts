@@ -9,6 +9,8 @@ import {AuthorBooksArgs} from '../../dto/books.args';
 import {CreateAuthorInput} from '../../dto/create-author.input';
 import {Author} from '../../schema/author.schema';
 
+jest.mock('../../authors.service');
+
 describe(AuthorsResolver.name, () => {
   let module: TestingModule;
 
@@ -17,19 +19,7 @@ describe(AuthorsResolver.name, () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      providers: [
-        {
-          provide: AuthorsService,
-          useValue: {
-            id() {},
-            all() {},
-            getById() {},
-            create() {},
-            books() {},
-          },
-        },
-        AuthorsResolver,
-      ],
+      providers: [AuthorsService, AuthorsResolver],
     }).compile();
 
     authorsService = module.get<AuthorsService>(AuthorsService);

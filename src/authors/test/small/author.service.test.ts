@@ -4,12 +4,15 @@ import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
 import {Book} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {modelMockFactory} from '../../../mongoose/model.mock.factory';
 import {
   PaginateService,
   RelayConnection,
 } from '../../../paginate/paginate.service';
 import {AuthorsService} from '../../authors.service';
 import {Author} from '../../schema/author.schema';
+
+jest.mock('../../../paginate/paginate.service');
 
 describe(AuthorsService.name, () => {
   let module: TestingModule;
@@ -25,16 +28,9 @@ describe(AuthorsService.name, () => {
       providers: [
         {
           provide: getModelToken(Author.name),
-          useValue: {
-            find() {},
-            findById() {},
-            create() {},
-          },
+          useFactory: modelMockFactory,
         },
-        {
-          provide: PaginateService,
-          useValue: {getConnectionFromMongooseModel() {}},
-        },
+        PaginateService,
         AuthorsService,
       ],
     }).compile();
