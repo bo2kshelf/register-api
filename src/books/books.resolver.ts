@@ -32,12 +32,12 @@ export class BooksResolver {
   }
 
   @ResolveField(() => ID)
-  id(@Parent() book: Book): ObjectId {
-    return this.bookService.id(book);
+  id(@Parent() book: Book): string {
+    return this.bookService.id(book).toHexString();
   }
 
   @ResolveField(() => [BookAuthorsConnection])
-  async authors(@Parent() book: Book) {
+  authors(@Parent() book: Book) {
     return book.authors;
   }
 
