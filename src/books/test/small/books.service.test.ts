@@ -22,11 +22,19 @@ describe(BooksService.name, () => {
       providers: [
         {
           provide: getModelToken(Book.name),
-          useValue: {findById() {}, create() {}},
+          useValue: {
+            findById() {},
+            create() {},
+            find() {},
+          },
         },
         {
           provide: getModelToken(Author.name),
-          useValue: {findById() {}, create() {}, find() {}},
+          useValue: {
+            findById() {},
+            create() {},
+            find() {},
+          },
         },
         BooksService,
       ],
@@ -51,107 +59,136 @@ describe(BooksService.name, () => {
   });
 
   describe('getById()', () => {
-    it('idから見つかる場合はそのまま返す', async () => {
+    it('正常に取得できたらそれを返す', async () => {
       jest.spyOn(bookModel, 'findById').mockResolvedValueOnce({} as Book);
+
       const actual = await bookService.getById(new ObjectId());
       expect(actual).toBeDefined();
     });
 
-    it('idから見つからない場合は例外を投げる', async () => {
+    it('存在しない場合は例外を投げる', async () => {
       jest.spyOn(bookModel, 'findById').mockResolvedValueOnce(null);
+
       await expect(() => bookService.getById(new ObjectId())).rejects.toThrow(
         NoDocumentForObjectIdError,
       );
     });
   });
 
-  describe('id()', () => {
-    it('Documentの_idを返す', async () => {
-      const expected = new ObjectId();
-      const book: Book = {_id: expected} as Book;
+  describe('all()', () => {
+    it('受け取ったものをそのまま返す', async () => {
+      jest.spyOn(bookModel, 'find').mockResolvedValueOnce([{} as Book]);
 
-      const actual = bookService.id(book);
+      const actual = await bookService.all();
+      expect(actual).toBeDefined();
+    });
+  });
+
+  describe('id()', () => {
+    it('引数の_idをそのまま返す', () => {
+      const expected = new ObjectId();
+
+      const actual = bookService.id({_id: expected} as Book);
 
       expect(actual).toStrictEqual(expected);
     });
   });
 
   describe('create()', () => {
-    it('期待されるプロパティが全て存在する', async () => {
-      jest
-        .spyOn(authorModel, 'findById')
-        .mockResolvedValue({_id: new ObjectId()} as Author);
-      jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
-
-      const actual = bookService.create({
-        title: 'title',
-        isbn: '9784091294920',
-        authors: [
-          {id: new ObjectId(), roles: ['original']},
-          {id: new ObjectId(), roles: ['illust']},
-        ],
-      });
-
-      expect(actual).toBeDefined();
-    });
-
-    it('ISBNが無くても成功する', async () => {
-      jest
-        .spyOn(authorModel, 'findById')
-        .mockResolvedValue({_id: new ObjectId()} as Author);
-      jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
-
-      const actual = bookService.create({
-        title: 'title',
-        authors: [
-          {id: new ObjectId(), roles: ['original']},
-          {id: new ObjectId(), roles: ['illust']},
-        ],
-      });
-      expect(actual).toBeDefined();
-    });
-
-    it('rolesが無くても成功する', async () => {
-      jest
-        .spyOn(authorModel, 'findById')
-        .mockResolvedValue({_id: new ObjectId()} as Author);
-      jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
-
-      const actual = bookService.create({
-        title: 'title',
-        authors: [{id: new ObjectId()}, {id: new ObjectId()}],
-      });
-
-      expect(actual).toBeDefined();
-    });
-
     it('authorsが空配列ならば例外を投げる', async () => {
       await expect(() =>
-        bookService.create({title: 'title', authors: []}),
+        bookService.create({
+          title: 'Title',
+          authors: [],
+        }),
       ).rejects.toThrow(EmptyArrayError);
     });
 
-    it('authorsのidが重複していたら例外を投げる', async () => {
+    it('authors.idに重複があるならば例外を投げる', async () => {
       const dupl = new ObjectId();
-
       await expect(() =>
-        bookService.create({title: 'title', authors: [{id: dupl}, {id: dupl}]}),
+        bookService.create({
+          title: 'Title',
+          authors: [{id: dupl}, {id: dupl}, {id: new ObjectId()}],
+        }),
       ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
-    it('authorsのidが一つでも存在しなければ例外を投げる', async () => {
-      const existId = new ObjectId();
-
+    it('該当するAuthorが一つでも存在しなければ例外を投げる', async () => {
+      const id1 = new ObjectId();
+      const id2 = new ObjectId();
       jest
         .spyOn(authorModel, 'find')
-        .mockResolvedValue([{_id: existId}] as Author[]);
+        .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
 
       await expect(() =>
         bookService.create({
-          title: 'title',
-          authors: [{id: existId}, {id: new ObjectId()}],
+          title: 'Title',
+          authors: [{id: id1}, {id: id2}, {id: new ObjectId()}],
         }),
       ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    describe('正常に生成する', () => {
+      beforeEach(() => {
+        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+      });
+
+      it('全てのプロパティが不足なくある', async () => {
+        const id1 = new ObjectId();
+        const id2 = new ObjectId();
+        jest
+          .spyOn(authorModel, 'find')
+          .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
+        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+
+        const actual = await bookService.create({
+          title: 'title',
+          isbn: '9784091294920',
+          authors: [
+            {id: id1, roles: ['Original']},
+            {id: id2, roles: ['Illust']},
+          ],
+        });
+
+        expect(actual).toBeDefined();
+      });
+
+      it('ISBNが存在しない', async () => {
+        const id1 = new ObjectId();
+        const id2 = new ObjectId();
+        jest
+          .spyOn(authorModel, 'find')
+          .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
+        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+
+        const actual = await bookService.create({
+          title: 'title',
+          authors: [
+            {id: new ObjectId(), roles: ['Original']},
+            {id: new ObjectId(), roles: ['Illust']},
+          ],
+        });
+
+        expect(actual).toBeDefined();
+      });
+
+      it('authors.rolesが存在しない', async () => {
+        const id1 = new ObjectId();
+        const id2 = new ObjectId();
+        jest
+          .spyOn(authorModel, 'find')
+          .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
+        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+
+        const actual = await bookService.create({
+          title: 'title',
+          isbn: '9784091294920',
+          authors: [{id: id1}, {id: id2}],
+        });
+
+        expect(actual).toBeDefined();
+      });
     });
   });
 });

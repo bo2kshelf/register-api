@@ -17,8 +17,8 @@ describe(BooksResolver.name, () => {
   let bookModel: Model<Book>;
   let authorModel: Model<Author>;
 
-  let bookService: BooksService;
-  let bookResolver: BooksResolver;
+  let booksService: BooksService;
+  let booksResolver: BooksResolver;
 
   beforeAll(async () => {
     mongoServer = new MongoMemoryServer();
@@ -35,24 +35,14 @@ describe(BooksResolver.name, () => {
           {name: Author.name, schema: AuthorSchema},
         ]),
       ],
-      providers: [
-        {
-          provide: BooksService,
-          useValue: {
-            getById() {},
-            id: (book: Book) => book._id,
-            create() {},
-          },
-        },
-        BooksResolver,
-      ],
+      providers: [BooksService, BooksResolver],
     }).compile();
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
 
-    bookService = module.get<BooksService>(BooksService);
-    bookResolver = module.get<BooksResolver>(BooksResolver);
+    booksService = module.get<BooksService>(BooksService);
+    booksResolver = module.get<BooksResolver>(BooksResolver);
   });
 
   afterEach(async () => {
@@ -68,112 +58,116 @@ describe(BooksResolver.name, () => {
   });
 
   it('should be defined', () => {
-    expect(bookResolver).toBeDefined();
+    expect(booksResolver).toBeDefined();
   });
 
   describe('book()', () => {
-    let author: Author;
-
-    beforeAll(async () => {
-      author = await authorModel.create({name: 'コトヤマ'});
-    });
-
-    afterAll(async () => {
-      await authorModel.deleteMany({});
+    let book: Book;
+    let bookId: ObjectId;
+    beforeEach(async () => {
+      book = await bookModel.create({title: 'Title', authors: []});
+      bookId = book._id;
     });
 
     it('存在するならばそれを返す', async () => {
-      const newBook = await bookModel.create({
-        title: 'よふかしのうた(1)',
-        isbn: '978-4091294920',
-        authors: [{id: author._id}],
-      });
+      const actual = await booksResolver.book(bookId.toHexString());
 
-      jest.spyOn(bookService, 'getById').mockResolvedValueOnce(newBook);
-
-      const actual = await bookResolver.book(newBook._id);
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
-      expect(actual).toHaveProperty('isbn', '978-4091294920');
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('_id', bookId);
+      expect(actual).toHaveProperty('title', book.title);
     });
 
-    it('存在しない場合はErrorを返す', async () => {
-      jest
-        .spyOn(bookService, 'getById')
-        .mockRejectedValueOnce(
-          new NoDocumentForObjectIdError(
-            Book.name,
-            new ObjectId('5fccac3585e5265603349e97'),
-          ),
-        );
-
+    it('存在しない場合は例外を投げる', async () => {
+      await book.remove();
       await expect(() =>
-        bookResolver.book('5fccac3585e5265603349e97'),
+        booksResolver.book(bookId.toHexString()),
       ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    it('ObjectIdとして不正な値を入力すると例外発生', async () => {
+      await expect(() =>
+        booksResolver.book('Invalid ObjectId'),
+      ).rejects.toThrow(Error);
+    });
+  });
+
+  describe('allBooks()', () => {
+    it('何もなければ空配列を返す', async () => {
+      const actual = await booksResolver.allBooks();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(0);
+    });
+
+    it('存在するならば配列を返す', async () => {
+      for (let i = 0; i < 5; i++)
+        await bookModel.create({title: 'Title', authors: []});
+
+      const actual = await booksResolver.allBooks();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(5);
     });
   });
 
   describe('id()', () => {
-    it('適切なIDを返す', async () => {
-      const newBook = await bookModel.create({
-        title: 'よふかしのうた(1)',
+    it('StringとしてIDを取得', async () => {
+      const newBooks = await bookModel.create({
+        title: 'Title',
         authors: [],
       });
+      const expected = newBooks._id.toHexString();
+      const actual = booksResolver.id(newBooks);
 
-      const actual = await bookResolver.id(newBook);
+      expect(actual).toBe(expected);
+    });
+  });
 
-      expect(actual).toBe(newBook._id);
+  describe('authors()', () => {
+    it('Authorsを取得', async () => {
+      const author1 = await authorModel.create({name: 'Name 1'});
+      const author2 = await authorModel.create({name: 'Name 2'});
+      const newBooks = await bookModel.create({
+        title: 'Title',
+        authors: [
+          {id: author1._id, roles: ['Original']},
+          {id: author2._id, roles: ['Illust']},
+        ],
+      });
+      const actual = booksResolver.authors(newBooks);
+
+      expect(actual).toBeDefined();
+      expect(actual).toContainEqual({id: author1._id, roles: ['Original']});
+      expect(actual).toContainEqual({id: author2._id, roles: ['Illust']});
     });
   });
 
   describe('createBook()', () => {
-    let author: Author;
-
-    beforeAll(async () => {
-      author = await authorModel.create({name: 'コトヤマ'});
+    let author1: Author;
+    let author2: Author;
+    beforeEach(async () => {
+      author1 = await authorModel.create({name: 'Name 1'});
+      author2 = await authorModel.create({name: 'Name 2'});
     });
 
-    afterAll(async () => {
-      await authorModel.deleteMany({});
+    it('Serviceが正常に実行できたらそれを返す', async () => {
+      const actual = await booksResolver.createBook({
+        title: 'Title',
+        authors: [
+          {id: author1._id.toHexString(), roles: ['Original']},
+          {id: author2._id.toHexString(), roles: ['Illust']},
+        ],
+      });
+      expect(actual).toBeDefined();
     });
 
-    it('全てのプロパティが存在する', async () => {
-      const newBook = await bookModel.create({
-        title: 'よふかしのうた(1)',
-        isbn: '978-4091294920',
-        authors: [{id: author._id, roles: ['原作']}],
-      });
-
-      jest.spyOn(bookService, 'create').mockResolvedValueOnce(newBook);
-
-      const actual = await bookResolver.createBook({
-        title: 'よふかしのうた(1)',
-        isbn: '978-4091294920',
-        authors: [{id: author._id, roles: ['原作']}],
-      });
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
-      expect(actual).toHaveProperty('isbn', '978-4091294920');
-      expect(actual).toHaveProperty('authors');
-      expect(actual.authors).toHaveLength(1);
-      expect(typeof actual.authors[0].id).not.toBe('string');
-    });
-
-    it('iSBNが欠落しても通る', async () => {
-      const newBook = await bookModel.create({
-        title: 'よふかしのうた(1)',
-        authors: [{id: author._id}],
-      });
-
-      jest.spyOn(bookService, 'create').mockResolvedValueOnce(newBook);
-
-      const actual = await bookResolver.createBook({
-        title: 'よふかしのうた(1)',
-        authors: [{id: author._id}],
-      });
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
-      expect(actual).toHaveProperty('isbn', undefined);
+    it('ObjectIdとして不正な値を入力すると例外発生', async () => {
+      await expect(() =>
+        booksResolver.createBook({
+          title: 'Title',
+          authors: [{id: 'Invalid ObjectId'}],
+        }),
+      ).rejects.toThrow(Error);
     });
   });
 });
