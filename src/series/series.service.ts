@@ -12,7 +12,7 @@ import {EmptyArrayError} from '../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
 import {OrderDirection} from '../paginate/enum/order-direction.enum';
-import {PaginateService} from '../paginate/paginate.service';
+import {PaginateService, RelayConnection} from '../paginate/paginate.service';
 import {isArrayUnique} from '../util';
 import {Series} from './schema/series.schema';
 
@@ -93,7 +93,7 @@ export class SeriesService {
     series: Series,
     args: RequiredPaginationArgs,
     orderBy?: {serial?: OrderDirection},
-  ) {
+  ): Promise<RelayConnection<{id: ObjectId; serial: number}>> {
     const seriesId = this.id(series);
     return this.paginateService.getConnectionFromMongooseModel(
       this.seriesModel,
@@ -108,7 +108,10 @@ export class SeriesService {
     );
   }
 
-  async relatedBooks(series: Series, args: RequiredPaginationArgs) {
+  async relatedBooks(
+    series: Series,
+    args: RequiredPaginationArgs,
+  ): Promise<RelayConnection<{id: ObjectId}>> {
     const seriesId = this.id(series);
     return this.paginateService.getConnectionFromMongooseModel(
       this.seriesModel,
@@ -153,8 +156,9 @@ export class SeriesService {
         {new: true},
       )
       .then((actual) => {
-        if (actual) return actual;
-        throw new NoDocumentForObjectIdError(Series.name, seriesId);
+        if (!actual)
+          throw new NoDocumentForObjectIdError(Series.name, seriesId);
+        return actual;
       });
   }
 
@@ -181,8 +185,9 @@ export class SeriesService {
         {new: true},
       )
       .then((actual) => {
-        if (actual) return actual;
-        throw new NoDocumentForObjectIdError(Series.name, seriesId);
+        if (!actual)
+          throw new NoDocumentForObjectIdError(Series.name, seriesId);
+        return actual;
       });
   }
 }
