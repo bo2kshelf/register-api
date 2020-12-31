@@ -33,13 +33,7 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
-      - restore_cache:
-          key: eslint-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      - run: yarn run lint:eslint --cache --format junit --output-file ./junit/eslint.xml
-      - save_cache:
-          key: eslint-{{ .Branch }}-{{ checksum "yarn.lock" }}
-          paths:
-            - .eslintcache
+      - run: yarn run lint:eslint --format junit --output-file ./junit/eslint.xml
       - store_test_results:
           path: ./junit
 
