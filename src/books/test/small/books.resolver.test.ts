@@ -65,7 +65,7 @@ describe(BooksResolver.name, () => {
     it('Serviceから正常に取得できたらそれを返す', async () => {
       jest.spyOn(booksService, 'all').mockResolvedValueOnce([] as Book[]);
 
-      const actual = await booksService.all();
+      const actual = await booksResolver.allBooks();
       expect(actual).toBeDefined();
     });
   });
