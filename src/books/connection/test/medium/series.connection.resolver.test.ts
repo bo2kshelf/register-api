@@ -3,10 +3,14 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
+import {Author, AuthorSchema} from '../../../../authors/schema/author.schema';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {BooksService} from '../../../books.service';
 import {Book, BookSchema} from '../../../schema/book.schema';
-import {SeriesBooksConnectionResolver} from '../../series-connection.resolver';
+import {
+  SeriesBooksConnectionResolver,
+  SeriesRelatedBooksConnectionResolver,
+} from '../../series-connection.resolver';
 
 describe(SeriesBooksConnectionResolver.name, () => {
   let mongoServer: MongoMemoryServer;
@@ -29,15 +33,12 @@ describe(SeriesBooksConnectionResolver.name, () => {
         MongooseModule.forRootAsync({
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
-        MongooseModule.forFeature([{name: Book.name, schema: BookSchema}]),
+        MongooseModule.forFeature([
+          {name: Book.name, schema: BookSchema},
+          {name: Author.name, schema: AuthorSchema},
+        ]),
       ],
-      providers: [
-        {
-          provide: BooksService,
-          useValue: {getById() {}},
-        },
-        SeriesBooksConnectionResolver,
-      ],
+      providers: [BooksService, SeriesBooksConnectionResolver],
     }).compile();
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
@@ -64,37 +65,114 @@ describe(SeriesBooksConnectionResolver.name, () => {
     expect(connectionResolver).toBeDefined();
   });
 
-  describe('author()', () => {
+  describe('book()', () => {
+    let book: Book;
+    let bookId: ObjectId;
+    beforeEach(async () => {
+      book = await bookModel.create({title: 'Title', authors: []});
+      bookId = book._id;
+    });
+
     it('存在するならばそれを返す', async () => {
-      const newAuthor = await bookModel.create({
-        title: 'よふかしのうた(1)',
-        authors: [],
-      });
-
-      jest.spyOn(booksService, 'getById').mockResolvedValueOnce(newAuthor);
-
       const actual = await connectionResolver.book({
-        id: new ObjectId('5fccac3585e5265603349e97'),
+        id: bookId,
         serial: 1,
       });
 
-      expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
-      expect(actual).toHaveProperty('authors');
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('_id', bookId);
+      expect(actual).toHaveProperty('title', book.title);
     });
 
-    it('存在しない場合はError', async () => {
-      jest
-        .spyOn(booksService, 'getById')
-        .mockRejectedValueOnce(
-          new NoDocumentForObjectIdError(
-            Book.name,
-            new ObjectId('5fccac3585e5265603349e97'),
-          ),
-        );
-
+    it('存在しない場合は例外を投げる', async () => {
+      await book.remove();
       await expect(() =>
         connectionResolver.book({
-          id: new ObjectId('5fccac3585e5265603349e97'),
+          id: bookId,
+          serial: 1,
+        }),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+  });
+});
+
+describe(SeriesRelatedBooksConnectionResolver.name, () => {
+  let mongoServer: MongoMemoryServer;
+
+  let module: TestingModule;
+
+  let bookModel: Model<Book>;
+
+  let booksService: BooksService;
+
+  let connectionResolver: SeriesRelatedBooksConnectionResolver;
+
+  beforeAll(async () => {
+    mongoServer = new MongoMemoryServer();
+  });
+
+  beforeEach(async () => {
+    module = await Test.createTestingModule({
+      imports: [
+        MongooseModule.forRootAsync({
+          useFactory: async () => ({uri: await mongoServer.getUri()}),
+        }),
+        MongooseModule.forFeature([
+          {name: Book.name, schema: BookSchema},
+          {name: Author.name, schema: AuthorSchema},
+        ]),
+      ],
+      providers: [BooksService, SeriesRelatedBooksConnectionResolver],
+    }).compile();
+
+    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+
+    booksService = module.get<BooksService>(BooksService);
+    connectionResolver = module.get<SeriesRelatedBooksConnectionResolver>(
+      SeriesRelatedBooksConnectionResolver,
+    );
+  });
+
+  afterEach(async () => {
+    jest.clearAllMocks();
+
+    await bookModel.deleteMany({});
+  });
+
+  afterAll(async () => {
+    await mongoServer.stop();
+
+    await module.close();
+  });
+
+  it('should be defined', () => {
+    expect(connectionResolver).toBeDefined();
+  });
+
+  describe('book()', () => {
+    let book: Book;
+    let bookId: ObjectId;
+    beforeEach(async () => {
+      book = await bookModel.create({title: 'Title', authors: []});
+      bookId = book._id;
+    });
+
+    it('存在するならばそれを返す', async () => {
+      const actual = await connectionResolver.book({
+        id: bookId,
+        serial: 1,
+      });
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('_id', bookId);
+      expect(actual).toHaveProperty('title', book.title);
+    });
+
+    it('存在しない場合は例外を投げる', async () => {
+      await book.remove();
+      await expect(() =>
+        connectionResolver.book({
+          id: bookId,
           serial: 1,
         }),
       ).rejects.toThrow(NoDocumentForObjectIdError);

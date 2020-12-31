@@ -17,11 +17,4 @@ export class SeriesBooksConnectionResolver {
 }
 
 @Resolver(() => SeriesRelatedBooksConnection)
-export class SeriesRelatedBooksConnectionResolver {
-  constructor(private bookService: BooksService) {}
-
-  @ResolveField(() => Book)
-  async book(@Parent() {id}: SeriesBooksConnection) {
-    return this.bookService.getById(id);
-  }
-}
+export class SeriesRelatedBooksConnectionResolver extends SeriesBooksConnectionResolver {}
