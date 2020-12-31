@@ -48,12 +48,13 @@ describe(BooksService.name, () => {
     jest.clearAllMocks();
 
     await bookModel.deleteMany({});
+    await authorModel.deleteMany({});
   });
 
   afterAll(async () => {
-    await mongoServer.stop();
-
     await module.close();
+
+    await mongoServer.stop();
   });
 
   it('should be defined', () => {
@@ -61,120 +62,137 @@ describe(BooksService.name, () => {
   });
 
   describe('id()', () => {
-    it('objectIDを取得', async () => {
-      const newBook = await bookModel.create({title: 'Title', authors: []});
-
+    it('ObjectIDを取得', async () => {
+      const expected = new ObjectId();
+      const newBook = await bookModel.create({
+        _id: expected,
+        title: 'Title',
+        authors: [],
+      });
       const actual = bookService.id(newBook);
 
-      expect(actual).toBe(newBook._id);
+      expect(actual).toBe(expected);
     });
   });
 
   describe('getById()', () => {
-    let author: Author;
-
-    beforeAll(async () => {
-      author = await authorModel.create({name: 'コトヤマ'});
-    });
-
-    afterAll(async () => {
-      await authorModel.deleteMany({});
+    let book: Book;
+    let bookId: ObjectId;
+    beforeEach(async () => {
+      book = await bookModel.create({title: 'Title', authors: []});
+      bookId = book._id;
     });
 
     it('存在する場合はそれを返す', async () => {
-      const newBook = await bookModel.create({
-        title: 'よふかしのうた(1)',
-        isbn: '978-4091294920',
-        authors: [{id: author._id}],
-      });
+      const actual = await bookService.getById(bookId);
 
-      const actual = await bookService.getById(bookService.id(newBook));
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
-      expect(actual).toHaveProperty('isbn', '978-4091294920');
-      expect(actual).toHaveProperty('authors');
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('_id', bookId);
+      expect(actual).toHaveProperty('title', book.title);
     });
 
-    it('存在しない場合はError', async () => {
-      await expect(() =>
-        bookService.getById(new ObjectId('5fccac3585e5265603349e97')),
-      ).rejects.toThrow(NoDocumentForObjectIdError);
+    it('存在しない場合は例外を投げる', async () => {
+      await book.remove();
+      await expect(() => bookService.getById(bookId)).rejects.toThrow(
+        NoDocumentForObjectIdError,
+      );
+    });
+  });
+
+  describe('all()', () => {
+    it('何もなければ空配列を返す', async () => {
+      const actual = await bookService.all();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(0);
+    });
+
+    it('存在するならば配列を返す', async () => {
+      for (let i = 0; i < 5; i++)
+        await bookModel.create({title: 'Title', authors: []});
+
+      const actual = await bookService.all();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(5);
     });
   });
 
   describe('create()', () => {
-    let author: Author;
-
+    let author1: Author;
+    let author2: Author;
     beforeEach(async () => {
-      author = await authorModel.create({name: 'コトヤマ'});
+      author1 = await authorModel.create({name: 'Name 1'});
+      author2 = await authorModel.create({name: 'Name 2'});
     });
 
-    afterEach(async () => {
-      await authorModel.deleteMany({});
-    });
-
-    it('全てのプロパティがある', async () => {
-      const actual = await bookService.create({
-        title: 'よふかしのうた(1)',
-        isbn: '978-4091294920',
-        authors: [{id: author._id, roles: ['原作']}],
-      });
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
-      expect(actual).toHaveProperty('isbn', '978-4091294920');
-      expect(actual).toHaveProperty('authors');
-    });
-
-    it('ISBNが欠落していても通る', async () => {
-      const actual = await bookService.create({
-        title: 'よふかしのうた(1)',
-        authors: [{id: author._id}],
-      });
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
-      expect(actual).toHaveProperty('isbn', undefined);
-      expect(actual).toHaveProperty('authors');
-    });
-
-    it('authorsのrolesは無くても通る', async () => {
-      const actual = await bookService.create({
-        title: 'よふかしのうた(1)',
-        isbn: '978-4091294920',
-        authors: [{id: author._id}],
-      });
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた(1)');
-      expect(actual).toHaveProperty('isbn', '978-4091294920');
-      expect(actual).toHaveProperty('authors');
-    });
-
-    it('authorsが重複している場合はError', async () => {
+    it('authorsが空配列ならば例外を投げる', async () => {
       await expect(() =>
         bookService.create({
-          title: 'よふかしのうた(1)',
-          authors: [{id: author._id}, {id: author._id}],
-        }),
-      ).rejects.toThrow(DuplicateValueInArrayError);
-    });
-
-    it('authorsが空の場合はError', async () => {
-      await expect(() =>
-        bookService.create({
-          title: 'よふかしのうた(1)',
+          title: 'Title',
           authors: [],
         }),
       ).rejects.toThrow(EmptyArrayError);
     });
 
-    it('idに結びついたauthorが存在しない場合はError', async () => {
-      await authorModel.deleteMany({});
-
+    it('authors.idに重複があるならば例外を投げる', async () => {
+      const dupl = new ObjectId();
       await expect(() =>
         bookService.create({
-          title: 'よふかしのうた(1)',
-          authors: [{id: author._id}],
+          title: 'Title',
+          authors: [{id: dupl}, {id: dupl}],
+        }),
+      ).rejects.toThrow(DuplicateValueInArrayError);
+    });
+
+    it('該当するAuthorが一つでも存在しなければ例外を投げる', async () => {
+      await author1.remove();
+      await expect(() =>
+        bookService.create({
+          title: 'Title',
+          authors: [{id: author1._id}, {id: author2._id}],
         }),
       ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    describe('正常に生成する', () => {
+      it('全てのプロパティが不足なくある', async () => {
+        const actual = await bookService.create({
+          title: 'Title',
+          isbn: '9784091294920',
+          authors: [
+            {id: author1._id, roles: ['Original']},
+            {id: author2._id, roles: ['Illust']},
+          ],
+        });
+        expect(actual).toBeDefined();
+        expect(actual).toHaveProperty('title', 'Title');
+        expect(actual).toHaveProperty('isbn', '9784091294920');
+        expect(actual).toHaveProperty('authors');
+      });
+
+      it('ISBNが存在しない', async () => {
+        const actual = await bookService.create({
+          title: 'Title',
+          authors: [
+            {id: author1._id, roles: ['Original']},
+            {id: author2._id, roles: ['Illust']},
+          ],
+        });
+        expect(actual).toBeDefined();
+        expect(actual.isbn).toBeUndefined();
+      });
+
+      it('authors.rolesが存在しない', async () => {
+        const actual = await bookService.create({
+          title: 'Title',
+          authors: [{id: author1._id}, {id: author2._id}],
+        });
+        expect(actual).toBeDefined();
+        expect(actual).toHaveProperty('authors');
+        expect(actual.authors[0].roles).toBeUndefined();
+        expect(actual.authors[1].roles).toBeUndefined();
+      });
     });
   });
 });

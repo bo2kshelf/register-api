@@ -23,57 +23,57 @@ describe(PaginateService.name, () => {
     });
 
     it('after無しのforwardの場合', () => {
-      expect(
-        paginateService.getPagingParameters({
-          first: 20,
-          after: undefined,
-        }),
-      ).toStrictEqual({
-        limit: 20,
-        skip: 0,
+      const actual = paginateService.getPagingParameters({
+        first: 20,
+        after: undefined,
       });
+      const expected = {limit: 20, skip: 0};
+      expect(actual).toStrictEqual(expected);
     });
     it('afterがあるforwardの場合', () => {
       jest.spyOn(Relay, 'cursorToOffset').mockReturnValueOnce(10);
-      expect(
-        paginateService.getPagingParameters({
-          first: 20,
-          after: '10',
-        }),
-      ).toStrictEqual({
+
+      const actual = paginateService.getPagingParameters({
+        first: 20,
+        after: '10',
+      });
+      const expected = {
         limit: 20,
         skip: 11,
-      });
+      };
+      expect(actual).toStrictEqual(expected);
     });
 
     it('backwardの場合(before < last)', () => {
       jest.spyOn(Relay, 'cursorToOffset').mockReturnValueOnce(15);
-      expect(
-        paginateService.getPagingParameters({
-          last: 20,
-          before: '15',
-        }),
-      ).toStrictEqual({
+      const actual = paginateService.getPagingParameters({
+        last: 20,
+        before: '15',
+      });
+      const expected = {
         limit: 15,
         skip: 0,
-      });
+      };
+      expect(actual).toStrictEqual(expected);
     });
 
     it('backwardの場合(before >= last)', () => {
       jest.spyOn(Relay, 'cursorToOffset').mockReturnValueOnce(30);
-      expect(
-        paginateService.getPagingParameters({
-          last: 20,
-          before: '30',
-        }),
-      ).toStrictEqual({
+      const actual = paginateService.getPagingParameters({
+        last: 20,
+        before: '30',
+      });
+      const expected = {
         limit: 20,
         skip: 10,
-      });
+      };
+      expect(actual).toStrictEqual(expected);
     });
 
     it('none', () => {
-      expect(paginateService.getPagingParameters({})).toStrictEqual({});
+      const actual = paginateService.getPagingParameters({});
+      const expected = {};
+      expect(actual).toStrictEqual(expected);
     });
   });
 });

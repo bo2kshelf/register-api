@@ -33,8 +33,8 @@ export class AuthorsResolver {
   }
 
   @ResolveField(() => ID)
-  id(@Parent() author: Author) {
-    return this.authorsService.id(author);
+  id(@Parent() author: Author): string {
+    return this.authorsService.id(author).toHexString();
   }
 
   @ResolveField(() => PaginatedBookConnection)

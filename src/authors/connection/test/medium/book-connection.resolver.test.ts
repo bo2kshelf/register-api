@@ -4,9 +4,12 @@ import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
+import {PaginateService} from '../../../../paginate/paginate.service';
 import {AuthorsService} from '../../../authors.service';
 import {Author, AuthorSchema} from '../../../schema/author.schema';
 import {BookAuthorsConnectionResolver} from '../../book-connection.resolver';
+
+jest.mock('../../../../paginate/paginate.service');
 
 describe(BookAuthorsConnectionResolver.name, () => {
   let mongoServer: MongoMemoryServer;
@@ -32,10 +35,8 @@ describe(BookAuthorsConnectionResolver.name, () => {
         MongooseModule.forFeature([{name: Author.name, schema: AuthorSchema}]),
       ],
       providers: [
-        {
-          provide: AuthorsService,
-          useValue: {getById() {}},
-        },
+        PaginateService,
+        AuthorsService,
         BookAuthorsConnectionResolver,
       ],
     }).compile();
@@ -65,31 +66,26 @@ describe(BookAuthorsConnectionResolver.name, () => {
   });
 
   describe('author()', () => {
-    it('存在するならばそれを返す', async () => {
-      const newAuthor = await authorModel.create({name: 'コトヤマ'});
-
-      jest.spyOn(authorService, 'getById').mockResolvedValueOnce(newAuthor);
-
-      const actual = await connectionResolver.author({
-        id: new ObjectId('5fccac3585e5265603349e97'),
-      });
-
-      expect(actual).toHaveProperty('name', 'コトヤマ');
+    let author: Author;
+    let authorId: ObjectId;
+    beforeEach(async () => {
+      author = await authorModel.create({name: 'Name'});
+      authorId = author._id;
     });
 
-    it('存在しない場合はError', async () => {
-      jest
-        .spyOn(authorService, 'getById')
-        .mockRejectedValueOnce(
-          new NoDocumentForObjectIdError(
-            Author.name,
-            new ObjectId('5fccac3585e5265603349e97'),
-          ),
-        );
+    it('存在するならばそれを返す', async () => {
+      const actual = await connectionResolver.author({
+        id: authorId,
+      });
 
+      expect(actual).toBeDefined();
+    });
+
+    it('存在しない場合はErrorを返す', async () => {
+      await author.remove();
       await expect(() =>
         connectionResolver.author({
-          id: new ObjectId('5fccac3585e5265603349e97'),
+          id: authorId,
         }),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });

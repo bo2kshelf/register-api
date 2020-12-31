@@ -39,8 +39,8 @@ export class SeriesResolver {
   }
 
   @ResolveField(() => ID)
-  id(@Parent() series: Series): ObjectId {
-    return this.seriesService.id(series);
+  id(@Parent() series: Series): string {
+    return this.seriesService.id(series).toHexString();
   }
 
   @ResolveField(() => PaginatedSeriesBooksConnection)
@@ -78,7 +78,7 @@ export class SeriesResolver {
         id: new ObjectId(id),
         ...rest,
       })),
-      relatedBooks: books.map(({id, ...rest}) => ({
+      relatedBooks: relatedBooks?.map(({id, ...rest}) => ({
         id: new ObjectId(id),
         ...rest,
       })),
