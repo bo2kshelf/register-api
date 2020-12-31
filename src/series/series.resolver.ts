@@ -57,7 +57,7 @@ export class SeriesResolver {
   async relatedBooks(
     @Parent() series: Series,
 
-    @Args({type: () => SeriesBooksArgs})
+    @Args({type: () => SeriesRelatedBooksArgs})
     args: SeriesRelatedBooksArgs,
   ) {
     return this.seriesService.relatedBooks(series, args);
