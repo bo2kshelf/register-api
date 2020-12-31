@@ -8,6 +8,7 @@
     "debug": "nest start --watch --debug ",
     "start": "nest start",
     "start:prod": "node dist/main",
+    "test:large": "scripty",
     "test:medium": "scripty",
     "test:small": "scripty",
     "clean": "rimraf dist/ coverage/",
