@@ -11,9 +11,15 @@ import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
-import {PaginateModule} from '../../../paginate/paginate.module';
+import {RequiredPaginationArgs} from '../../../paginate/dto/required-pagination.args';
+import {
+  PaginateService,
+  RelayConnection,
+} from '../../../paginate/paginate.service';
 import {Series, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
+
+jest.mock('../../../paginate/paginate.service');
 
 describe(SeriesService.name, () => {
   let mongoServer: MongoMemoryServer;
@@ -23,6 +29,7 @@ describe(SeriesService.name, () => {
   let bookModel: Model<Book>;
   let seriesModel: Model<Series>;
 
+  let paginateService: PaginateService;
   let seriesService: SeriesService;
 
   beforeAll(async () => {
@@ -39,14 +46,14 @@ describe(SeriesService.name, () => {
           {name: Book.name, schema: BookSchema},
           {name: Series.name, schema: SeriesSchema},
         ]),
-        PaginateModule,
       ],
-      providers: [SeriesService],
+      providers: [PaginateService, SeriesService],
     }).compile();
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
     seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
 
+    paginateService = module.get<PaginateService>(PaginateService);
     seriesService = module.get<SeriesService>(SeriesService);
   });
 
@@ -69,142 +76,245 @@ describe(SeriesService.name, () => {
 
   describe('id()', () => {
     it('ObjectIDを取得', async () => {
+      const expected = new ObjectId();
       const newSeries = await seriesModel.create({
-        title: 'よふかしのうた',
+        _id: expected,
+        title: 'Title',
         books: [],
         relatedBooks: [],
       });
-
       const actual = seriesService.id(newSeries);
 
-      expect(actual).toBe(newSeries._id);
+      expect(actual).toBe(expected);
     });
   });
 
   describe('getById()', () => {
-    it('存在する場合はそれを返す', async () => {
-      const newSeries = await seriesModel.create({
-        title: 'よふかしのうた',
+    let series: Series;
+    let seriesId: ObjectId;
+    beforeEach(async () => {
+      series = await seriesModel.create({
+        title: 'Title',
         books: [],
         relatedBooks: [],
       });
-
-      const actual = await seriesService.getById(seriesService.id(newSeries));
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた');
+      seriesId = series._id;
     });
 
-    it('存在しない場合はError', async () => {
-      await expect(() =>
-        seriesService.getById(new ObjectId('5fccac3585e5265603349e97')),
-      ).rejects.toThrow(NoDocumentForObjectIdError);
+    it('存在する場合はそれを返す', async () => {
+      const actual = await seriesService.getById(seriesId);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveProperty('_id', seriesId);
+      expect(actual).toHaveProperty('title', series.title);
+    });
+
+    it('存在しない場合は例外を投げる', async () => {
+      await series.remove();
+      await expect(() => seriesService.getById(seriesId)).rejects.toThrow(
+        NoDocumentForObjectIdError,
+      );
+    });
+  });
+
+  describe('all()', () => {
+    it('何もなければ空配列を返す', async () => {
+      const actual = await seriesService.all();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(0);
+    });
+
+    it('存在するならば配列を返す', async () => {
+      for (let i = 0; i < 5; i++)
+        await seriesModel.create({title: 'Title', books: [], relatedBooks: []});
+
+      const actual = await seriesService.all();
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(5);
+    });
+  });
+
+  describe('books()', () => {
+    let series: Series;
+    beforeEach(async () => {
+      series = await seriesModel.create({
+        title: 'Title',
+        books: [],
+        relatedBooks: [],
+      });
+    });
+
+    it('受け取ったものをそのまま返す', async () => {
+      jest
+        .spyOn(paginateService, 'getConnectionFromMongooseModel')
+        .mockResolvedValueOnce(
+          {} as RelayConnection<{id: ObjectId; serial: number}>,
+        );
+
+      const actual = await seriesService.books(
+        series,
+        {} as RequiredPaginationArgs,
+      );
+      expect(actual).toBeDefined();
+    });
+  });
+
+  describe('relatedBooks()', () => {
+    let series: Series;
+    beforeEach(async () => {
+      series = await seriesModel.create({
+        title: 'Title',
+        books: [],
+        relatedBooks: [],
+      });
+    });
+
+    it('受け取ったものをそのまま返す', async () => {
+      jest
+        .spyOn(paginateService, 'getConnectionFromMongooseModel')
+        .mockResolvedValueOnce({} as RelayConnection<{id: ObjectId}>);
+
+      const actual = await seriesService.relatedBooks(
+        series,
+        {} as RequiredPaginationArgs,
+      );
+      expect(actual).toBeDefined();
     });
   });
 
   describe('create()', () => {
     let book1: Book;
     let book2: Book;
+    let book3: Book;
+    let book4: Book;
 
     beforeEach(async () => {
-      book1 = await bookModel.create({
-        title: 'よふかしのうた(1)',
-        authors: [],
-      });
-      book2 = await bookModel.create({
-        title: 'よふかしのうた(2)',
-        authors: [],
-      });
+      book1 = await bookModel.create({title: 'Book 1', authors: []});
+      book2 = await bookModel.create({title: 'Book 2', authors: []});
+      book3 = await bookModel.create({title: 'Book 3', authors: []});
+      book4 = await bookModel.create({title: 'Book 4', authors: []});
     });
 
     afterEach(async () => {
       await bookModel.deleteMany({});
     });
 
-    it('全てのプロパティが存在する', async () => {
-      const actual = await seriesService.create({
-        title: 'よふかしのうた',
-        books: [{id: book1._id, serial: 1}],
-        relatedBooks: [{id: book1._id}],
-      });
-
-      expect(actual).toHaveProperty('title', 'よふかしのうた');
-      expect(actual).toHaveProperty('relatedBooks');
-    });
-
-    it('booksが空の場合はError', async () => {
+    it('booksが空配列なら例外を投げる', async () => {
       await expect(() =>
         seriesService.create({
-          title: 'よふかしのうた',
+          title: 'Title',
           books: [],
+          relatedBooks: [],
         }),
       ).rejects.toThrow(EmptyArrayError);
     });
 
-    it('booksのIDが重複している場合Error', async () => {
+    it('books.idが重複していたら例外を投げる', async () => {
       await expect(() =>
         seriesService.create({
-          title: 'よふかしのうた',
+          title: 'Title',
           books: [
             {id: book1._id, serial: 1},
             {id: book1._id, serial: 2},
           ],
+          relatedBooks: [],
         }),
       ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
-    it('booksのserialが重複している場合Error', async () => {
+    it('books.serialが重複していたら例外を投げる', async () => {
       await expect(() =>
         seriesService.create({
-          title: 'よふかしのうた',
+          title: 'Title',
           books: [
             {id: book1._id, serial: 1},
             {id: book2._id, serial: 1},
           ],
+          relatedBooks: [],
         }),
       ).rejects.toThrow(DuplicateValueInArrayError);
     });
 
-    it('idに結びついたbooksが存在しない場合はError', async () => {
-      await bookModel.deleteMany({});
-
+    it('booksで一つでも取得不可能なものがあったら例外を投げる', async () => {
+      await book1.remove();
       await expect(() =>
         seriesService.create({
-          title: 'よふかしのうた',
-          books: [{id: book1._id, serial: 1}],
+          title: 'Title',
+          books: [
+            {id: book1._id, serial: 1},
+            {id: book2._id, serial: 2},
+          ],
+          relatedBooks: [],
         }),
       ).rejects.toThrow(NoDocumentForObjectIdError);
     });
 
-    it('relatedBooksが欠落しても通る', async () => {
-      const actual = await seriesService.create({
-        title: 'よふかしのうた',
-        books: [{id: book1._id, serial: 1}],
+    it('relatedBooks.idが重複していたら例外を投げる', async () => {
+      await expect(() =>
+        seriesService.create({
+          title: 'Title',
+          books: [{id: book1._id, serial: 1}],
+          relatedBooks: [{id: book3._id}, {id: book3._id}],
+        }),
+      ).rejects.toThrow(DuplicateValueInArrayError);
+    });
+
+    it('relatedBooksで一つでも取得不可能なものがあったら例外を投げる', async () => {
+      await book3.remove();
+
+      await expect(() =>
+        seriesService.create({
+          title: 'Title',
+          books: [{id: book1._id, serial: 1}],
+          relatedBooks: [{id: book3._id}, {id: book4._id}],
+        }),
+      ).rejects.toThrow(NoDocumentForObjectIdError);
+    });
+
+    describe('正常に生成する', () => {
+      it('全てのプロパティが不足なくある', async () => {
+        const actual = await seriesService.create({
+          title: 'Title',
+          books: [
+            {id: book1._id, serial: 1},
+            {id: book2._id, serial: 2},
+          ],
+          relatedBooks: [{id: book3._id}, {id: book4._id}],
+        });
+
+        expect(actual).toBeDefined();
+        expect(actual).toHaveProperty('title', 'Title');
+
+        expect(actual.books).toBeDefined();
+        expect(actual.books).toContainEqual({id: book1._id, serial: 1});
+        expect(actual.books).toContainEqual({id: book2._id, serial: 2});
+
+        expect(actual.relatedBooks).toBeDefined();
+        expect(actual.relatedBooks).toContainEqual({id: book3._id});
+        expect(actual.relatedBooks).toContainEqual({id: book4._id});
       });
 
-      expect(actual).toHaveProperty('title', 'よふかしのうた');
-      expect(actual).toHaveProperty('relatedBooks');
-    });
+      it('relatedBooksが空配列', async () => {
+        const actual = await seriesService.create({
+          title: 'Title',
+          books: [
+            {id: book1._id, serial: 1},
+            {id: book2._id, serial: 2},
+          ],
+          relatedBooks: [],
+        });
 
-    it('relatedBooksが重複している場合Error', async () => {
-      await expect(() =>
-        seriesService.create({
-          title: 'よふかしのうた',
-          books: [{id: book1._id, serial: 1}],
-          relatedBooks: [{id: book1._id}, {id: book1._id}],
-        }),
-      ).rejects.toThrow(DuplicateValueInArrayError);
-    });
+        expect(actual).toBeDefined();
+        expect(actual).toHaveProperty('title', 'Title');
 
-    it('idに結びついたrelatedBooksが存在しない場合はError', async () => {
-      await bookModel.deleteMany({});
+        expect(actual.books).toBeDefined();
+        expect(actual.books).toContainEqual({id: book1._id, serial: 1});
+        expect(actual.books).toContainEqual({id: book2._id, serial: 2});
 
-      await expect(() =>
-        seriesService.create({
-          title: 'よふかしのうた',
-          books: [{id: book1._id, serial: 1}],
-          relatedBooks: [{id: book1._id}],
-        }),
-      ).rejects.toThrow(NoDocumentForObjectIdError);
+        expect(actual.relatedBooks).toBeDefined();
+      });
     });
   });
 
