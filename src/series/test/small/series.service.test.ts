@@ -254,11 +254,11 @@ describe(SeriesService.name, () => {
       it('booksが空配列', async () => {
         jest
           .spyOn(bookModel, 'find')
+          .mockResolvedValueOnce([])
           .mockResolvedValueOnce([
             {_id: new ObjectId()} as Book,
             {_id: new ObjectId()} as Book,
-          ])
-          .mockResolvedValueOnce([]);
+          ]);
         jest.spyOn(seriesModel, 'create').mockResolvedValueOnce({} as Series);
 
         const actual = await seriesService.create({
