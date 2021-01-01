@@ -44,12 +44,12 @@ export class SeriesService {
   }
 
   async create({
-    books,
+    books = [],
     relatedBooks = [],
     ...data
   }: {
     title: string;
-    books: SeriesBooksConnection[];
+    books?: SeriesBooksConnection[];
     relatedBooks?: SeriesRelatedBooksConnection[];
   }): Promise<Series> {
     if (!isArrayUnique(books.map(({serial}) => serial)))
