@@ -6,6 +6,7 @@
       "debug",
       "start",
       "test",
+      "coverage",
       "clean",
       "ts-check",
       "lint",

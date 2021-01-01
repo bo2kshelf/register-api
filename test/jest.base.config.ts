@@ -4,7 +4,6 @@ const config: Config.InitialOptions = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: '../src',
-  coverageDirectory: '../coverage',
   coveragePathIgnorePatterns: [
     '.args.ts',
     '.input.ts',
