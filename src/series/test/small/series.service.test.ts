@@ -5,7 +5,6 @@ import {Model} from 'mongoose';
 import {SeriesBooksConnection} from '../../../books/connection/series-connection.entity';
 import {Book} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
-import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {modelMockFactory} from '../../../mongoose/model.mock.factory';
 import {RequiredPaginationArgs} from '../../../paginate/dto/required-pagination.args';
@@ -129,16 +128,6 @@ describe(SeriesService.name, () => {
   });
 
   describe('create()', () => {
-    it('booksが空配列なら例外を投げる', async () => {
-      await expect(() =>
-        seriesService.create({
-          title: 'Title',
-          books: [],
-          relatedBooks: [],
-        }),
-      ).rejects.toThrow(EmptyArrayError);
-    });
-
     it('books.idが重複していたら例外を投げる', async () => {
       const dupl = new ObjectId();
       await expect(() =>
@@ -256,6 +245,25 @@ describe(SeriesService.name, () => {
             {id: new ObjectId(), serial: 1},
             {id: new ObjectId(), serial: 2},
           ],
+          relatedBooks: [{id: new ObjectId()}, {id: new ObjectId()}],
+        });
+
+        expect(actual).toBeDefined();
+      });
+
+      it('booksが空配列', async () => {
+        jest
+          .spyOn(bookModel, 'find')
+          .mockResolvedValueOnce([
+            {_id: new ObjectId()} as Book,
+            {_id: new ObjectId()} as Book,
+          ])
+          .mockResolvedValueOnce([]);
+        jest.spyOn(seriesModel, 'create').mockResolvedValueOnce({} as Series);
+
+        const actual = await seriesService.create({
+          title: 'Title',
+          books: [],
           relatedBooks: [{id: new ObjectId()}, {id: new ObjectId()}],
         });
 
