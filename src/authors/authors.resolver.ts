@@ -15,33 +15,58 @@ import {AuthorBooksArgs} from './dto/books.args';
 import {CreateAuthorInput} from './dto/create-author.input';
 import {Author} from './schema/author.schema';
 
-@Resolver(() => Author)
+@Resolver(
+  /* istanbul ignore next */
+  () => Author,
+)
 export class AuthorsResolver {
   constructor(private authorsService: AuthorsService) {}
 
-  @Query(() => Author, {nullable: false})
+  @Query(
+    /* istanbul ignore next */
+    () => Author,
+    {nullable: false},
+  )
   async author(
-    @Args('id', {type: () => ID})
+    @Args('id', {
+      type:
+        /* istanbul ignore next */
+        () => ID,
+    })
     id: string,
   ): Promise<Author> {
     return this.authorsService.getById(new ObjectId(id));
   }
 
-  @Query(() => [Author], {nullable: false})
+  @Query(
+    /* istanbul ignore next */
+    () => [Author],
+    {nullable: false},
+  )
   async allAuthors(): Promise<Author[]> {
     return this.authorsService.all();
   }
 
-  @ResolveField(() => ID)
+  @ResolveField(
+    /* istanbul ignore next */
+    () => ID,
+  )
   id(@Parent() author: Author): string {
     return this.authorsService.id(author).toHexString();
   }
 
-  @ResolveField(() => PaginatedBookConnection)
+  @ResolveField(
+    /* istanbul ignore next */
+    () => PaginatedBookConnection,
+  )
   async books(
     @Parent() author: Author,
 
-    @Args({type: () => AuthorBooksArgs})
+    @Args({
+      type:
+        /* istanbul ignore next */
+        () => AuthorBooksArgs,
+    })
     args: AuthorBooksArgs,
   ) {
     return this.authorsService.books(author, args);
@@ -52,9 +77,17 @@ export class AuthorsResolver {
     return this.author(reference.id);
   }
 
-  @Mutation(() => Author, {nullable: false})
+  @Mutation(
+    /* istanbul ignore next */
+    () => Author,
+    {nullable: false},
+  )
   async createAuthor(
-    @Args('data', {type: () => CreateAuthorInput})
+    @Args('data', {
+      type:
+        /* istanbul ignore next */
+        () => CreateAuthorInput,
+    })
     data: CreateAuthorInput,
   ): Promise<Author> {
     return this.authorsService.create(data);

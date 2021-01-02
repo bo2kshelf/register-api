@@ -14,29 +14,50 @@ import {BooksService} from './books.service';
 import {CreateBookInput} from './dto/create-book.input';
 import {Book} from './schema/book.schema';
 
-@Resolver(() => Book)
+@Resolver(
+  /* istanbul ignore next */
+  () => Book,
+)
 export class BooksResolver {
   constructor(private bookService: BooksService) {}
 
-  @Query(() => Book, {nullable: false})
+  @Query(
+    /* istanbul ignore next */
+    () => Book,
+    {nullable: false},
+  )
   async book(
-    @Args('id', {type: () => ID})
+    @Args('id', {
+      type:
+        /* istanbul ignore next */
+        () => ID,
+    })
     id: string,
   ): Promise<Book> {
     return this.bookService.getById(new ObjectId(id));
   }
 
-  @Query(() => [Book], {nullable: false})
+  @Query(
+    /* istanbul ignore next */
+    () => [Book],
+    {nullable: false},
+  )
   async allBooks(): Promise<Book[]> {
     return this.bookService.all();
   }
 
-  @ResolveField(() => ID)
+  @ResolveField(
+    /* istanbul ignore next */
+    () => ID,
+  )
   id(@Parent() book: Book): string {
     return this.bookService.id(book).toHexString();
   }
 
-  @ResolveField(() => [BookAuthorsConnection])
+  @ResolveField(
+    /* istanbul ignore next */
+    () => [BookAuthorsConnection],
+  )
   authors(@Parent() book: Book) {
     return book.authors;
   }
@@ -46,9 +67,17 @@ export class BooksResolver {
     return this.book(reference.id);
   }
 
-  @Mutation(() => Book, {nullable: false})
+  @Mutation(
+    /* istanbul ignore next */
+    () => Book,
+    {nullable: false},
+  )
   async createBook(
-    @Args('data', {type: () => CreateBookInput})
+    @Args('data', {
+      type:
+        /* istanbul ignore next */
+        () => CreateBookInput,
+    })
     {authors, ...data}: CreateBookInput,
   ): Promise<Book> {
     return this.bookService.create({
