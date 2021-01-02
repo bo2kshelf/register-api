@@ -1,8 +1,8 @@
-import {ArgsType, Field, ID} from '@nestjs/graphql';
+import {Field, ID, InputType} from '@nestjs/graphql';
 import {IsPositive} from 'class-validator';
 
-@ArgsType()
-export class AddBookToSeriesBooksArgs {
+@InputType()
+export class AddBookToSeriesBooksInput {
   @Field(() => ID)
   seriesId!: string;
 
