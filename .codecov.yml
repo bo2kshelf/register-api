@@ -13,9 +13,15 @@ coverage:
         threshold: 10%
         flags:
           - medium
+      large:
+        target: auto
+        flags:
+          - large
 
 flags:
   small:
     carryforward: true
   medium:
+    carryforward: true
+  large:
     carryforward: true

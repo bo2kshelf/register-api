@@ -71,10 +71,10 @@ jobs:
       - store_test_results:
           path: ./junit
       - store_artifacts:
-          path: ./coverage
+          path: ./coverage/small
       - codecov/upload:
           flags: small
-          file: ./coverage/lcov.info
+          file: ./coverage/small/lcov.info
 
   test-medium:
     docker:
@@ -95,10 +95,10 @@ jobs:
       - store_test_results:
           path: ./junit
       - store_artifacts:
-          path: ./coverage
+          path: ./coverage/medium
       - codecov/upload:
           flags: medium
-          file: ./coverage/lcov.info
+          file: ./coverage/medium/lcov.info
 
   test-large:
     docker:
@@ -118,6 +118,11 @@ jobs:
             JEST_JUNIT_OUTPUT_NAME: jest.xml
       - store_test_results:
           path: ./junit
+      - store_artifacts:
+          path: ./coverage/large
+      - codecov/upload:
+          flags: large
+          file: ./coverage/large/lcov.info
 
 workflows:
   version: 2
