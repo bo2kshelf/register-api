@@ -3,11 +3,17 @@ import {AuthorsService} from '../authors.service';
 import {Author} from '../schema/author.schema';
 import {BookAuthorsConnection} from './book-connection.entity';
 
-@Resolver(() => BookAuthorsConnection)
+@Resolver(
+  /* istanbul ignore next */
+  () => BookAuthorsConnection,
+)
 export class BookAuthorsConnectionResolver {
   constructor(private authorService: AuthorsService) {}
 
-  @ResolveField(() => Author)
+  @ResolveField(
+    /* istanbul ignore next */
+    () => Author,
+  )
   async author(@Parent() {id}: BookAuthorsConnection) {
     return this.authorService.getById(id);
   }

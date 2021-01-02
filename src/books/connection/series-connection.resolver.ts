@@ -6,15 +6,24 @@ import {
   SeriesRelatedBooksConnection,
 } from './series-connection.entity';
 
-@Resolver(() => SeriesBooksConnection)
+@Resolver(
+  /* istanbul ignore next */
+  () => SeriesBooksConnection,
+)
 export class SeriesBooksConnectionResolver {
   constructor(private bookService: BooksService) {}
 
-  @ResolveField(() => Book)
+  @ResolveField(
+    /* istanbul ignore next */
+    () => Book,
+  )
   async book(@Parent() {id}: SeriesBooksConnection) {
     return this.bookService.getById(id);
   }
 }
 
-@Resolver(() => SeriesRelatedBooksConnection)
+@Resolver(
+  /* istanbul ignore next */
+  () => SeriesRelatedBooksConnection,
+)
 export class SeriesRelatedBooksConnectionResolver extends SeriesBooksConnectionResolver {}

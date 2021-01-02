@@ -21,43 +21,75 @@ import {SeriesRelatedBooksArgs} from './dto/related-books.args';
 import {Series} from './schema/series.schema';
 import {SeriesService} from './series.service';
 
-@Resolver(() => Series)
+@Resolver(
+  /* istanbul ignore next */
+  () => Series,
+)
 export class SeriesResolver {
   constructor(private seriesService: SeriesService) {}
 
-  @Query(() => Series, {nullable: false})
+  @Query(
+    /* istanbul ignore next */
+    () => Series,
+    {nullable: false},
+  )
   async series(
-    @Args('id', {type: () => ID})
+    @Args('id', {
+      type:
+        /* istanbul ignore next */
+        () => ID,
+    })
     id: string,
   ): Promise<Series> {
     return this.seriesService.getById(new ObjectId(id));
   }
 
-  @Query(() => [Series], {nullable: false})
+  @Query(
+    /* istanbul ignore next */
+    () => [Series],
+    {nullable: false},
+  )
   async allSeries(): Promise<Series[]> {
     return this.seriesService.all();
   }
 
-  @ResolveField(() => ID)
+  @ResolveField(
+    /* istanbul ignore next */
+    () => ID,
+  )
   id(@Parent() series: Series): string {
     return this.seriesService.id(series).toHexString();
   }
 
-  @ResolveField(() => PaginatedSeriesBooksConnection)
+  @ResolveField(
+    /* istanbul ignore next */
+    () => PaginatedSeriesBooksConnection,
+  )
   async books(
     @Parent() series: Series,
 
-    @Args({type: () => SeriesBooksArgs})
+    @Args({
+      type:
+        /* istanbul ignore next */
+        () => SeriesBooksArgs,
+    })
     {orderBy, ...args}: SeriesBooksArgs,
   ) {
     return this.seriesService.books(series, args, orderBy);
   }
 
-  @ResolveField(() => PaginatedSeriesRelatedBooksConnection)
+  @ResolveField(
+    /* istanbul ignore next */
+    () => PaginatedSeriesRelatedBooksConnection,
+  )
   async relatedBooks(
     @Parent() series: Series,
 
-    @Args({type: () => SeriesRelatedBooksArgs})
+    @Args({
+      type:
+        /* istanbul ignore next */
+        () => SeriesRelatedBooksArgs,
+    })
     args: SeriesRelatedBooksArgs,
   ) {
     return this.seriesService.relatedBooks(series, args);
@@ -68,9 +100,17 @@ export class SeriesResolver {
     return this.series(reference.id);
   }
 
-  @Mutation(() => Series, {nullable: false})
+  @Mutation(
+    /* istanbul ignore next */
+    () => Series,
+    {nullable: false},
+  )
   async createSeries(
-    @Args('data', {type: () => CreateSeriesInput})
+    @Args('data', {
+      type:
+        /* istanbul ignore next */
+        () => CreateSeriesInput,
+    })
     {books, relatedBooks, ...data}: CreateSeriesInput,
   ): Promise<Series> {
     return this.seriesService.create({
@@ -86,9 +126,17 @@ export class SeriesResolver {
     });
   }
 
-  @Mutation(() => Series, {nullable: false})
+  @Mutation(
+    /* istanbul ignore next */
+    () => Series,
+    {nullable: false},
+  )
   async addBookToSeriesBooks(
-    @Args({type: () => AddBookToSeriesBooksArgs})
+    @Args({
+      type:
+        /* istanbul ignore next */
+        () => AddBookToSeriesBooksArgs,
+    })
     {seriesId, bookId, serial}: AddBookToSeriesBooksArgs,
   ): Promise<Series> {
     return this.seriesService.addBookToBooks(
@@ -98,9 +146,17 @@ export class SeriesResolver {
     );
   }
 
-  @Mutation(() => Series, {nullable: false})
+  @Mutation(
+    /* istanbul ignore next */
+    () => Series,
+    {nullable: false},
+  )
   async addBookToSeriesRelatedBooks(
-    @Args({type: () => AddBookToSeriesRelatedBooksArgs})
+    @Args({
+      type:
+        /* istanbul ignore next */
+        () => AddBookToSeriesRelatedBooksArgs,
+    })
     {seriesId, bookId}: AddBookToSeriesRelatedBooksArgs,
   ): Promise<Series> {
     return this.seriesService.addBookToRelatedBooks(
