@@ -8,7 +8,6 @@ import {
 } from '../books/connection/series-connection.entity';
 import {Book} from '../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../error/duplicate-values-in-array.error';
-import {EmptyArrayError} from '../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
 import {OrderDirection} from '../paginate/enum/order-direction.enum';
@@ -45,16 +44,14 @@ export class SeriesService {
   }
 
   async create({
-    books,
+    books = [],
     relatedBooks = [],
     ...data
   }: {
     title: string;
-    books: SeriesBooksConnection[];
+    books?: SeriesBooksConnection[];
     relatedBooks?: SeriesRelatedBooksConnection[];
   }): Promise<Series> {
-    if (books.length === 0) throw new EmptyArrayError('books');
-
     if (!isArrayUnique(books.map(({serial}) => serial)))
       throw new DuplicateValueInArrayError('books.serial');
 

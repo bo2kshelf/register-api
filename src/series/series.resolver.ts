@@ -114,7 +114,7 @@ export class SeriesResolver {
     {books, relatedBooks, ...data}: CreateSeriesInput,
   ): Promise<Series> {
     return this.seriesService.create({
-      books: books.map(({id, ...rest}) => ({
+      books: books?.map(({id, ...rest}) => ({
         id: new ObjectId(id),
         ...rest,
       })),

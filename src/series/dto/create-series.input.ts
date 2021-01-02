@@ -5,8 +5,8 @@ export class CreateSeriesInput {
   @Field()
   title!: string;
 
-  @Field(() => [CreateSeriesBooksInput])
-  books!: CreateSeriesBooksInput[];
+  @Field(() => [CreateSeriesBooksInput], {nullable: true})
+  books?: CreateSeriesBooksInput[];
 
   @Field(() => [CreateSeriesRelatedBooksInput], {nullable: true})
   relatedBooks?: CreateSeriesRelatedBooksInput[];

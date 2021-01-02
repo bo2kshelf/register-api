@@ -9,7 +9,6 @@ import {
 } from '../../../books/connection/series-connection.entity';
 import {Book, BookSchema} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
-import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../../../paginate/dto/required-pagination.args';
 import {
@@ -201,16 +200,6 @@ describe(SeriesService.name, () => {
       await bookModel.deleteMany({});
     });
 
-    it('booksが空配列なら例外を投げる', async () => {
-      await expect(() =>
-        seriesService.create({
-          title: 'Title',
-          books: [],
-          relatedBooks: [],
-        }),
-      ).rejects.toThrow(EmptyArrayError);
-    });
-
     it('books.idが重複していたら例外を投げる', async () => {
       await expect(() =>
         seriesService.create({
@@ -294,6 +283,23 @@ describe(SeriesService.name, () => {
         expect(actual.relatedBooks).toBeDefined();
         expect(actual.relatedBooks).toContainEqual({id: book3._id});
         expect(actual.relatedBooks).toContainEqual({id: book4._id});
+      });
+
+      it('booksが空配列', async () => {
+        const actual = await seriesService.create({
+          title: 'Title',
+          books: [],
+          relatedBooks: [{id: book1._id}, {id: book2._id}],
+        });
+
+        expect(actual).toBeDefined();
+        expect(actual).toHaveProperty('title', 'Title');
+
+        expect(actual.books).toBeDefined();
+
+        expect(actual.relatedBooks).toBeDefined();
+        expect(actual.relatedBooks).toContainEqual({id: book1._id});
+        expect(actual.relatedBooks).toContainEqual({id: book2._id});
       });
 
       it('relatedBooksが空配列', async () => {
