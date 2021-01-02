@@ -13,8 +13,8 @@ import {
   PaginatedSeriesBooksConnection,
   PaginatedSeriesRelatedBooksConnection,
 } from '../books/connection/series-connection.entity';
-import {AddBookToSeriesBooksArgs} from './dto/add-book-to-series-books.args';
-import {AddBookToSeriesRelatedBooksArgs} from './dto/add-book-to-series-related-books.args';
+import {AddBookToSeriesBooksInput} from './dto/add-book-to-series-books.input';
+import {AddBookToSeriesRelatedBooksInput} from './dto/add-book-to-series-related-books.input';
 import {SeriesBooksArgs} from './dto/books.args';
 import {CreateSeriesInput} from './dto/create-series.input';
 import {SeriesRelatedBooksArgs} from './dto/related-books.args';
@@ -132,12 +132,12 @@ export class SeriesResolver {
     {nullable: false},
   )
   async addBookToSeriesBooks(
-    @Args({
+    @Args('data', {
       type:
         /* istanbul ignore next */
-        () => AddBookToSeriesBooksArgs,
+        () => AddBookToSeriesBooksInput,
     })
-    {seriesId, bookId, serial}: AddBookToSeriesBooksArgs,
+    {seriesId, bookId, serial}: AddBookToSeriesBooksInput,
   ): Promise<Series> {
     return this.seriesService.addBookToBooks(
       new ObjectId(seriesId),
@@ -152,12 +152,12 @@ export class SeriesResolver {
     {nullable: false},
   )
   async addBookToSeriesRelatedBooks(
-    @Args({
+    @Args('data', {
       type:
         /* istanbul ignore next */
-        () => AddBookToSeriesRelatedBooksArgs,
+        () => AddBookToSeriesRelatedBooksInput,
     })
-    {seriesId, bookId}: AddBookToSeriesRelatedBooksArgs,
+    {seriesId, bookId}: AddBookToSeriesRelatedBooksInput,
   ): Promise<Series> {
     return this.seriesService.addBookToRelatedBooks(
       new ObjectId(seriesId),

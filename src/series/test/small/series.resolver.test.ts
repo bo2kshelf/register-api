@@ -2,7 +2,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {RelayConnection} from '../../../paginate/paginate.service';
-import {AddBookToSeriesBooksArgs} from '../../dto/add-book-to-series-books.args';
+import {AddBookToSeriesBooksInput} from '../../dto/add-book-to-series-books.input';
 import {SeriesBooksArgs} from '../../dto/books.args';
 import {CreateSeriesInput} from '../../dto/create-series.input';
 import {Series} from '../../schema/series.schema';
@@ -147,7 +147,7 @@ describe(SeriesResolver.name, () => {
       const actual = seriesResolver.addBookToSeriesBooks({
         seriesId: new ObjectId().toHexString(),
         bookId: new ObjectId().toHexString(),
-      } as AddBookToSeriesBooksArgs);
+      } as AddBookToSeriesBooksInput);
 
       expect(actual).toBeDefined();
     });
@@ -157,14 +157,14 @@ describe(SeriesResolver.name, () => {
         seriesResolver.addBookToSeriesBooks({
           seriesId: 'Invalid ObjectId',
           bookId: new ObjectId().toHexString(),
-        } as AddBookToSeriesBooksArgs),
+        } as AddBookToSeriesBooksInput),
       ).rejects.toThrow(Error);
 
       await expect(() =>
         seriesResolver.addBookToSeriesBooks({
           seriesId: new ObjectId().toHexString(),
           bookId: 'Invalid ObjectId',
-        } as AddBookToSeriesBooksArgs),
+        } as AddBookToSeriesBooksInput),
       ).rejects.toThrow(Error);
     });
   });
@@ -177,7 +177,7 @@ describe(SeriesResolver.name, () => {
       const actual = seriesResolver.addBookToSeriesRelatedBooks({
         seriesId: new ObjectId().toHexString(),
         bookId: new ObjectId().toHexString(),
-      } as AddBookToSeriesBooksArgs);
+      } as AddBookToSeriesBooksInput);
 
       expect(actual).toBeDefined();
     });
@@ -187,14 +187,14 @@ describe(SeriesResolver.name, () => {
         seriesResolver.addBookToSeriesRelatedBooks({
           seriesId: 'Invalid ObjectId',
           bookId: new ObjectId().toHexString(),
-        } as AddBookToSeriesBooksArgs),
+        } as AddBookToSeriesBooksInput),
       ).rejects.toThrow(Error);
 
       await expect(() =>
         seriesResolver.addBookToSeriesRelatedBooks({
           seriesId: new ObjectId().toHexString(),
           bookId: 'Invalid ObjectId',
-        } as AddBookToSeriesBooksArgs),
+        } as AddBookToSeriesBooksInput),
       ).rejects.toThrow(Error);
     });
   });
