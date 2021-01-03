@@ -5,6 +5,7 @@ import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {Series, SeriesSchema} from '../../../series/schema/series.schema';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
@@ -16,6 +17,7 @@ describe(BooksResolver.name, () => {
 
   let bookModel: Model<Book>;
   let authorModel: Model<Author>;
+  let seriesModel: Model<Series>;
 
   let booksService: BooksService;
   let booksResolver: BooksResolver;
@@ -33,6 +35,7 @@ describe(BooksResolver.name, () => {
         MongooseModule.forFeature([
           {name: Book.name, schema: BookSchema},
           {name: Author.name, schema: AuthorSchema},
+          {name: Series.name, schema: SeriesSchema},
         ]),
       ],
       providers: [BooksService, BooksResolver],
@@ -40,6 +43,7 @@ describe(BooksResolver.name, () => {
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
 
     booksService = module.get<BooksService>(BooksService);
     booksResolver = module.get<BooksResolver>(BooksResolver);
@@ -139,6 +143,39 @@ describe(BooksResolver.name, () => {
       expect(actual).toBeDefined();
       expect(actual).toContainEqual({id: author1._id, roles: ['Original']});
       expect(actual).toContainEqual({id: author2._id, roles: ['Illust']});
+    });
+  });
+
+  describe('relatedSeries()', () => {
+    it('正常に取得', async () => {
+      const newAuthor = await authorModel.create({name: 'Author 1'});
+      const newBook = await bookModel.create({
+        title: `Book 1`,
+        authors: [{id: newAuthor._id}],
+      });
+      const newSeries1 = await seriesModel.create({
+        title: 'Series 1',
+        books: [{id: newBook._id, serial: 1}],
+        relatedBooks: [],
+      });
+      const newSeries2 = await seriesModel.create({
+        title: 'Series 2',
+        books: [],
+        relatedBooks: [{id: newBook._id}],
+      });
+      await seriesModel.create({
+        title: 'Series unused',
+        books: [],
+        relatedBooks: [],
+      });
+
+      const actual = await booksResolver.relatedSeries(newBook);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(2);
+      expect(actual.map(({_id}) => _id)).toStrictEqual(
+        expect.arrayContaining([newSeries1._id, newSeries2._id]),
+      );
     });
   });
 

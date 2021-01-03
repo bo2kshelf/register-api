@@ -1,6 +1,7 @@
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {Series} from '../../../series/schema/series.schema';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book} from '../../schema/book.schema';
@@ -94,6 +95,21 @@ describe(BooksResolver.name, () => {
       expect(actual).toBeDefined();
       expect(actual).toContainEqual({id: authorId1, roles: ['Original']});
       expect(actual).toContainEqual({id: authorId2, roles: ['Illust']});
+    });
+  });
+
+  describe('relatedSeries()', () => {
+    it('正常に取得', async () => {
+      jest
+        .spyOn(booksService, 'relatedSeries')
+        .mockResolvedValueOnce([{} as Series, {} as Series]);
+
+      const actual = await booksResolver.relatedSeries({
+        _id: new ObjectId(),
+      } as Book);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(2);
     });
   });
 
