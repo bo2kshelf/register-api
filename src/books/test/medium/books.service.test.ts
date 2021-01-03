@@ -7,6 +7,7 @@ import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
+import {Series, SeriesSchema} from '../../../series/schema/series.schema';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
 
@@ -17,6 +18,7 @@ describe(BooksService.name, () => {
 
   let bookModel: Model<Book>;
   let authorModel: Model<Author>;
+  let seriesModel: Model<Series>;
 
   let bookService: BooksService;
 
@@ -33,6 +35,7 @@ describe(BooksService.name, () => {
         MongooseModule.forFeature([
           {name: Book.name, schema: BookSchema},
           {name: Author.name, schema: AuthorSchema},
+          {name: Series.name, schema: SeriesSchema},
         ]),
       ],
       providers: [BooksService],
@@ -40,6 +43,7 @@ describe(BooksService.name, () => {
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
 
     bookService = module.get<BooksService>(BooksService);
   });
@@ -193,6 +197,87 @@ describe(BooksService.name, () => {
         expect(actual.authors[0].roles).toBeUndefined();
         expect(actual.authors[1].roles).toBeUndefined();
       });
+    });
+  });
+
+  describe('relatedSeries()', () => {
+    it('Series.booksの中に', async () => {
+      const newAuthor = await authorModel.create({name: 'Author 1'});
+      const newBook = await bookModel.create({
+        title: `Book 1`,
+        authors: [{id: newAuthor._id}],
+      });
+      const newSeries = await seriesModel.create({
+        title: 'Series 1',
+        books: [{id: newBook._id, serial: 1}],
+        relatedBooks: [],
+      });
+      await seriesModel.create({
+        title: 'Series unused',
+        books: [],
+        relatedBooks: [],
+      });
+
+      const actual = await bookService.relatedSeries(newBook);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(1);
+      expect(actual[0]._id).toStrictEqual(newSeries._id);
+    });
+
+    it('Series.relatedBooksの中に', async () => {
+      const newAuthor = await authorModel.create({name: 'Author 1'});
+      const newBook = await bookModel.create({
+        title: `Book 1`,
+        authors: [{id: newAuthor._id}],
+      });
+      const newSeries = await seriesModel.create({
+        title: 'Series 1',
+        books: [],
+        relatedBooks: [{id: newBook._id}],
+      });
+      await seriesModel.create({
+        title: 'Series unused',
+        books: [],
+        relatedBooks: [],
+      });
+
+      const actual = await bookService.relatedSeries(newBook);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(1);
+      expect(actual[0]._id).toStrictEqual(newSeries._id);
+    });
+
+    it('複数のSeriesにまたがる場合', async () => {
+      const newAuthor = await authorModel.create({name: 'Author 1'});
+      const newBook = await bookModel.create({
+        title: `Book 1`,
+        authors: [{id: newAuthor._id}],
+      });
+      const newSeries1 = await seriesModel.create({
+        title: 'Series 1',
+        books: [{id: newBook._id, serial: 1}],
+        relatedBooks: [],
+      });
+      const newSeries2 = await seriesModel.create({
+        title: 'Series 2',
+        books: [],
+        relatedBooks: [{id: newBook._id}],
+      });
+      await seriesModel.create({
+        title: 'Series unused',
+        books: [],
+        relatedBooks: [],
+      });
+
+      const actual = await bookService.relatedSeries(newBook);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(2);
+      expect(actual.map(({_id}) => _id)).toStrictEqual(
+        expect.arrayContaining([newSeries1._id, newSeries2._id]),
+      );
     });
   });
 });

@@ -6,6 +6,7 @@ import {Author} from '../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
+import {Series} from '../series/schema/series.schema';
 import {isArrayUnique} from '../util';
 import {Book} from './schema/book.schema';
 
@@ -63,5 +64,46 @@ export class BooksService {
       authors,
       ...data,
     });
+  }
+
+  async relatedSeries(book: Book): Promise<Series[]> {
+    return this.bookModel.aggregate([
+      {
+        $match: {
+          _id: book._id,
+        },
+      },
+      {
+        $lookup: {
+          from: 'series',
+          let: {
+            id: '$_id',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    {$in: ['$$id', '$books.id']},
+                    {$in: ['$$id', '$relatedBooks.id']},
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'series',
+        },
+      },
+      {
+        $unwind: {
+          path: '$series',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: '$series',
+        },
+      },
+    ]);
   }
 }
