@@ -2,9 +2,9 @@ import {getModelToken} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Author} from '../../../authors/schema/author.schema';
+import {AuthorDocument} from '../../../authors/schema/author.schema';
 import {SeriesBooksConnection} from '../../../books/connection/series-connection.entity';
-import {Book} from '../../../books/schema/book.schema';
+import {BookDocument} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {modelMockFactory} from '../../../mongoose/model.mock.factory';
@@ -13,7 +13,7 @@ import {
   PaginateService,
   RelayConnection,
 } from '../../../paginate/paginate.service';
-import {Series} from '../../schema/series.schema';
+import {SeriesDocument} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
 jest.mock('../../../paginate/paginate.service');
@@ -21,8 +21,8 @@ jest.mock('../../../paginate/paginate.service');
 describe(SeriesService.name, () => {
   let module: TestingModule;
 
-  let seriesModel: Model<Series>;
-  let bookModel: Model<Book>;
+  let seriesModel: Model<SeriesDocument>;
+  let bookModel: Model<BookDocument>;
 
   let paginateService: PaginateService;
   let seriesService: SeriesService;
@@ -31,15 +31,15 @@ describe(SeriesService.name, () => {
     module = await Test.createTestingModule({
       providers: [
         {
-          provide: getModelToken(Series.name),
+          provide: getModelToken(SeriesDocument.name),
           useFactory: modelMockFactory,
         },
         {
-          provide: getModelToken(Book.name),
+          provide: getModelToken(BookDocument.name),
           useFactory: modelMockFactory,
         },
         {
-          provide: getModelToken(Author.name),
+          provide: getModelToken(AuthorDocument.name),
           useFactory: modelMockFactory,
         },
         PaginateService,
@@ -47,8 +47,12 @@ describe(SeriesService.name, () => {
       ],
     }).compile();
 
-    seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    seriesModel = module.get<Model<SeriesDocument>>(
+      getModelToken(SeriesDocument.name),
+    );
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
 
     paginateService = module.get<PaginateService>(PaginateService);
     seriesService = module.get<SeriesService>(SeriesService);
@@ -68,7 +72,9 @@ describe(SeriesService.name, () => {
 
   describe('getById()', () => {
     it('正常に取得できたらそれを返す', async () => {
-      jest.spyOn(seriesModel, 'findById').mockResolvedValueOnce({} as Series);
+      jest
+        .spyOn(seriesModel, 'findById')
+        .mockResolvedValueOnce({} as SeriesDocument);
 
       const actual = await seriesService.getById(new ObjectId());
       expect(actual).toBeDefined();
@@ -85,7 +91,9 @@ describe(SeriesService.name, () => {
 
   describe('all()', () => {
     it('受け取ったものをそのまま返す', async () => {
-      jest.spyOn(seriesModel, 'find').mockResolvedValueOnce([] as Series[]);
+      jest
+        .spyOn(seriesModel, 'find')
+        .mockResolvedValueOnce([] as SeriesDocument[]);
 
       const actual = await seriesService.all();
       expect(actual).toBeDefined();
@@ -101,7 +109,7 @@ describe(SeriesService.name, () => {
         );
 
       const actual = await seriesService.books(
-        {} as Series,
+        {} as SeriesDocument,
         {} as RequiredPaginationArgs,
       );
       expect(actual).toBeDefined();
@@ -115,7 +123,7 @@ describe(SeriesService.name, () => {
         .mockResolvedValueOnce({} as RelayConnection<{id: ObjectId}>);
 
       const actual = await seriesService.relatedBooks(
-        {} as Series,
+        {} as SeriesDocument,
         {} as RequiredPaginationArgs,
       );
       expect(actual).toBeDefined();
@@ -126,7 +134,7 @@ describe(SeriesService.name, () => {
     it('引数の_idをそのまま返す', () => {
       const expected = new ObjectId();
 
-      const actual = seriesService.id({_id: expected} as Series);
+      const actual = seriesService.id({_id: expected} as SeriesDocument);
 
       expect(actual).toStrictEqual(expected);
     });
@@ -167,7 +175,10 @@ describe(SeriesService.name, () => {
       const id2 = new ObjectId();
       jest
         .spyOn(bookModel, 'find')
-        .mockResolvedValueOnce([{_id: id1} as Book, {_id: id2} as Book]);
+        .mockResolvedValueOnce([
+          {_id: id1} as BookDocument,
+          {_id: id2} as BookDocument,
+        ]);
 
       await expect(() =>
         seriesService.create({
@@ -186,8 +197,8 @@ describe(SeriesService.name, () => {
       jest
         .spyOn(bookModel, 'find')
         .mockResolvedValueOnce([
-          {_id: new ObjectId()} as Book,
-          {_id: new ObjectId()} as Book,
+          {_id: new ObjectId()} as BookDocument,
+          {_id: new ObjectId()} as BookDocument,
         ]);
 
       const dupl = new ObjectId();
@@ -209,10 +220,13 @@ describe(SeriesService.name, () => {
       jest
         .spyOn(bookModel, 'find')
         .mockResolvedValueOnce([
-          {_id: new ObjectId()} as Book,
-          {_id: new ObjectId()} as Book,
+          {_id: new ObjectId()} as BookDocument,
+          {_id: new ObjectId()} as BookDocument,
         ])
-        .mockResolvedValueOnce([{_id: id1} as Book, {_id: id2} as Book]);
+        .mockResolvedValueOnce([
+          {_id: id1} as BookDocument,
+          {_id: id2} as BookDocument,
+        ]);
 
       await expect(() =>
         seriesService.create({
@@ -228,21 +242,25 @@ describe(SeriesService.name, () => {
 
     describe('正常に生成する', () => {
       beforeEach(() => {
-        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+        jest
+          .spyOn(bookModel, 'create')
+          .mockResolvedValueOnce({} as BookDocument);
       });
 
       it('全てのプロパティが不足なくある', async () => {
         jest
           .spyOn(bookModel, 'find')
           .mockResolvedValueOnce([
-            {_id: new ObjectId()} as Book,
-            {_id: new ObjectId()} as Book,
+            {_id: new ObjectId()} as BookDocument,
+            {_id: new ObjectId()} as BookDocument,
           ])
           .mockResolvedValueOnce([
-            {_id: new ObjectId()} as Book,
-            {_id: new ObjectId()} as Book,
+            {_id: new ObjectId()} as BookDocument,
+            {_id: new ObjectId()} as BookDocument,
           ]);
-        jest.spyOn(seriesModel, 'create').mockResolvedValueOnce({} as Series);
+        jest
+          .spyOn(seriesModel, 'create')
+          .mockResolvedValueOnce({} as SeriesDocument);
 
         const actual = await seriesService.create({
           title: 'Title',
@@ -261,10 +279,12 @@ describe(SeriesService.name, () => {
           .spyOn(bookModel, 'find')
           .mockResolvedValueOnce([])
           .mockResolvedValueOnce([
-            {_id: new ObjectId()} as Book,
-            {_id: new ObjectId()} as Book,
+            {_id: new ObjectId()} as BookDocument,
+            {_id: new ObjectId()} as BookDocument,
           ]);
-        jest.spyOn(seriesModel, 'create').mockResolvedValueOnce({} as Series);
+        jest
+          .spyOn(seriesModel, 'create')
+          .mockResolvedValueOnce({} as SeriesDocument);
 
         const actual = await seriesService.create({
           title: 'Title',
@@ -279,11 +299,13 @@ describe(SeriesService.name, () => {
         jest
           .spyOn(bookModel, 'find')
           .mockResolvedValueOnce([
-            {_id: new ObjectId()} as Book,
-            {_id: new ObjectId()} as Book,
+            {_id: new ObjectId()} as BookDocument,
+            {_id: new ObjectId()} as BookDocument,
           ])
           .mockResolvedValueOnce([]);
-        jest.spyOn(seriesModel, 'create').mockResolvedValueOnce({} as Series);
+        jest
+          .spyOn(seriesModel, 'create')
+          .mockResolvedValueOnce({} as SeriesDocument);
 
         const actual = await seriesService.create({
           title: 'Title',
@@ -304,7 +326,7 @@ describe(SeriesService.name, () => {
       expect(
         seriesService.getLastSerial({
           books: [] as SeriesBooksConnection[],
-        } as Series),
+        } as SeriesDocument),
       ).toBe(1);
     });
 
@@ -316,7 +338,7 @@ describe(SeriesService.name, () => {
             {serial: 2} as SeriesBooksConnection,
             {serial: 1.5} as SeriesBooksConnection,
           ],
-        } as Series),
+        } as SeriesDocument),
       ).toBe(2);
     });
   });
@@ -334,8 +356,10 @@ describe(SeriesService.name, () => {
       const bookId = new ObjectId();
       jest
         .spyOn(bookModel, 'findById')
-        .mockResolvedValueOnce({_id: bookId} as Book);
-      jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce({} as Series);
+        .mockResolvedValueOnce({_id: bookId} as BookDocument);
+      jest
+        .spyOn(seriesModel, 'findOne')
+        .mockResolvedValueOnce({} as SeriesDocument);
 
       const seriesId = new ObjectId();
 
@@ -351,8 +375,10 @@ describe(SeriesService.name, () => {
       const serial = 2;
       jest
         .spyOn(bookModel, 'findById')
-        .mockResolvedValueOnce({_id: bookId} as Book);
-      jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce({} as Series);
+        .mockResolvedValueOnce({_id: bookId} as BookDocument);
+      jest
+        .spyOn(seriesModel, 'findOne')
+        .mockResolvedValueOnce({} as SeriesDocument);
 
       const seriesId = new ObjectId();
 
@@ -373,15 +399,15 @@ describe(SeriesService.name, () => {
     });
 
     it('正常に動作する', async () => {
-      const series: Series = {
+      const series: SeriesDocument = {
         books: [
           {serial: 1} as SeriesBooksConnection,
           {serial: 2} as SeriesBooksConnection,
           {serial: 3} as SeriesBooksConnection,
         ] as SeriesBooksConnection[],
-      } as Series;
+      } as SeriesDocument;
 
-      jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
+      jest.spyOn(bookModel, 'findById').mockResolvedValue({} as BookDocument);
       jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce(null);
 
       const mockedFn = jest
@@ -389,7 +415,7 @@ describe(SeriesService.name, () => {
         .mockResolvedValueOnce({
           ...series,
           books: [...series.books, {serial: 2.5} as SeriesBooksConnection],
-        } as Series);
+        } as SeriesDocument);
 
       await seriesService.addBookToBooks(series._id, new ObjectId(), 2.5);
 
@@ -410,8 +436,10 @@ describe(SeriesService.name, () => {
       const bookId = new ObjectId();
       jest
         .spyOn(bookModel, 'findById')
-        .mockResolvedValueOnce({_id: bookId} as Book);
-      jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce({} as Series);
+        .mockResolvedValueOnce({_id: bookId} as BookDocument);
+      jest
+        .spyOn(seriesModel, 'findOne')
+        .mockResolvedValueOnce({} as SeriesDocument);
 
       const seriesId = new ObjectId();
 
@@ -432,15 +460,15 @@ describe(SeriesService.name, () => {
     });
 
     it('正常に動作する', async () => {
-      const series: Series = {
+      const series: SeriesDocument = {
         books: [
           {serial: 1} as SeriesBooksConnection,
           {serial: 2} as SeriesBooksConnection,
           {serial: 3} as SeriesBooksConnection,
         ] as SeriesBooksConnection[],
-      } as Series;
+      } as SeriesDocument;
 
-      jest.spyOn(bookModel, 'findById').mockResolvedValue({} as Book);
+      jest.spyOn(bookModel, 'findById').mockResolvedValue({} as BookDocument);
       jest.spyOn(seriesModel, 'findOne').mockResolvedValueOnce(null);
 
       const mockedFn = jest
@@ -448,7 +476,7 @@ describe(SeriesService.name, () => {
         .mockResolvedValueOnce({
           ...series,
           books: [...series.books, {serial: 2.5} as SeriesBooksConnection],
-        } as Series);
+        } as SeriesDocument);
 
       await seriesService.addBookToRelatedBooks(series._id, new ObjectId());
 

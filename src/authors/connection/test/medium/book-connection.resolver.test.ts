@@ -6,7 +6,7 @@ import {Model} from 'mongoose';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {PaginateService} from '../../../../paginate/paginate.service';
 import {AuthorsService} from '../../../authors.service';
-import {Author, AuthorSchema} from '../../../schema/author.schema';
+import {AuthorDocument, AuthorSchema} from '../../../schema/author.schema';
 import {BookAuthorsConnectionResolver} from '../../book-connection.resolver';
 
 jest.mock('../../../../paginate/paginate.service');
@@ -16,7 +16,7 @@ describe(BookAuthorsConnectionResolver.name, () => {
 
   let module: TestingModule;
 
-  let authorModel: Model<Author>;
+  let authorModel: Model<AuthorDocument>;
 
   let authorService: AuthorsService;
 
@@ -32,7 +32,9 @@ describe(BookAuthorsConnectionResolver.name, () => {
         MongooseModule.forRootAsync({
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
-        MongooseModule.forFeature([{name: Author.name, schema: AuthorSchema}]),
+        MongooseModule.forFeature([
+          {name: AuthorDocument.name, schema: AuthorSchema},
+        ]),
       ],
       providers: [
         PaginateService,
@@ -41,7 +43,9 @@ describe(BookAuthorsConnectionResolver.name, () => {
       ],
     }).compile();
 
-    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
 
     authorService = module.get<AuthorsService>(AuthorsService);
     connectionResolver = module.get<BookAuthorsConnectionResolver>(
@@ -66,7 +70,7 @@ describe(BookAuthorsConnectionResolver.name, () => {
   });
 
   describe('author()', () => {
-    let author: Author;
+    let author: AuthorDocument;
     let authorId: ObjectId;
     beforeEach(async () => {
       author = await authorModel.create({name: 'Name'});

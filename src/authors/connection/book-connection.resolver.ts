@@ -1,6 +1,6 @@
 import {Parent, ResolveField, Resolver} from '@nestjs/graphql';
 import {AuthorsService} from '../authors.service';
-import {Author} from '../schema/author.schema';
+import {AuthorEntity} from '../entity/author.entity';
 import {BookAuthorsConnection} from './book-connection.entity';
 
 @Resolver(
@@ -12,7 +12,7 @@ export class BookAuthorsConnectionResolver {
 
   @ResolveField(
     /* istanbul ignore next */
-    () => Author,
+    () => AuthorEntity,
   )
   async author(@Parent() {id}: BookAuthorsConnection) {
     return this.authorService.getById(id);

@@ -1,10 +1,10 @@
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
-import {Series} from '../../../series/schema/series.schema';
+import {SeriesDocument} from '../../../series/schema/series.schema';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
-import {Book} from '../../schema/book.schema';
+import {BookDocument} from '../../schema/book.schema';
 
 jest.mock('../../books.service');
 
@@ -37,7 +37,9 @@ describe(BooksResolver.name, () => {
 
   describe('book()', () => {
     it('Serviceから正常に取得できたらそれを返す', async () => {
-      jest.spyOn(booksService, 'getById').mockResolvedValueOnce({} as Book);
+      jest
+        .spyOn(booksService, 'getById')
+        .mockResolvedValueOnce({} as BookDocument);
 
       const actual = await booksResolver.book(new ObjectId().toHexString());
       expect(actual).toBeDefined();
@@ -48,7 +50,9 @@ describe(BooksResolver.name, () => {
 
       jest
         .spyOn(booksService, 'getById')
-        .mockRejectedValueOnce(new NoDocumentForObjectIdError(Book.name, id));
+        .mockRejectedValueOnce(
+          new NoDocumentForObjectIdError(BookDocument.name, id),
+        );
 
       await expect(() => booksResolver.book(id.toHexString())).rejects.toThrow(
         NoDocumentForObjectIdError,
@@ -64,7 +68,9 @@ describe(BooksResolver.name, () => {
 
   describe('allBooks()', () => {
     it('Serviceから正常に取得できたらそれを返す', async () => {
-      jest.spyOn(booksService, 'all').mockResolvedValueOnce([] as Book[]);
+      jest
+        .spyOn(booksService, 'all')
+        .mockResolvedValueOnce([] as BookDocument[]);
 
       const actual = await booksResolver.allBooks();
       expect(actual).toBeDefined();
@@ -76,7 +82,7 @@ describe(BooksResolver.name, () => {
       const expected = new ObjectId();
       jest.spyOn(booksService, 'id').mockReturnValueOnce(expected);
 
-      const actual = await booksResolver.id({_id: expected} as Book);
+      const actual = await booksResolver.id({_id: expected} as BookDocument);
       expect(actual).toStrictEqual(expected.toHexString());
     });
   });
@@ -90,7 +96,7 @@ describe(BooksResolver.name, () => {
           {id: authorId1, roles: ['Original']},
           {id: authorId2, roles: ['Illust']},
         ],
-      } as Book);
+      } as BookDocument);
 
       expect(actual).toBeDefined();
       expect(actual).toContainEqual({id: authorId1, roles: ['Original']});
@@ -102,11 +108,11 @@ describe(BooksResolver.name, () => {
     it('正常に取得', async () => {
       jest
         .spyOn(booksService, 'relatedSeries')
-        .mockResolvedValueOnce([{} as Series, {} as Series]);
+        .mockResolvedValueOnce([{} as SeriesDocument, {} as SeriesDocument]);
 
       const actual = await booksResolver.relatedSeries({
         _id: new ObjectId(),
-      } as Book);
+      } as BookDocument);
 
       expect(actual).toBeDefined();
       expect(actual).toHaveLength(2);
@@ -115,7 +121,7 @@ describe(BooksResolver.name, () => {
 
   describe('createBook()', () => {
     it('Serviceが正常に実行できたらそれを返す', async () => {
-      jest.spyOn(booksService, 'create').mockResolvedValue({} as Book);
+      jest.spyOn(booksService, 'create').mockResolvedValue({} as BookDocument);
 
       const actual = await booksResolver.createBook({
         title: 'Title',
@@ -128,7 +134,7 @@ describe(BooksResolver.name, () => {
     });
 
     it('ObjectIdとして不正な値を入力すると例外発生', async () => {
-      jest.spyOn(booksService, 'create').mockResolvedValue({} as Book);
+      jest.spyOn(booksService, 'create').mockResolvedValue({} as BookDocument);
 
       await expect(() =>
         booksResolver.createBook({

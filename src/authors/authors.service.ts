@@ -2,46 +2,49 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Book} from '../books/schema/book.schema';
+import {BookDocument} from '../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
 import {PaginateService, RelayConnection} from '../paginate/paginate.service';
-import {Author} from './schema/author.schema';
+import {AuthorDocument} from './schema/author.schema';
 
 @Injectable()
 export class AuthorsService {
   constructor(
-    @InjectModel(Author.name)
-    private readonly authorModel: Model<Author>,
+    @InjectModel(AuthorDocument.name)
+    private readonly authorModel: Model<AuthorDocument>,
     private readonly paginateService: PaginateService,
   ) {}
 
-  id(author: Author): ObjectId {
+  id(author: AuthorDocument): ObjectId {
     return author._id;
   }
 
-  async all(): Promise<Author[]> {
+  async all(): Promise<AuthorDocument[]> {
     return this.authorModel.find();
   }
 
-  async getById(id: ObjectId): Promise<Author> {
+  async getById(id: ObjectId): Promise<AuthorDocument> {
     const author = await this.authorModel.findById(id);
 
     if (author) return author;
 
-    throw new NoDocumentForObjectIdError(Author.name, id);
+    throw new NoDocumentForObjectIdError(AuthorDocument.name, id);
   }
 
-  async create(data: {name: string}): Promise<Author> {
+  async create(data: {name: string}): Promise<AuthorDocument> {
     return this.authorModel.create({...data});
   }
 
   async books(
-    author: Author,
+    author: AuthorDocument,
     args: RequiredPaginationArgs,
-  ): Promise<RelayConnection<Book>> {
+  ): Promise<RelayConnection<BookDocument>> {
     const authorId = this.id(author);
-    return this.paginateService.getConnectionFromMongooseModel<Author, Book>(
+    return this.paginateService.getConnectionFromMongooseModel<
+      AuthorDocument,
+      BookDocument
+    >(
       this.authorModel,
       args,
       [

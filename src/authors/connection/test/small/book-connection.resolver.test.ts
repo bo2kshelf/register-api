@@ -2,7 +2,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {AuthorsService} from '../../../authors.service';
-import {Author} from '../../../schema/author.schema';
+import {AuthorDocument} from '../../../schema/author.schema';
 import {BookAuthorsConnection} from '../../book-connection.entity';
 import {BookAuthorsConnectionResolver} from '../../book-connection.resolver';
 
@@ -39,7 +39,9 @@ describe(BookAuthorsConnectionResolver.name, () => {
 
   describe('author()', () => {
     it('Serviceから正常に取得できたらそれを返す', async () => {
-      jest.spyOn(authorsService, 'getById').mockResolvedValueOnce({} as Author);
+      jest
+        .spyOn(authorsService, 'getById')
+        .mockResolvedValueOnce({} as AuthorDocument);
 
       const actual = await connectionResolver.author({
         id: new ObjectId(),
@@ -52,7 +54,9 @@ describe(BookAuthorsConnectionResolver.name, () => {
 
       jest
         .spyOn(authorsService, 'getById')
-        .mockRejectedValueOnce(new NoDocumentForObjectIdError(Author.name, id));
+        .mockRejectedValueOnce(
+          new NoDocumentForObjectIdError(AuthorDocument.name, id),
+        );
 
       await expect(() =>
         connectionResolver.author({

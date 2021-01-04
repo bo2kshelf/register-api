@@ -9,7 +9,7 @@ import {
   ResolveReference,
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
-import {Author} from '../authors/schema/author.schema';
+import {AuthorEntity} from '../authors/entity/author.entity';
 import {
   PaginatedSeriesBooksConnection,
   PaginatedSeriesRelatedBooksConnection,
@@ -19,19 +19,20 @@ import {AddBookToSeriesRelatedBooksInput} from './dto/add-book-to-series-related
 import {SeriesBooksArgs} from './dto/books.args';
 import {CreateSeriesInput} from './dto/create-series.input';
 import {SeriesRelatedBooksArgs} from './dto/related-books.args';
-import {Series} from './schema/series.schema';
+import {SeriesEntity} from './entity/series.entity';
+import {SeriesDocument} from './schema/series.schema';
 import {SeriesService} from './series.service';
 
 @Resolver(
   /* istanbul ignore next */
-  () => Series,
+  () => SeriesEntity,
 )
 export class SeriesResolver {
   constructor(private seriesService: SeriesService) {}
 
   @Query(
     /* istanbul ignore next */
-    () => Series,
+    () => SeriesEntity,
     {nullable: false},
   )
   async series(
@@ -41,16 +42,16 @@ export class SeriesResolver {
         () => ID,
     })
     id: string,
-  ): Promise<Series> {
+  ): Promise<SeriesDocument> {
     return this.seriesService.getById(new ObjectId(id));
   }
 
   @Query(
     /* istanbul ignore next */
-    () => [Series],
+    () => [SeriesEntity],
     {nullable: false},
   )
-  async allSeries(): Promise<Series[]> {
+  async allSeries(): Promise<SeriesDocument[]> {
     return this.seriesService.all();
   }
 
@@ -58,7 +59,7 @@ export class SeriesResolver {
     /* istanbul ignore next */
     () => ID,
   )
-  id(@Parent() series: Series): string {
+  id(@Parent() series: SeriesDocument): string {
     return this.seriesService.id(series).toHexString();
   }
 
@@ -67,7 +68,7 @@ export class SeriesResolver {
     () => PaginatedSeriesBooksConnection,
   )
   async books(
-    @Parent() series: Series,
+    @Parent() series: SeriesDocument,
 
     @Args({
       type:
@@ -84,7 +85,7 @@ export class SeriesResolver {
     () => PaginatedSeriesRelatedBooksConnection,
   )
   async relatedBooks(
-    @Parent() series: Series,
+    @Parent() series: SeriesDocument,
 
     @Args({
       type:
@@ -98,9 +99,9 @@ export class SeriesResolver {
 
   @ResolveField(
     /* istanbul ignore next */
-    () => [Author],
+    () => [AuthorEntity],
   )
-  async relatedAuthors(@Parent() series: Series) {
+  async relatedAuthors(@Parent() series: SeriesDocument) {
     return this.seriesService.relatedAuthors(series);
   }
 
@@ -111,7 +112,7 @@ export class SeriesResolver {
 
   @Mutation(
     /* istanbul ignore next */
-    () => Series,
+    () => SeriesEntity,
     {nullable: false},
   )
   async createSeries(
@@ -121,7 +122,7 @@ export class SeriesResolver {
         () => CreateSeriesInput,
     })
     {books, relatedBooks, ...data}: CreateSeriesInput,
-  ): Promise<Series> {
+  ): Promise<SeriesDocument> {
     return this.seriesService.create({
       books: books?.map(({id, ...rest}) => ({
         id: new ObjectId(id),
@@ -137,7 +138,7 @@ export class SeriesResolver {
 
   @Mutation(
     /* istanbul ignore next */
-    () => Series,
+    () => SeriesEntity,
     {nullable: false},
   )
   async addBookToSeriesBooks(
@@ -147,7 +148,7 @@ export class SeriesResolver {
         () => AddBookToSeriesBooksInput,
     })
     {seriesId, bookId, serial}: AddBookToSeriesBooksInput,
-  ): Promise<Series> {
+  ): Promise<SeriesDocument> {
     return this.seriesService.addBookToBooks(
       new ObjectId(seriesId),
       new ObjectId(bookId),
@@ -157,7 +158,7 @@ export class SeriesResolver {
 
   @Mutation(
     /* istanbul ignore next */
-    () => Series,
+    () => SeriesEntity,
     {nullable: false},
   )
   async addBookToSeriesRelatedBooks(
@@ -167,7 +168,7 @@ export class SeriesResolver {
         () => AddBookToSeriesRelatedBooksInput,
     })
     {seriesId, bookId}: AddBookToSeriesRelatedBooksInput,
-  ): Promise<Series> {
+  ): Promise<SeriesDocument> {
     return this.seriesService.addBookToRelatedBooks(
       new ObjectId(seriesId),
       new ObjectId(bookId),

@@ -3,10 +3,13 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {Author, AuthorSchema} from '../../../../authors/schema/author.schema';
+import {
+  AuthorDocument,
+  AuthorSchema,
+} from '../../../../authors/schema/author.schema';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {BooksService} from '../../../books.service';
-import {Book, BookSchema} from '../../../schema/book.schema';
+import {BookDocument, BookSchema} from '../../../schema/book.schema';
 import {
   SeriesBooksConnectionResolver,
   SeriesRelatedBooksConnectionResolver,
@@ -17,7 +20,7 @@ describe(SeriesBooksConnectionResolver.name, () => {
 
   let module: TestingModule;
 
-  let bookModel: Model<Book>;
+  let bookModel: Model<BookDocument>;
 
   let booksService: BooksService;
 
@@ -34,14 +37,16 @@ describe(SeriesBooksConnectionResolver.name, () => {
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
         MongooseModule.forFeature([
-          {name: Book.name, schema: BookSchema},
-          {name: Author.name, schema: AuthorSchema},
+          {name: BookDocument.name, schema: BookSchema},
+          {name: AuthorDocument.name, schema: AuthorSchema},
         ]),
       ],
       providers: [BooksService, SeriesBooksConnectionResolver],
     }).compile();
 
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
 
     booksService = module.get<BooksService>(BooksService);
     connectionResolver = module.get<SeriesBooksConnectionResolver>(
@@ -66,7 +71,7 @@ describe(SeriesBooksConnectionResolver.name, () => {
   });
 
   describe('book()', () => {
-    let book: Book;
+    let book: BookDocument;
     let bookId: ObjectId;
     beforeEach(async () => {
       book = await bookModel.create({title: 'Title', authors: []});
@@ -101,7 +106,7 @@ describe(SeriesRelatedBooksConnectionResolver.name, () => {
 
   let module: TestingModule;
 
-  let bookModel: Model<Book>;
+  let bookModel: Model<BookDocument>;
 
   let booksService: BooksService;
 
@@ -118,14 +123,16 @@ describe(SeriesRelatedBooksConnectionResolver.name, () => {
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
         MongooseModule.forFeature([
-          {name: Book.name, schema: BookSchema},
-          {name: Author.name, schema: AuthorSchema},
+          {name: BookDocument.name, schema: BookSchema},
+          {name: AuthorDocument.name, schema: AuthorSchema},
         ]),
       ],
       providers: [BooksService, SeriesRelatedBooksConnectionResolver],
     }).compile();
 
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
 
     booksService = module.get<BooksService>(BooksService);
     connectionResolver = module.get<SeriesRelatedBooksConnectionResolver>(
@@ -150,7 +157,7 @@ describe(SeriesRelatedBooksConnectionResolver.name, () => {
   });
 
   describe('book()', () => {
-    let book: Book;
+    let book: BookDocument;
     let bookId: ObjectId;
     beforeEach(async () => {
       book = await bookModel.create({title: 'Title', authors: []});

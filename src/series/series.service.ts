@@ -2,49 +2,49 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Author} from '../authors/schema/author.schema';
+import {AuthorDocument} from '../authors/schema/author.schema';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
 } from '../books/connection/series-connection.entity';
-import {Book} from '../books/schema/book.schema';
+import {BookDocument} from '../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../error/duplicate-values-in-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
 import {OrderDirection} from '../paginate/enum/order-direction.enum';
 import {PaginateService, RelayConnection} from '../paginate/paginate.service';
 import {isArrayUnique} from '../util';
-import {Series} from './schema/series.schema';
+import {SeriesDocument} from './schema/series.schema';
 
 @Injectable()
 export class SeriesService {
   constructor(
-    @InjectModel(Series.name)
-    private readonly seriesModel: Model<Series>,
+    @InjectModel(SeriesDocument.name)
+    private readonly seriesModel: Model<SeriesDocument>,
 
-    @InjectModel(Book.name)
-    private readonly bookModel: Model<Book>,
+    @InjectModel(BookDocument.name)
+    private readonly bookModel: Model<BookDocument>,
 
-    @InjectModel(Author.name)
-    private readonly authorsModel: Model<Author>,
+    @InjectModel(AuthorDocument.name)
+    private readonly authorsModel: Model<AuthorDocument>,
 
     private readonly paginateService: PaginateService,
   ) {}
 
-  async all(): Promise<Series[]> {
+  async all(): Promise<SeriesDocument[]> {
     return this.seriesModel.find();
   }
 
-  id(series: Series): ObjectId {
+  id(series: SeriesDocument): ObjectId {
     return series._id;
   }
 
-  async getById(id: ObjectId): Promise<Series> {
+  async getById(id: ObjectId): Promise<SeriesDocument> {
     const series = await this.seriesModel.findById(id);
 
     if (series) return series;
 
-    throw new NoDocumentForObjectIdError(Series.name, id);
+    throw new NoDocumentForObjectIdError(SeriesDocument.name, id);
   }
 
   async create({
@@ -55,7 +55,7 @@ export class SeriesService {
     title: string;
     books?: SeriesBooksConnection[];
     relatedBooks?: SeriesRelatedBooksConnection[];
-  }): Promise<Series> {
+  }): Promise<SeriesDocument> {
     if (!isArrayUnique(books.map(({serial}) => serial)))
       throw new DuplicateValueInArrayError('books.serial');
 
@@ -68,7 +68,7 @@ export class SeriesService {
     ).map(({id}) => id);
     if (actualBookIds.length < bookIds.length)
       throw new NoDocumentForObjectIdError(
-        Book.name,
+        BookDocument.name,
         bookIds.find((id) => !actualBookIds.includes(id))!,
       );
 
@@ -82,7 +82,7 @@ export class SeriesService {
       ).map(({_id}) => _id);
       if (actualrelatedBookIds.length < relatedBooks.length)
         throw new NoDocumentForObjectIdError(
-          Book.name,
+          BookDocument.name,
           relatedBookIds.find((id) => !actualrelatedBookIds.includes(id))!,
         );
     }
@@ -91,7 +91,7 @@ export class SeriesService {
   }
 
   async books(
-    series: Series,
+    series: SeriesDocument,
     args: RequiredPaginationArgs,
     orderBy?: {serial?: OrderDirection},
   ): Promise<RelayConnection<{id: ObjectId; serial: number}>> {
@@ -110,7 +110,7 @@ export class SeriesService {
   }
 
   async relatedBooks(
-    series: Series,
+    series: SeriesDocument,
     args: RequiredPaginationArgs,
   ): Promise<RelayConnection<{id: ObjectId}>> {
     const seriesId = this.id(series);
@@ -127,7 +127,7 @@ export class SeriesService {
     );
   }
 
-  getLastSerial(series: Series) {
+  getLastSerial(series: SeriesDocument) {
     if (series.books.length === 0) return 1;
     return series.books.sort(
       ({serial: serialA}, {serial: serialB}) => serialB - serialA,
@@ -136,7 +136,7 @@ export class SeriesService {
 
   async addBookToBooks(seriesId: ObjectId, bookId: ObjectId, serial: number) {
     if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
-      throw new NoDocumentForObjectIdError(Book.name, bookId);
+      throw new NoDocumentForObjectIdError(BookDocument.name, bookId);
 
     if (
       await this.seriesModel
@@ -158,14 +158,14 @@ export class SeriesService {
       )
       .then((actual) => {
         if (!actual)
-          throw new NoDocumentForObjectIdError(Series.name, seriesId);
+          throw new NoDocumentForObjectIdError(SeriesDocument.name, seriesId);
         return actual;
       });
   }
 
   async addBookToRelatedBooks(seriesId: ObjectId, bookId: ObjectId) {
     if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
-      throw new NoDocumentForObjectIdError(Book.name, bookId);
+      throw new NoDocumentForObjectIdError(BookDocument.name, bookId);
 
     if (
       await this.seriesModel
@@ -187,12 +187,12 @@ export class SeriesService {
       )
       .then((actual) => {
         if (!actual)
-          throw new NoDocumentForObjectIdError(Series.name, seriesId);
+          throw new NoDocumentForObjectIdError(SeriesDocument.name, seriesId);
         return actual;
       });
   }
 
-  async relatedAuthors(series: Series): Promise<Author[]> {
+  async relatedAuthors(series: SeriesDocument): Promise<AuthorDocument[]> {
     const bookIds = await this.seriesModel.aggregate([
       {$match: {_id: series._id}},
       {$project: {concat: {$concatArrays: ['$books.id', '$relatedBooks.id']}}},

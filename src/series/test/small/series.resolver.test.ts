@@ -6,7 +6,7 @@ import {AddBookToSeriesBooksInput} from '../../dto/add-book-to-series-books.inpu
 import {AddBookToSeriesRelatedBooksInput} from '../../dto/add-book-to-series-related-books.input';
 import {SeriesBooksArgs} from '../../dto/books.args';
 import {CreateSeriesInput} from '../../dto/create-series.input';
-import {Series} from '../../schema/series.schema';
+import {SeriesDocument} from '../../schema/series.schema';
 import {SeriesResolver} from '../../series.resolver';
 import {SeriesService} from '../../series.service';
 
@@ -41,7 +41,9 @@ describe(SeriesResolver.name, () => {
 
   describe('series()', () => {
     it('Serviceから正常に取得できたらそれを返す', async () => {
-      jest.spyOn(seriesService, 'getById').mockResolvedValueOnce({} as Series);
+      jest
+        .spyOn(seriesService, 'getById')
+        .mockResolvedValueOnce({} as SeriesDocument);
 
       const actual = await seriesResolver.series(new ObjectId().toHexString());
       expect(actual).toBeDefined();
@@ -52,7 +54,9 @@ describe(SeriesResolver.name, () => {
 
       jest
         .spyOn(seriesService, 'getById')
-        .mockRejectedValueOnce(new NoDocumentForObjectIdError(Series.name, id));
+        .mockRejectedValueOnce(
+          new NoDocumentForObjectIdError(SeriesDocument.name, id),
+        );
 
       await expect(() =>
         seriesResolver.series(id.toHexString()),
@@ -68,7 +72,9 @@ describe(SeriesResolver.name, () => {
 
   describe('allSeries()', () => {
     it('Serviceから正常に取得できたらそれを返す', async () => {
-      jest.spyOn(seriesService, 'all').mockResolvedValueOnce([] as Series[]);
+      jest
+        .spyOn(seriesService, 'all')
+        .mockResolvedValueOnce([] as SeriesDocument[]);
 
       const actual = await seriesResolver.allSeries();
       expect(actual).toBeDefined();
@@ -80,7 +86,7 @@ describe(SeriesResolver.name, () => {
       const expected = new ObjectId();
       jest.spyOn(seriesService, 'id').mockReturnValueOnce(expected);
 
-      const actual = await seriesResolver.id({_id: expected} as Series);
+      const actual = await seriesResolver.id({_id: expected} as SeriesDocument);
       expect(actual).toStrictEqual(expected.toHexString());
     });
   });
@@ -92,7 +98,10 @@ describe(SeriesResolver.name, () => {
         .mockResolvedValue(
           {} as RelayConnection<{id: ObjectId; serial: number}>,
         );
-      const actual = seriesResolver.books({} as Series, {} as SeriesBooksArgs);
+      const actual = seriesResolver.books(
+        {} as SeriesDocument,
+        {} as SeriesBooksArgs,
+      );
 
       expect(actual).toBeDefined();
     });
@@ -103,7 +112,10 @@ describe(SeriesResolver.name, () => {
       jest
         .spyOn(seriesService, 'relatedBooks')
         .mockResolvedValue({} as RelayConnection<{id: ObjectId}>);
-      const actual = seriesResolver.books({} as Series, {} as SeriesBooksArgs);
+      const actual = seriesResolver.books(
+        {} as SeriesDocument,
+        {} as SeriesBooksArgs,
+      );
 
       expect(actual).toBeDefined();
     });
@@ -111,7 +123,9 @@ describe(SeriesResolver.name, () => {
 
   describe('createSeries()', () => {
     it('Serviceが正常に実行できたらそれを返す', async () => {
-      jest.spyOn(seriesService, 'create').mockResolvedValue({} as Series);
+      jest
+        .spyOn(seriesService, 'create')
+        .mockResolvedValue({} as SeriesDocument);
       const actual = seriesResolver.createSeries({
         title: 'Series',
         books: [{id: new ObjectId().toHexString(), serial: 1}],
@@ -144,7 +158,7 @@ describe(SeriesResolver.name, () => {
     it('Serviceから正常に動作したらそれを返す', async () => {
       jest
         .spyOn(seriesService, 'addBookToBooks')
-        .mockResolvedValue({} as Series);
+        .mockResolvedValue({} as SeriesDocument);
       const actual = seriesResolver.addBookToSeriesBooks({
         seriesId: new ObjectId().toHexString(),
         bookId: new ObjectId().toHexString(),
@@ -174,7 +188,7 @@ describe(SeriesResolver.name, () => {
     it('Serviceから正常に動作したらそれを返す', async () => {
       jest
         .spyOn(seriesService, 'addBookToRelatedBooks')
-        .mockResolvedValue({} as Series);
+        .mockResolvedValue({} as SeriesDocument);
       const actual = seriesResolver.addBookToSeriesRelatedBooks({
         seriesId: new ObjectId().toHexString(),
         bookId: new ObjectId().toHexString(),

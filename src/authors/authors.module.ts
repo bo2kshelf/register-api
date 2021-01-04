@@ -4,11 +4,13 @@ import {PaginateModule} from '../paginate/paginate.module';
 import {AuthorsResolver} from './authors.resolver';
 import {AuthorsService} from './authors.service';
 import {BookAuthorsConnectionResolver} from './connection/book-connection.resolver';
-import {Author, AuthorSchema} from './schema/author.schema';
+import {AuthorDocument, AuthorSchema} from './schema/author.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{name: Author.name, schema: AuthorSchema}]),
+    MongooseModule.forFeature([
+      {name: AuthorDocument.name, schema: AuthorSchema},
+    ]),
     PaginateModule,
   ],
   providers: [AuthorsService, AuthorsResolver, BookAuthorsConnectionResolver],

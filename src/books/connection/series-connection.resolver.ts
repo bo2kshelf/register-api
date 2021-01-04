@@ -1,6 +1,6 @@
 import {Parent, ResolveField, Resolver} from '@nestjs/graphql';
 import {BooksService} from '../books.service';
-import {Book} from '../schema/book.schema';
+import {BookEntity} from '../entity/book.entity';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
@@ -15,7 +15,7 @@ export class SeriesBooksConnectionResolver {
 
   @ResolveField(
     /* istanbul ignore next */
-    () => Book,
+    () => BookEntity,
   )
   async book(@Parent() {id}: SeriesBooksConnection) {
     return this.bookService.getById(id);
