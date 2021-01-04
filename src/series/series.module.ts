@@ -1,5 +1,6 @@
 import {Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
+import {Author, AuthorSchema} from '../authors/schema/author.schema';
 import {Book, BookSchema} from '../books/schema/book.schema';
 import {PaginateModule} from '../paginate/paginate.module';
 import {Series, SeriesSchema} from './schema/series.schema';
@@ -11,6 +12,7 @@ import {SeriesService} from './series.service';
     MongooseModule.forFeature([
       {name: Series.name, schema: SeriesSchema},
       {name: Book.name, schema: BookSchema},
+      {name: Author.name, schema: AuthorSchema},
     ]),
     PaginateModule,
   ],
