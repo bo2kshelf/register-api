@@ -2,6 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
+import {Author} from '../authors/schema/author.schema';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
@@ -23,6 +24,9 @@ export class SeriesService {
 
     @InjectModel(Book.name)
     private readonly bookModel: Model<Book>,
+
+    @InjectModel(Author.name)
+    private readonly authorsModel: Model<Author>,
 
     private readonly paginateService: PaginateService,
   ) {}
@@ -186,5 +190,22 @@ export class SeriesService {
           throw new NoDocumentForObjectIdError(Series.name, seriesId);
         return actual;
       });
+  }
+
+  async relatedAuthors(series: Series): Promise<Author[]> {
+    const bookIds = await this.seriesModel.aggregate([
+      {$match: {_id: series._id}},
+      {$project: {concat: {$concatArrays: ['$books.id', '$relatedBooks.id']}}},
+      {$unwind: {path: '$concat'}},
+      {$project: {_id: '$concat'}},
+    ]);
+    const authorIds = await this.bookModel.aggregate([
+      {$match: {_id: {$in: bookIds.map(({_id}) => _id)}}},
+      {$unwind: {path: '$authors'}},
+      {$group: {_id: null, authors: {$addToSet: '$authors.id'}}},
+      {$unwind: {path: '$authors'}},
+      {$project: {_id: '$authors'}},
+    ]);
+    return this.authorsModel.find({_id: authorIds.map(({_id}) => _id)});
   }
 }

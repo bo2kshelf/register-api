@@ -9,6 +9,7 @@ import {
   ResolveReference,
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
+import {Author} from '../authors/schema/author.schema';
 import {
   PaginatedSeriesBooksConnection,
   PaginatedSeriesRelatedBooksConnection,
@@ -93,6 +94,14 @@ export class SeriesResolver {
     args: SeriesRelatedBooksArgs,
   ) {
     return this.seriesService.relatedBooks(series, args);
+  }
+
+  @ResolveField(
+    /* istanbul ignore next */
+    () => [Author],
+  )
+  async relatedAuthors(@Parent() series: Series) {
+    return this.seriesService.relatedAuthors(series);
   }
 
   @ResolveReference()

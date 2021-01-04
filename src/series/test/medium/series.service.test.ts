@@ -3,6 +3,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
+import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
@@ -27,6 +28,7 @@ describe(SeriesService.name, () => {
 
   let bookModel: Model<Book>;
   let seriesModel: Model<Series>;
+  let authorsModel: Model<Author>;
 
   let paginateService: PaginateService;
   let seriesService: SeriesService;
@@ -44,6 +46,7 @@ describe(SeriesService.name, () => {
         MongooseModule.forFeature([
           {name: Book.name, schema: BookSchema},
           {name: Series.name, schema: SeriesSchema},
+          {name: Author.name, schema: AuthorSchema},
         ]),
       ],
       providers: [PaginateService, SeriesService],
@@ -51,6 +54,7 @@ describe(SeriesService.name, () => {
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
     seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
+    authorsModel = module.get<Model<Author>>(getModelToken(Author.name));
 
     paginateService = module.get<PaginateService>(PaginateService);
     seriesService = module.get<SeriesService>(SeriesService);
@@ -61,6 +65,7 @@ describe(SeriesService.name, () => {
 
     await seriesModel.deleteMany({});
     await bookModel.deleteMany({});
+    await authorsModel.deleteMany({});
   });
 
   afterAll(async () => {
@@ -475,6 +480,140 @@ describe(SeriesService.name, () => {
         seriesService.addBookToRelatedBooks(newSeries._id, eixstBook._id),
       ).rejects.toThrow(
         `Already exists book ${eixstBook._id.toHexString()} in series ${newSeries._id.toHexString()}.`,
+      );
+    });
+  });
+
+  describe('relatedAuthors()', () => {
+    let newAuthor1: Author;
+    let newAuthor2: Author;
+    let newAuthor3: Author;
+    let newAuthor4: Author;
+
+    beforeEach(async () => {
+      newAuthor1 = await authorsModel.create({name: 'Author 1'});
+      newAuthor2 = await authorsModel.create({name: 'Author 2'});
+      newAuthor3 = await authorsModel.create({name: 'Author 3'});
+      newAuthor4 = await authorsModel.create({name: 'Author 4'});
+    });
+
+    it('Series.booksの中に', async () => {
+      const newBook1 = await bookModel.create({
+        title: `Book 1`,
+        authors: [{id: newAuthor1._id}, {id: newAuthor2._id}],
+      });
+      const newBook2 = await bookModel.create({
+        title: `Book 2`,
+        authors: [{id: newAuthor3._id}, {id: newAuthor4._id}],
+      });
+
+      const newSeries = await seriesModel.create({
+        title: 'Series 1',
+        books: [
+          {id: newBook1._id, serial: 1},
+          {id: newBook2._id, serial: 2},
+        ],
+        relatedBooks: [],
+      });
+      const actual = await seriesService.relatedAuthors(newSeries);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(4);
+      expect(actual.map(({_id, name}) => ({_id, name}))).toStrictEqual(
+        expect.arrayContaining([
+          {_id: newAuthor1._id, name: newAuthor1.name},
+          {_id: newAuthor2._id, name: newAuthor2.name},
+          {_id: newAuthor3._id, name: newAuthor3.name},
+          {_id: newAuthor4._id, name: newAuthor4.name},
+        ]),
+      );
+    });
+
+    it('Series.relatedBooksの中に', async () => {
+      const newBook1 = await bookModel.create({
+        title: `Book 1`,
+        authors: [{id: newAuthor1._id}, {id: newAuthor2._id}],
+      });
+      const newBook2 = await bookModel.create({
+        title: `Book 2`,
+        authors: [{id: newAuthor3._id}, {id: newAuthor4._id}],
+      });
+
+      const newSeries = await seriesModel.create({
+        title: 'Series 1',
+        books: [],
+        relatedBooks: [{id: newBook1._id}, {id: newBook2._id}],
+      });
+      const actual = await seriesService.relatedAuthors(newSeries);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(4);
+      expect(actual.map(({_id, name}) => ({_id, name}))).toStrictEqual(
+        expect.arrayContaining([
+          {_id: newAuthor1._id, name: newAuthor1.name},
+          {_id: newAuthor2._id, name: newAuthor2.name},
+          {_id: newAuthor3._id, name: newAuthor3.name},
+          {_id: newAuthor4._id, name: newAuthor4.name},
+        ]),
+      );
+    });
+
+    it('Series.booksとSeries.relatedBooksの両方から', async () => {
+      const newBook1 = await bookModel.create({
+        title: `Book 1`,
+        authors: [{id: newAuthor1._id}, {id: newAuthor2._id}],
+      });
+      const newBook2 = await bookModel.create({
+        title: `Book 2`,
+        authors: [{id: newAuthor3._id}, {id: newAuthor4._id}],
+      });
+
+      const newSeries = await seriesModel.create({
+        title: 'Series 1',
+        books: [{id: newBook1._id, serial: 1}],
+        relatedBooks: [{id: newBook2._id}],
+      });
+      const actual = await seriesService.relatedAuthors(newSeries);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(4);
+      expect(actual.map(({_id, name}) => ({_id, name}))).toStrictEqual(
+        expect.arrayContaining([
+          {_id: newAuthor1._id, name: newAuthor1.name},
+          {_id: newAuthor2._id, name: newAuthor2.name},
+          {_id: newAuthor3._id, name: newAuthor3.name},
+          {_id: newAuthor4._id, name: newAuthor4.name},
+        ]),
+      );
+    });
+
+    it('重複しない', async () => {
+      const newBook1 = await bookModel.create({
+        title: `Book 1`,
+        authors: [{id: newAuthor1._id}, {id: newAuthor2._id}],
+      });
+      const newBook2 = await bookModel.create({
+        title: `Book 2`,
+        authors: [{id: newAuthor1._id}, {id: newAuthor2._id}],
+      });
+
+      const newSeries = await seriesModel.create({
+        title: 'Series 1',
+        books: [
+          {id: newBook1._id, serial: 1},
+          {id: newBook2._id, serial: 2},
+        ],
+        relatedBooks: [],
+      });
+      const actual = await seriesService.relatedAuthors(newSeries);
+
+      expect(actual).toBeDefined();
+      expect(actual).toHaveLength(2);
+      expect(actual.map(({_id, name}) => ({_id, name}))).toStrictEqual(
+        expect.arrayContaining([
+          {_id: newAuthor1._id, name: newAuthor1.name},
+          {_id: newAuthor2._id, name: newAuthor2.name},
+        ]),
       );
     });
   });
