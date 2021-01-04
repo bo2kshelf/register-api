@@ -7,12 +7,12 @@ import {
   SeriesBooksConnectionResolver,
   SeriesRelatedBooksConnectionResolver,
 } from './connection/series-connection.resolver';
-import {Book, BookSchema} from './schema/book.schema';
+import {BookDocument, BookSchema} from './schema/book.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      {name: Book.name, schema: BookSchema},
+      {name: BookDocument.name, schema: BookSchema},
       {name: Author.name, schema: AuthorSchema},
     ]),
   ],

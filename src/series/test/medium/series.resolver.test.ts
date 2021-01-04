@@ -4,7 +4,7 @@ import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
-import {Book, BookSchema} from '../../../books/schema/book.schema';
+import {BookDocument, BookSchema} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {
   PaginateService,
@@ -23,7 +23,7 @@ describe(SeriesResolver.name, () => {
   let module: TestingModule;
 
   let seriesModel: Model<SeriesDocument>;
-  let bookModel: Model<Book>;
+  let bookModel: Model<BookDocument>;
   let authorsModel: Model<Author>;
 
   let paginateService: PaginateService;
@@ -42,7 +42,7 @@ describe(SeriesResolver.name, () => {
         }),
         MongooseModule.forFeature([
           {name: SeriesDocument.name, schema: SeriesSchema},
-          {name: Book.name, schema: BookSchema},
+          {name: BookDocument.name, schema: BookSchema},
           {name: Author.name, schema: AuthorSchema},
         ]),
       ],
@@ -52,7 +52,9 @@ describe(SeriesResolver.name, () => {
     seriesModel = module.get<Model<SeriesDocument>>(
       getModelToken(SeriesDocument.name),
     );
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
     authorsModel = module.get<Model<Author>>(getModelToken(Author.name));
 
     paginateService = module.get<PaginateService>(PaginateService);
@@ -251,10 +253,10 @@ describe(SeriesResolver.name, () => {
   });
 
   describe('createSeries()', () => {
-    let book1: Book;
-    let book2: Book;
-    let book3: Book;
-    let book4: Book;
+    let book1: BookDocument;
+    let book2: BookDocument;
+    let book3: BookDocument;
+    let book4: BookDocument;
     beforeEach(async () => {
       book1 = await bookModel.create({title: 'Book 1', authors: []});
       book2 = await bookModel.create({title: 'Book 2', authors: []});
@@ -298,9 +300,9 @@ describe(SeriesResolver.name, () => {
 
   describe('addBookToSeriesBooks()', () => {
     let series: SeriesDocument;
-    let book1: Book;
-    let book2: Book;
-    let book3: Book;
+    let book1: BookDocument;
+    let book2: BookDocument;
+    let book3: BookDocument;
     beforeEach(async () => {
       book1 = await bookModel.create({title: 'Book 1', authors: []});
       book2 = await bookModel.create({title: 'Book 2', authors: []});
@@ -350,9 +352,9 @@ describe(SeriesResolver.name, () => {
 
   describe('addBookToSeriesRelatedBooks()', () => {
     let series: SeriesDocument;
-    let book1: Book;
-    let book2: Book;
-    let book3: Book;
+    let book1: BookDocument;
+    let book2: BookDocument;
+    let book3: BookDocument;
     beforeEach(async () => {
       book1 = await bookModel.create({title: 'Book 1', authors: []});
       book2 = await bookModel.create({title: 'Book 2', authors: []});

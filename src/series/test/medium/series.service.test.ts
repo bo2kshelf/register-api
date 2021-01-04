@@ -8,7 +8,7 @@ import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
 } from '../../../books/connection/series-connection.entity';
-import {Book, BookSchema} from '../../../books/schema/book.schema';
+import {BookDocument, BookSchema} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../../../paginate/dto/required-pagination.args';
@@ -26,7 +26,7 @@ describe(SeriesService.name, () => {
 
   let module: TestingModule;
 
-  let bookModel: Model<Book>;
+  let bookModel: Model<BookDocument>;
   let seriesModel: Model<SeriesDocument>;
   let authorsModel: Model<Author>;
 
@@ -44,7 +44,7 @@ describe(SeriesService.name, () => {
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
         MongooseModule.forFeature([
-          {name: Book.name, schema: BookSchema},
+          {name: BookDocument.name, schema: BookSchema},
           {name: SeriesDocument.name, schema: SeriesSchema},
           {name: Author.name, schema: AuthorSchema},
         ]),
@@ -52,7 +52,9 @@ describe(SeriesService.name, () => {
       providers: [PaginateService, SeriesService],
     }).compile();
 
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
     seriesModel = module.get<Model<SeriesDocument>>(
       getModelToken(SeriesDocument.name),
     );
@@ -191,10 +193,10 @@ describe(SeriesService.name, () => {
   });
 
   describe('create()', () => {
-    let book1: Book;
-    let book2: Book;
-    let book3: Book;
-    let book4: Book;
+    let book1: BookDocument;
+    let book2: BookDocument;
+    let book3: BookDocument;
+    let book4: BookDocument;
 
     beforeEach(async () => {
       book1 = await bookModel.create({title: 'Book 1', authors: []});
@@ -333,7 +335,7 @@ describe(SeriesService.name, () => {
 
   describe('addBookToBooks()', () => {
     it('正常に追加する', async () => {
-      const newBook = await bookModel.create({} as Book);
+      const newBook = await bookModel.create({} as BookDocument);
 
       const newSeries = await seriesModel.create({
         books: [
@@ -353,7 +355,7 @@ describe(SeriesService.name, () => {
     });
 
     it('存在しないbookのIdを入力すると例外を投げる', async () => {
-      const newBook = await bookModel.create({} as Book);
+      const newBook = await bookModel.create({} as BookDocument);
       const newBookId = newBook._id;
       await newBook.deleteOne();
 
@@ -367,7 +369,7 @@ describe(SeriesService.name, () => {
     });
 
     it('存在しないseriesのIdを入力すると例外を投げる', async () => {
-      const newBook = await bookModel.create({} as Book);
+      const newBook = await bookModel.create({} as BookDocument);
       const newBookId = newBook._id;
 
       const newSeries = await seriesModel.create({
@@ -382,7 +384,7 @@ describe(SeriesService.name, () => {
     });
 
     it('bookが重複していると例外を投げる', async () => {
-      const eixstBook = await bookModel.create({} as Book);
+      const eixstBook = await bookModel.create({} as BookDocument);
 
       const newSeries = await seriesModel.create({
         books: [
@@ -400,7 +402,7 @@ describe(SeriesService.name, () => {
     });
 
     it('serialが重複していると例外を投げる', async () => {
-      const newBook = await bookModel.create({} as Book);
+      const newBook = await bookModel.create({} as BookDocument);
 
       const newSeries = await seriesModel.create({
         books: [
@@ -420,7 +422,7 @@ describe(SeriesService.name, () => {
 
   describe('addBookToRelatedBooks()', () => {
     it('正常に追加する', async () => {
-      const newBook = await bookModel.create({} as Book);
+      const newBook = await bookModel.create({} as BookDocument);
 
       const newSeries = await seriesModel.create({
         relatedBooks: [
@@ -439,7 +441,7 @@ describe(SeriesService.name, () => {
     });
 
     it('存在しないbookのIdを入力すると例外を投げる', async () => {
-      const newBook = await bookModel.create({} as Book);
+      const newBook = await bookModel.create({} as BookDocument);
       const newBookId = newBook._id;
       await newBook.deleteOne();
 
@@ -453,7 +455,7 @@ describe(SeriesService.name, () => {
     });
 
     it('存在しないseriesのIdを入力すると例外を投げる', async () => {
-      const newBook = await bookModel.create({} as Book);
+      const newBook = await bookModel.create({} as BookDocument);
       const newBookId = newBook._id;
 
       const newSeries = await seriesModel.create({
@@ -468,7 +470,7 @@ describe(SeriesService.name, () => {
     });
 
     it('bookが重複していると例外を投げる', async () => {
-      const eixstBook = await bookModel.create({} as Book);
+      const eixstBook = await bookModel.create({} as BookDocument);
 
       const newSeries = await seriesModel.create({
         relatedBooks: [

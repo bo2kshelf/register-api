@@ -9,12 +9,12 @@ import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objecti
 import {modelMockFactory} from '../../../mongoose/model.mock.factory';
 import {SeriesDocument} from '../../../series/schema/series.schema';
 import {BooksService} from '../../books.service';
-import {Book} from '../../schema/book.schema';
+import {BookDocument} from '../../schema/book.schema';
 
 describe(BooksService.name, () => {
   let module: TestingModule;
 
-  let bookModel: Model<Book>;
+  let bookModel: Model<BookDocument>;
   let authorModel: Model<Author>;
 
   let bookService: BooksService;
@@ -23,7 +23,7 @@ describe(BooksService.name, () => {
     module = await Test.createTestingModule({
       providers: [
         {
-          provide: getModelToken(Book.name),
+          provide: getModelToken(BookDocument.name),
           useFactory: modelMockFactory,
         },
         {
@@ -34,7 +34,9 @@ describe(BooksService.name, () => {
       ],
     }).compile();
 
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
 
     bookService = module.get<BooksService>(BooksService);
@@ -54,7 +56,9 @@ describe(BooksService.name, () => {
 
   describe('getById()', () => {
     it('正常に取得できたらそれを返す', async () => {
-      jest.spyOn(bookModel, 'findById').mockResolvedValueOnce({} as Book);
+      jest
+        .spyOn(bookModel, 'findById')
+        .mockResolvedValueOnce({} as BookDocument);
 
       const actual = await bookService.getById(new ObjectId());
       expect(actual).toBeDefined();
@@ -71,7 +75,7 @@ describe(BooksService.name, () => {
 
   describe('all()', () => {
     it('受け取ったものをそのまま返す', async () => {
-      jest.spyOn(bookModel, 'find').mockResolvedValueOnce([{} as Book]);
+      jest.spyOn(bookModel, 'find').mockResolvedValueOnce([{} as BookDocument]);
 
       const actual = await bookService.all();
       expect(actual).toBeDefined();
@@ -82,7 +86,7 @@ describe(BooksService.name, () => {
     it('引数の_idをそのまま返す', () => {
       const expected = new ObjectId();
 
-      const actual = bookService.id({_id: expected} as Book);
+      const actual = bookService.id({_id: expected} as BookDocument);
 
       expect(actual).toStrictEqual(expected);
     });
@@ -125,7 +129,9 @@ describe(BooksService.name, () => {
 
     describe('正常に生成する', () => {
       beforeEach(() => {
-        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+        jest
+          .spyOn(bookModel, 'create')
+          .mockResolvedValueOnce({} as BookDocument);
       });
 
       it('全てのプロパティが不足なくある', async () => {
@@ -134,7 +140,9 @@ describe(BooksService.name, () => {
         jest
           .spyOn(authorModel, 'find')
           .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
-        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+        jest
+          .spyOn(bookModel, 'create')
+          .mockResolvedValueOnce({} as BookDocument);
 
         const actual = await bookService.create({
           title: 'title',
@@ -154,7 +162,9 @@ describe(BooksService.name, () => {
         jest
           .spyOn(authorModel, 'find')
           .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
-        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+        jest
+          .spyOn(bookModel, 'create')
+          .mockResolvedValueOnce({} as BookDocument);
 
         const actual = await bookService.create({
           title: 'title',
@@ -173,7 +183,9 @@ describe(BooksService.name, () => {
         jest
           .spyOn(authorModel, 'find')
           .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
-        jest.spyOn(bookModel, 'create').mockResolvedValueOnce({} as Book);
+        jest
+          .spyOn(bookModel, 'create')
+          .mockResolvedValueOnce({} as BookDocument);
 
         const actual = await bookService.create({
           title: 'title',
@@ -194,7 +206,7 @@ describe(BooksService.name, () => {
 
       const actual = await bookService.relatedSeries({
         _id: new ObjectId(),
-      } as Book);
+      } as BookDocument);
 
       expect(actual).toBeDefined();
       expect(actual).toHaveLength(1);

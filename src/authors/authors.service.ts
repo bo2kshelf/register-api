@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Book} from '../books/schema/book.schema';
+import {BookDocument} from '../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
 import {PaginateService, RelayConnection} from '../paginate/paginate.service';
@@ -39,9 +39,12 @@ export class AuthorsService {
   async books(
     author: Author,
     args: RequiredPaginationArgs,
-  ): Promise<RelayConnection<Book>> {
+  ): Promise<RelayConnection<BookDocument>> {
     const authorId = this.id(author);
-    return this.paginateService.getConnectionFromMongooseModel<Author, Book>(
+    return this.paginateService.getConnectionFromMongooseModel<
+      Author,
+      BookDocument
+    >(
       this.authorModel,
       args,
       [

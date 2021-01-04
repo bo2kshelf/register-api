@@ -4,7 +4,7 @@ import * as Relay from 'graphql-relay';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
-import {Book, BookSchema} from '../../../books/schema/book.schema';
+import {BookDocument, BookSchema} from '../../../books/schema/book.schema';
 import {OrderDirection} from '../../../paginate/enum/order-direction.enum';
 import {PaginateModule} from '../../../paginate/paginate.module';
 import {Series, SeriesSchema} from '../../schema/series.schema';
@@ -17,7 +17,7 @@ describe(SeriesResolver.name, () => {
   let module: TestingModule;
 
   let authorModel: Model<Author>;
-  let bookModel: Model<Book>;
+  let bookModel: Model<BookDocument>;
   let seriesModel: Model<Series>;
 
   let seriesResolver: SeriesResolver;
@@ -34,7 +34,7 @@ describe(SeriesResolver.name, () => {
         }),
         MongooseModule.forFeature([
           {name: Author.name, schema: AuthorSchema},
-          {name: Book.name, schema: BookSchema},
+          {name: BookDocument.name, schema: BookSchema},
           {name: Series.name, schema: SeriesSchema},
         ]),
         PaginateModule,
@@ -43,7 +43,9 @@ describe(SeriesResolver.name, () => {
     }).compile();
 
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
     seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
 
     seriesResolver = module.get<SeriesResolver>(SeriesResolver);

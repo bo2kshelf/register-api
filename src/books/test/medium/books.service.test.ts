@@ -9,14 +9,14 @@ import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {Series, SeriesSchema} from '../../../series/schema/series.schema';
 import {BooksService} from '../../books.service';
-import {Book, BookSchema} from '../../schema/book.schema';
+import {BookDocument, BookSchema} from '../../schema/book.schema';
 
 describe(BooksService.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;
 
-  let bookModel: Model<Book>;
+  let bookModel: Model<BookDocument>;
   let authorModel: Model<Author>;
   let seriesModel: Model<Series>;
 
@@ -33,7 +33,7 @@ describe(BooksService.name, () => {
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
         MongooseModule.forFeature([
-          {name: Book.name, schema: BookSchema},
+          {name: BookDocument.name, schema: BookSchema},
           {name: Author.name, schema: AuthorSchema},
           {name: Series.name, schema: SeriesSchema},
         ]),
@@ -41,7 +41,7 @@ describe(BooksService.name, () => {
       providers: [BooksService],
     }).compile();
 
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    bookModel = module.get<Model<BookDocument>>(getModelToken(BookDocument.name));
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
     seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
 
@@ -82,7 +82,7 @@ describe(BooksService.name, () => {
   describe('getById()', () => {
     let book: Book;
     let bookId: ObjectId;
-    beforeEach(async () => {
+    beforeEachBookDocumentnc () => {
       book = await bookModel.create({title: 'Title', authors: []});
       bookId = book._id;
     });

@@ -3,7 +3,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {Book} from '../../../books/schema/book.schema';
+import {BookDocument} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {
   PaginateService,
@@ -132,7 +132,7 @@ describe(AuthorsResolver.name, () => {
     it('受け取ったものをそのまま返す', async () => {
       jest
         .spyOn(authorService, 'books')
-        .mockResolvedValueOnce({} as RelayConnection<Book>);
+        .mockResolvedValueOnce({} as RelayConnection<BookDocument>);
 
       const actual = await authorService.books(author, {});
       expect(actual).toBeDefined();

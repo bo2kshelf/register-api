@@ -1,6 +1,6 @@
 import {ObjectType} from '@nestjs/graphql';
 import {PaginatedFactory} from '../../paginate/paginated.factory';
-import {Book} from '../schema/book.schema';
+import {BookEntity} from '../entity/book.entity';
 
 @ObjectType()
-export class PaginatedBookConnection extends PaginatedFactory(Book) {}
+export class PaginatedBookConnection extends PaginatedFactory(BookEntity) {}

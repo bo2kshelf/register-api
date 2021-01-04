@@ -1,6 +1,6 @@
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
-import {Book} from '../../../books/schema/book.schema';
+import {BookDocument} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {RelayConnection} from '../../../paginate/paginate.service';
 import {AuthorsResolver} from '../../authors.resolver';
@@ -52,7 +52,9 @@ describe(AuthorsResolver.name, () => {
 
       jest
         .spyOn(authorsService, 'getById')
-        .mockRejectedValueOnce(new NoDocumentForObjectIdError(Book.name, id));
+        .mockRejectedValueOnce(
+          new NoDocumentForObjectIdError(BookDocument.name, id),
+        );
 
       await expect(() =>
         authorsResolver.author(id.toHexString()),
@@ -83,7 +85,7 @@ describe(AuthorsResolver.name, () => {
     it('Serviceから正常に取得できたらそれを返す', async () => {
       jest
         .spyOn(authorsService, 'books')
-        .mockResolvedValue({} as RelayConnection<Book>);
+        .mockResolvedValue({} as RelayConnection<BookDocument>);
 
       const actual = await authorsResolver.books(
         {} as Author,

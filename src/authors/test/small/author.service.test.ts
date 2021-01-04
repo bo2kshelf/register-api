@@ -2,7 +2,7 @@ import {getModelToken} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Book} from '../../../books/schema/book.schema';
+import {BookDocument} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {modelMockFactory} from '../../../mongoose/model.mock.factory';
 import {
@@ -103,7 +103,7 @@ describe(AuthorsService.name, () => {
       jest.spyOn(authorService, 'id').mockReturnValue(new ObjectId());
       jest
         .spyOn(paginateService, 'getConnectionFromMongooseModel')
-        .mockResolvedValueOnce({} as RelayConnection<Book>);
+        .mockResolvedValueOnce({} as RelayConnection<BookDocument>);
 
       const actual = await authorService.books({} as Author, {});
       expect(actual).toBeDefined();

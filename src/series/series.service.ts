@@ -7,7 +7,7 @@ import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
 } from '../books/connection/series-connection.entity';
-import {Book} from '../books/schema/book.schema';
+import {BookDocument} from '../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../error/duplicate-values-in-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {RequiredPaginationArgs} from '../paginate/dto/required-pagination.args';
@@ -22,8 +22,8 @@ export class SeriesService {
     @InjectModel(SeriesDocument.name)
     private readonly seriesModel: Model<SeriesDocument>,
 
-    @InjectModel(Book.name)
-    private readonly bookModel: Model<Book>,
+    @InjectModel(BookDocument.name)
+    private readonly bookModel: Model<BookDocument>,
 
     @InjectModel(Author.name)
     private readonly authorsModel: Model<Author>,
@@ -68,7 +68,7 @@ export class SeriesService {
     ).map(({id}) => id);
     if (actualBookIds.length < bookIds.length)
       throw new NoDocumentForObjectIdError(
-        Book.name,
+        BookDocument.name,
         bookIds.find((id) => !actualBookIds.includes(id))!,
       );
 
@@ -82,7 +82,7 @@ export class SeriesService {
       ).map(({_id}) => _id);
       if (actualrelatedBookIds.length < relatedBooks.length)
         throw new NoDocumentForObjectIdError(
-          Book.name,
+          BookDocument.name,
           relatedBookIds.find((id) => !actualrelatedBookIds.includes(id))!,
         );
     }
@@ -136,7 +136,7 @@ export class SeriesService {
 
   async addBookToBooks(seriesId: ObjectId, bookId: ObjectId, serial: number) {
     if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
-      throw new NoDocumentForObjectIdError(Book.name, bookId);
+      throw new NoDocumentForObjectIdError(BookDocument.name, bookId);
 
     if (
       await this.seriesModel
@@ -165,7 +165,7 @@ export class SeriesService {
 
   async addBookToRelatedBooks(seriesId: ObjectId, bookId: ObjectId) {
     if (!(await this.bookModel.findById(bookId).then((book) => Boolean(book))))
-      throw new NoDocumentForObjectIdError(Book.name, bookId);
+      throw new NoDocumentForObjectIdError(BookDocument.name, bookId);
 
     if (
       await this.seriesModel

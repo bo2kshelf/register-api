@@ -8,31 +8,31 @@ import {EmptyArrayError} from '../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
 import {SeriesDocument} from '../series/schema/series.schema';
 import {isArrayUnique} from '../util';
-import {Book} from './schema/book.schema';
+import {BookDocument} from './schema/book.schema';
 
 @Injectable()
 export class BooksService {
   constructor(
-    @InjectModel(Book.name)
-    private readonly bookModel: Model<Book>,
+    @InjectModel(BookDocument.name)
+    private readonly bookModel: Model<BookDocument>,
     @InjectModel(Author.name)
     private readonly authorModel: Model<Author>,
   ) {}
 
-  async all(): Promise<Book[]> {
+  async all(): Promise<BookDocument[]> {
     return this.bookModel.find();
   }
 
-  id(book: Book): ObjectId {
+  id(book: BookDocument): ObjectId {
     return book._id;
   }
 
-  async getById(id: ObjectId): Promise<Book> {
+  async getById(id: ObjectId): Promise<BookDocument> {
     const book = await this.bookModel.findById(id);
 
     if (book) return book;
 
-    throw new NoDocumentForObjectIdError(Book.name, id);
+    throw new NoDocumentForObjectIdError(BookDocument.name, id);
   }
 
   async create({
@@ -42,7 +42,7 @@ export class BooksService {
     title: string;
     authors: {id: ObjectId; roles?: string[]}[];
     isbn?: string;
-  }): Promise<Book> {
+  }): Promise<BookDocument> {
     if (authors.length === 0) throw new EmptyArrayError('authors');
 
     const authorIds = authors.map(({id: author}) => author);
@@ -66,7 +66,7 @@ export class BooksService {
     });
   }
 
-  async relatedSeries(book: Book): Promise<SeriesDocument[]> {
+  async relatedSeries(book: BookDocument): Promise<SeriesDocument[]> {
     return this.bookModel.aggregate([
       {
         $match: {

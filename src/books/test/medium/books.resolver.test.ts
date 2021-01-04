@@ -11,14 +11,14 @@ import {
 } from '../../../series/schema/series.schema';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
-import {Book, BookSchema} from '../../schema/book.schema';
+import {BookDocument, BookSchema} from '../../schema/book.schema';
 
 describe(BooksResolver.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;
 
-  let bookModel: Model<Book>;
+  let bookModel: Model<BookDocument>;
   let authorModel: Model<Author>;
   let seriesModel: Model<SeriesDocument>;
 
@@ -36,7 +36,7 @@ describe(BooksResolver.name, () => {
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
         MongooseModule.forFeature([
-          {name: Book.name, schema: BookSchema},
+          {name: BookDocument.name, schema: BookSchema},
           {name: Author.name, schema: AuthorSchema},
           {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
@@ -44,7 +44,9 @@ describe(BooksResolver.name, () => {
       providers: [BooksService, BooksResolver],
     }).compile();
 
-    bookModel = module.get<Model<Book>>(getModelToken(Book.name));
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
     seriesModel = module.get<Model<SeriesDocument>>(
       getModelToken(SeriesDocument.name),
@@ -71,7 +73,7 @@ describe(BooksResolver.name, () => {
   });
 
   describe('book()', () => {
-    let book: Book;
+    let book: BookDocument;
     let bookId: ObjectId;
     beforeEach(async () => {
       book = await bookModel.create({title: 'Title', authors: []});

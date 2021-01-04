@@ -13,18 +13,19 @@ import {BookAuthorsConnection} from '../authors/connection/book-connection.entit
 import {SeriesEntity} from '../series/entity/series.entity';
 import {BooksService} from './books.service';
 import {CreateBookInput} from './dto/create-book.input';
-import {Book} from './schema/book.schema';
+import {BookEntity} from './entity/book.entity';
+import {BookDocument} from './schema/book.schema';
 
 @Resolver(
   /* istanbul ignore next */
-  () => Book,
+  () => BookEntity,
 )
 export class BooksResolver {
   constructor(private bookService: BooksService) {}
 
   @Query(
     /* istanbul ignore next */
-    () => Book,
+    () => BookEntity,
     {nullable: false},
   )
   async book(
@@ -34,16 +35,16 @@ export class BooksResolver {
         () => ID,
     })
     id: string,
-  ): Promise<Book> {
+  ): Promise<BookDocument> {
     return this.bookService.getById(new ObjectId(id));
   }
 
   @Query(
     /* istanbul ignore next */
-    () => [Book],
+    () => [BookEntity],
     {nullable: false},
   )
-  async allBooks(): Promise<Book[]> {
+  async allBooks(): Promise<BookDocument[]> {
     return this.bookService.all();
   }
 
@@ -51,7 +52,7 @@ export class BooksResolver {
     /* istanbul ignore next */
     () => ID,
   )
-  id(@Parent() book: Book): string {
+  id(@Parent() book: BookDocument): string {
     return this.bookService.id(book).toHexString();
   }
 
@@ -59,7 +60,7 @@ export class BooksResolver {
     /* istanbul ignore next */
     () => [BookAuthorsConnection],
   )
-  authors(@Parent() book: Book) {
+  authors(@Parent() book: BookDocument) {
     return book.authors;
   }
 
@@ -67,7 +68,7 @@ export class BooksResolver {
     /* istanbul ignore next */
     () => [SeriesEntity],
   )
-  async relatedSeries(@Parent() book: Book) {
+  async relatedSeries(@Parent() book: BookDocument) {
     return this.bookService.relatedSeries(book);
   }
 
@@ -78,7 +79,7 @@ export class BooksResolver {
 
   @Mutation(
     /* istanbul ignore next */
-    () => Book,
+    () => BookEntity,
     {nullable: false},
   )
   async createBook(
@@ -88,7 +89,7 @@ export class BooksResolver {
         () => CreateBookInput,
     })
     {authors, ...data}: CreateBookInput,
-  ): Promise<Book> {
+  ): Promise<BookDocument> {
     return this.bookService.create({
       authors: authors.map(({id, ...rest}) => ({
         id: new ObjectId(id),
