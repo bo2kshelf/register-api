@@ -2,6 +2,7 @@ import {getModelToken} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
+import {Author} from '../../../authors/schema/author.schema';
 import {SeriesBooksConnection} from '../../../books/connection/series-connection.entity';
 import {Book} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
@@ -35,6 +36,10 @@ describe(SeriesService.name, () => {
         },
         {
           provide: getModelToken(Book.name),
+          useFactory: modelMockFactory,
+        },
+        {
+          provide: getModelToken(Author.name),
           useFactory: modelMockFactory,
         },
         PaginateService,
