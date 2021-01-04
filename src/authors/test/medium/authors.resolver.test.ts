@@ -3,7 +3,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {BookDocument} from '../../../books/schema/book.schema';
+import {BookDocument, BookSchema} from '../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {
   PaginateService,
@@ -37,6 +37,7 @@ describe(AuthorsResolver.name, () => {
         }),
         MongooseModule.forFeature([
           {name: AuthorDocument.name, schema: AuthorSchema},
+          {name: BookDocument.name, schema: BookSchema},
         ]),
       ],
       providers: [
