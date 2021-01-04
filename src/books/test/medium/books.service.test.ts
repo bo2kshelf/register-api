@@ -3,11 +3,17 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {AuthorDocument, AuthorSchema} from '../../../authors/schema/author.schema';
+import {
+  AuthorDocument,
+  AuthorSchema,
+} from '../../../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
-import {Series, SeriesSchema} from '../../../series/schema/series.schema';
+import {
+  SeriesDocument,
+  SeriesSchema,
+} from '../../../series/schema/series.schema';
 import {BooksService} from '../../books.service';
 import {BookDocument, BookSchema} from '../../schema/book.schema';
 
@@ -18,7 +24,7 @@ describe(BooksService.name, () => {
 
   let bookModel: Model<BookDocument>;
   let authorModel: Model<AuthorDocument>;
-  let seriesModel: Model<Series>;
+  let seriesModel: Model<SeriesDocument>;
 
   let bookService: BooksService;
 
@@ -35,15 +41,21 @@ describe(BooksService.name, () => {
         MongooseModule.forFeature([
           {name: BookDocument.name, schema: BookSchema},
           {name: AuthorDocument.name, schema: AuthorSchema},
-          {name: Series.name, schema: SeriesSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
       ],
       providers: [BooksService],
     }).compile();
 
-    bookModel = module.get<Model<BookDocument>>(getModelToken(BookDocument.name));
-    authorModel = module.get<Model<AuthorDocument>>(getModelToken(AuthorDocument.name));
-    seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
+    bookModel = module.get<Model<BookDocument>>(
+      getModelToken(BookDocument.name),
+    );
+    authorModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
+    seriesModel = module.get<Model<SeriesDocument>>(
+      getModelToken(SeriesDocument.name),
+    );
 
     bookService = module.get<BooksService>(BooksService);
   });
@@ -80,9 +92,9 @@ describe(BooksService.name, () => {
   });
 
   describe('getById()', () => {
-    let book: Book;
+    let book: BookDocument;
     let bookId: ObjectId;
-    beforeEachBookDocumentnc () => {
+    beforeEach(async () => {
       book = await bookModel.create({title: 'Title', authors: []});
       bookId = book._id;
     });
