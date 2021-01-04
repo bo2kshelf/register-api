@@ -7,7 +7,7 @@ import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-arr
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {modelMockFactory} from '../../../mongoose/model.mock.factory';
-import {Series} from '../../../series/schema/series.schema';
+import {SeriesDocument} from '../../../series/schema/series.schema';
 import {BooksService} from '../../books.service';
 import {Book} from '../../schema/book.schema';
 
@@ -188,7 +188,9 @@ describe(BooksService.name, () => {
 
   describe('relatedSeries()', () => {
     it('正常に取得出来る', async () => {
-      jest.spyOn(bookModel, 'aggregate').mockResolvedValueOnce([{} as Series]);
+      jest
+        .spyOn(bookModel, 'aggregate')
+        .mockResolvedValueOnce([{} as SeriesDocument]);
 
       const actual = await bookService.relatedSeries({
         _id: new ObjectId(),

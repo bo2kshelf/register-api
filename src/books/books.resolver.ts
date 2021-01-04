@@ -10,7 +10,7 @@ import {
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
 import {BookAuthorsConnection} from '../authors/connection/book-connection.entity';
-import {Series} from '../series/schema/series.schema';
+import {SeriesEntity} from '../series/entity/series.entity';
 import {BooksService} from './books.service';
 import {CreateBookInput} from './dto/create-book.input';
 import {Book} from './schema/book.schema';
@@ -65,7 +65,7 @@ export class BooksResolver {
 
   @ResolveField(
     /* istanbul ignore next */
-    () => [Series],
+    () => [SeriesEntity],
   )
   async relatedSeries(@Parent() book: Book) {
     return this.bookService.relatedSeries(book);

@@ -5,7 +5,10 @@ import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
 import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
-import {Series, SeriesSchema} from '../../../series/schema/series.schema';
+import {
+  SeriesDocument,
+  SeriesSchema,
+} from '../../../series/schema/series.schema';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {Book, BookSchema} from '../../schema/book.schema';
@@ -17,7 +20,7 @@ describe(BooksResolver.name, () => {
 
   let bookModel: Model<Book>;
   let authorModel: Model<Author>;
-  let seriesModel: Model<Series>;
+  let seriesModel: Model<SeriesDocument>;
 
   let booksService: BooksService;
   let booksResolver: BooksResolver;
@@ -35,7 +38,7 @@ describe(BooksResolver.name, () => {
         MongooseModule.forFeature([
           {name: Book.name, schema: BookSchema},
           {name: Author.name, schema: AuthorSchema},
-          {name: Series.name, schema: SeriesSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
       ],
       providers: [BooksService, BooksResolver],
@@ -43,7 +46,9 @@ describe(BooksResolver.name, () => {
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
     authorModel = module.get<Model<Author>>(getModelToken(Author.name));
-    seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
+    seriesModel = module.get<Model<SeriesDocument>>(
+      getModelToken(SeriesDocument.name),
+    );
 
     booksService = module.get<BooksService>(BooksService);
     booksResolver = module.get<BooksResolver>(BooksResolver);

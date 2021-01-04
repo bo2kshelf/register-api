@@ -6,7 +6,7 @@ import {Author} from '../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
-import {Series} from '../series/schema/series.schema';
+import {SeriesDocument} from '../series/schema/series.schema';
 import {isArrayUnique} from '../util';
 import {Book} from './schema/book.schema';
 
@@ -66,7 +66,7 @@ export class BooksService {
     });
   }
 
-  async relatedSeries(book: Book): Promise<Series[]> {
+  async relatedSeries(book: Book): Promise<SeriesDocument[]> {
     return this.bookModel.aggregate([
       {
         $match: {

@@ -16,7 +16,7 @@ import {
   PaginateService,
   RelayConnection,
 } from '../../../paginate/paginate.service';
-import {Series, SeriesSchema} from '../../schema/series.schema';
+import {SeriesDocument, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
 jest.mock('../../../paginate/paginate.service');
@@ -27,7 +27,7 @@ describe(SeriesService.name, () => {
   let module: TestingModule;
 
   let bookModel: Model<Book>;
-  let seriesModel: Model<Series>;
+  let seriesModel: Model<SeriesDocument>;
   let authorsModel: Model<Author>;
 
   let paginateService: PaginateService;
@@ -45,7 +45,7 @@ describe(SeriesService.name, () => {
         }),
         MongooseModule.forFeature([
           {name: Book.name, schema: BookSchema},
-          {name: Series.name, schema: SeriesSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
           {name: Author.name, schema: AuthorSchema},
         ]),
       ],
@@ -53,7 +53,9 @@ describe(SeriesService.name, () => {
     }).compile();
 
     bookModel = module.get<Model<Book>>(getModelToken(Book.name));
-    seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
+    seriesModel = module.get<Model<SeriesDocument>>(
+      getModelToken(SeriesDocument.name),
+    );
     authorsModel = module.get<Model<Author>>(getModelToken(Author.name));
 
     paginateService = module.get<PaginateService>(PaginateService);
@@ -94,7 +96,7 @@ describe(SeriesService.name, () => {
   });
 
   describe('getById()', () => {
-    let series: Series;
+    let series: SeriesDocument;
     let seriesId: ObjectId;
     beforeEach(async () => {
       series = await seriesModel.create({
@@ -141,7 +143,7 @@ describe(SeriesService.name, () => {
   });
 
   describe('books()', () => {
-    let series: Series;
+    let series: SeriesDocument;
     beforeEach(async () => {
       series = await seriesModel.create({
         title: 'Title',
@@ -166,7 +168,7 @@ describe(SeriesService.name, () => {
   });
 
   describe('relatedBooks()', () => {
-    let series: Series;
+    let series: SeriesDocument;
     beforeEach(async () => {
       series = await seriesModel.create({
         title: 'Title',
@@ -339,9 +341,9 @@ describe(SeriesService.name, () => {
           {id: new ObjectId(), serial: 2},
           {id: new ObjectId(), serial: 3},
         ],
-      } as Series);
+      } as SeriesDocument);
 
-      const actual: Series = await seriesService.addBookToBooks(
+      const actual: SeriesDocument = await seriesService.addBookToBooks(
         newSeries._id,
         newBook._id,
         4,
@@ -357,7 +359,7 @@ describe(SeriesService.name, () => {
 
       const newSeries = await seriesModel.create({
         books: [] as SeriesBooksConnection[],
-      } as Series);
+      } as SeriesDocument);
 
       await expect(() =>
         seriesService.addBookToBooks(newSeries._id, newBookId, 1),
@@ -370,7 +372,7 @@ describe(SeriesService.name, () => {
 
       const newSeries = await seriesModel.create({
         books: [] as SeriesBooksConnection[],
-      } as Series);
+      } as SeriesDocument);
       const newSeriesId = newSeries._id;
       await newSeries.deleteOne();
 
@@ -388,7 +390,7 @@ describe(SeriesService.name, () => {
           {id: new ObjectId(), serial: 2},
           {id: eixstBook._id, serial: 3},
         ],
-      } as Series);
+      } as SeriesDocument);
 
       await expect(() =>
         seriesService.addBookToBooks(newSeries._id, eixstBook._id, 4),
@@ -406,7 +408,7 @@ describe(SeriesService.name, () => {
           {id: new ObjectId(), serial: 2},
           {id: new ObjectId(), serial: 3},
         ],
-      } as Series);
+      } as SeriesDocument);
 
       await expect(() =>
         seriesService.addBookToBooks(newSeries._id, newBook._id, 1),
@@ -426,9 +428,9 @@ describe(SeriesService.name, () => {
           {id: new ObjectId()},
           {id: new ObjectId()},
         ],
-      } as Series);
+      } as SeriesDocument);
 
-      const actual: Series = await seriesService.addBookToRelatedBooks(
+      const actual: SeriesDocument = await seriesService.addBookToRelatedBooks(
         newSeries._id,
         newBook._id,
       );
@@ -443,7 +445,7 @@ describe(SeriesService.name, () => {
 
       const newSeries = await seriesModel.create({
         relatedBooks: [] as SeriesRelatedBooksConnection[],
-      } as Series);
+      } as SeriesDocument);
 
       await expect(() =>
         seriesService.addBookToRelatedBooks(newSeries._id, newBookId),
@@ -456,7 +458,7 @@ describe(SeriesService.name, () => {
 
       const newSeries = await seriesModel.create({
         relatedBooks: [] as SeriesRelatedBooksConnection[],
-      } as Series);
+      } as SeriesDocument);
       const newSeriesId = newSeries._id;
       await newSeries.deleteOne();
 
@@ -474,7 +476,7 @@ describe(SeriesService.name, () => {
           {id: new ObjectId()},
           {id: eixstBook._id},
         ],
-      } as Series);
+      } as SeriesDocument);
 
       await expect(() =>
         seriesService.addBookToRelatedBooks(newSeries._id, eixstBook._id),
