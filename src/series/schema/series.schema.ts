@@ -10,10 +10,10 @@ export class SeriesDocument extends Document {
   @Prop()
   title!: string;
 
-  @Prop(() => [SeriesBooksConnection])
+  @Prop([SeriesBooksConnection])
   books!: SeriesBooksConnection[];
 
-  @Prop(() => [SeriesRelatedBooksConnection])
+  @Prop([SeriesRelatedBooksConnection])
   relatedBooks!: SeriesRelatedBooksConnection[];
 }
 

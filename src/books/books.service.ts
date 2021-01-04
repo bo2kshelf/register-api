@@ -15,8 +15,12 @@ export class BooksService {
   constructor(
     @InjectModel(BookDocument.name)
     private readonly bookModel: Model<BookDocument>,
+
     @InjectModel(AuthorDocument.name)
     private readonly authorModel: Model<AuthorDocument>,
+
+    @InjectModel(SeriesDocument.name)
+    private readonly seriesModel: Model<SeriesDocument>,
   ) {}
 
   async all(): Promise<BookDocument[]> {
@@ -67,41 +71,10 @@ export class BooksService {
   }
 
   async relatedSeries(book: BookDocument): Promise<SeriesDocument[]> {
-    return this.bookModel.aggregate([
+    return this.seriesModel.aggregate([
       {
         $match: {
-          _id: book._id,
-        },
-      },
-      {
-        $lookup: {
-          from: 'series',
-          let: {
-            id: '$_id',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $or: [
-                    {$in: ['$$id', '$books.id']},
-                    {$in: ['$$id', '$relatedBooks.id']},
-                  ],
-                },
-              },
-            },
-          ],
-          as: 'series',
-        },
-      },
-      {
-        $unwind: {
-          path: '$series',
-        },
-      },
-      {
-        $replaceRoot: {
-          newRoot: '$series',
+          $or: [{'books.id': book._id}, {'relatedBooks.id': book._id}],
         },
       },
     ]);
