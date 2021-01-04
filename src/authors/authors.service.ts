@@ -13,6 +13,10 @@ export class AuthorsService {
   constructor(
     @InjectModel(AuthorDocument.name)
     private readonly authorModel: Model<AuthorDocument>,
+
+    @InjectModel(BookDocument.name)
+    private readonly bookModel: Model<BookDocument>,
+
     private readonly paginateService: PaginateService,
   ) {}
 
@@ -42,37 +46,13 @@ export class AuthorsService {
   ): Promise<RelayConnection<BookDocument>> {
     const authorId = this.id(author);
     return this.paginateService.getConnectionFromMongooseModel<
-      AuthorDocument,
+      BookDocument,
       BookDocument
     >(
-      this.authorModel,
+      this.bookModel,
       args,
-      [
-        {$match: {_id: authorId}},
-        {
-          $lookup: {
-            from: 'books',
-            foreignField: 'authors.id',
-            localField: '_id',
-            as: 'books',
-          },
-        },
-        {$unwind: {path: '$books'}},
-      ],
-      [
-        {$match: {_id: authorId}},
-        {
-          $lookup: {
-            from: 'books',
-            foreignField: 'authors.id',
-            localField: '_id',
-            as: 'books',
-          },
-        },
-        {$unwind: {path: '$books'}},
-        {$replaceRoot: {newRoot: '$books'}},
-        {$sort: {_id: 1}},
-      ],
+      [{$match: {'authors.id': author._id}}],
+      [{$match: {'authors.id': author._id}}],
     );
   }
 }

@@ -8,6 +8,10 @@ import {
   AuthorSchema,
 } from '../../../../authors/schema/author.schema';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
+import {
+  SeriesDocument,
+  SeriesSchema,
+} from '../../../../series/schema/series.schema';
 import {BooksService} from '../../../books.service';
 import {BookDocument, BookSchema} from '../../../schema/book.schema';
 import {
@@ -39,6 +43,7 @@ describe(SeriesBooksConnectionResolver.name, () => {
         MongooseModule.forFeature([
           {name: BookDocument.name, schema: BookSchema},
           {name: AuthorDocument.name, schema: AuthorSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
       ],
       providers: [BooksService, SeriesBooksConnectionResolver],
@@ -125,6 +130,7 @@ describe(SeriesRelatedBooksConnectionResolver.name, () => {
         MongooseModule.forFeature([
           {name: BookDocument.name, schema: BookSchema},
           {name: AuthorDocument.name, schema: AuthorSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
       ],
       providers: [BooksService, SeriesRelatedBooksConnectionResolver],

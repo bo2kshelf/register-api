@@ -30,6 +30,10 @@ describe(AuthorsService.name, () => {
           provide: getModelToken(AuthorDocument.name),
           useFactory: modelMockFactory,
         },
+        {
+          provide: getModelToken(BookDocument.name),
+          useFactory: modelMockFactory,
+        },
         PaginateService,
         AuthorsService,
       ],

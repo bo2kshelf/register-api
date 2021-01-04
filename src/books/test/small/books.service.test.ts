@@ -16,6 +16,7 @@ describe(BooksService.name, () => {
 
   let bookModel: Model<BookDocument>;
   let authorModel: Model<AuthorDocument>;
+  let seriesModel: Model<SeriesDocument>;
 
   let bookService: BooksService;
 
@@ -30,6 +31,10 @@ describe(BooksService.name, () => {
           provide: getModelToken(AuthorDocument.name),
           useFactory: modelMockFactory,
         },
+        {
+          provide: getModelToken(SeriesDocument.name),
+          useFactory: modelMockFactory,
+        },
         BooksService,
       ],
     }).compile();
@@ -39,6 +44,9 @@ describe(BooksService.name, () => {
     );
     authorModel = module.get<Model<AuthorDocument>>(
       getModelToken(AuthorDocument.name),
+    );
+    seriesModel = module.get<Model<SeriesDocument>>(
+      getModelToken(SeriesDocument.name),
     );
 
     bookService = module.get<BooksService>(BooksService);
@@ -215,7 +223,7 @@ describe(BooksService.name, () => {
   describe('relatedSeries()', () => {
     it('正常に取得出来る', async () => {
       jest
-        .spyOn(bookModel, 'aggregate')
+        .spyOn(seriesModel, 'aggregate')
         .mockResolvedValueOnce([{} as SeriesDocument]);
 
       const actual = await bookService.relatedSeries({
