@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Author} from '../authors/schema/author.schema';
+import {AuthorDocument} from '../authors/schema/author.schema';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
@@ -25,8 +25,8 @@ export class SeriesService {
     @InjectModel(BookDocument.name)
     private readonly bookModel: Model<BookDocument>,
 
-    @InjectModel(Author.name)
-    private readonly authorsModel: Model<Author>,
+    @InjectModel(AuthorDocument.name)
+    private readonly authorsModel: Model<AuthorDocument>,
 
     private readonly paginateService: PaginateService,
   ) {}
@@ -192,7 +192,7 @@ export class SeriesService {
       });
   }
 
-  async relatedAuthors(series: SeriesDocument): Promise<Author[]> {
+  async relatedAuthors(series: SeriesDocument): Promise<AuthorDocument[]> {
     const bookIds = await this.seriesModel.aggregate([
       {$match: {_id: series._id}},
       {$project: {concat: {$concatArrays: ['$books.id', '$relatedBooks.id']}}},

@@ -10,14 +10,14 @@ import {
   RelayConnection,
 } from '../../../paginate/paginate.service';
 import {AuthorsService} from '../../authors.service';
-import {Author} from '../../schema/author.schema';
+import {AuthorDocument} from '../../schema/author.schema';
 
 jest.mock('../../../paginate/paginate.service');
 
 describe(AuthorsService.name, () => {
   let module: TestingModule;
 
-  let authorModel: Model<Author>;
+  let authorModel: Model<AuthorDocument>;
 
   let paginateService: PaginateService;
 
@@ -27,7 +27,7 @@ describe(AuthorsService.name, () => {
     module = await Test.createTestingModule({
       providers: [
         {
-          provide: getModelToken(Author.name),
+          provide: getModelToken(AuthorDocument.name),
           useFactory: modelMockFactory,
         },
         PaginateService,
@@ -35,7 +35,9 @@ describe(AuthorsService.name, () => {
       ],
     }).compile();
 
-    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
     paginateService = module.get<PaginateService>(PaginateService);
 
     authorService = module.get<AuthorsService>(AuthorsService);
@@ -55,7 +57,9 @@ describe(AuthorsService.name, () => {
 
   describe('getById()', () => {
     it('正常に取得できたらそれを返す', async () => {
-      jest.spyOn(authorModel, 'findById').mockResolvedValueOnce({} as Author);
+      jest
+        .spyOn(authorModel, 'findById')
+        .mockResolvedValueOnce({} as AuthorDocument);
 
       const actual = await authorService.getById(new ObjectId());
       expect(actual).toBeDefined();
@@ -72,7 +76,9 @@ describe(AuthorsService.name, () => {
 
   describe('all()', () => {
     it('受け取ったものをそのまま返す', async () => {
-      jest.spyOn(authorModel, 'find').mockResolvedValueOnce([{} as Author]);
+      jest
+        .spyOn(authorModel, 'find')
+        .mockResolvedValueOnce([{} as AuthorDocument]);
 
       const actual = await authorService.all();
       expect(actual).toBeDefined();
@@ -83,7 +89,7 @@ describe(AuthorsService.name, () => {
     it('引数の_idをそのまま返す', () => {
       const expected = new ObjectId();
 
-      const actual = authorService.id({_id: expected} as Author);
+      const actual = authorService.id({_id: expected} as AuthorDocument);
 
       expect(actual).toStrictEqual(expected);
     });
@@ -91,7 +97,9 @@ describe(AuthorsService.name, () => {
 
   describe('create()', () => {
     it('受け取ったものをそのまま返す', async () => {
-      jest.spyOn(authorModel, 'create').mockResolvedValueOnce({} as Author);
+      jest
+        .spyOn(authorModel, 'create')
+        .mockResolvedValueOnce({} as AuthorDocument);
 
       const actual = await authorService.create({name: 'Name'});
       expect(actual).toBeDefined();
@@ -105,7 +113,7 @@ describe(AuthorsService.name, () => {
         .spyOn(paginateService, 'getConnectionFromMongooseModel')
         .mockResolvedValueOnce({} as RelayConnection<BookDocument>);
 
-      const actual = await authorService.books({} as Author, {});
+      const actual = await authorService.books({} as AuthorDocument, {});
       expect(actual).toBeDefined();
     });
   });

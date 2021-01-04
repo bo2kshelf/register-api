@@ -13,18 +13,19 @@ import {PaginatedBookConnection} from '../books/connection/paginated.connection'
 import {AuthorsService} from './authors.service';
 import {AuthorBooksArgs} from './dto/books.args';
 import {CreateAuthorInput} from './dto/create-author.input';
-import {Author} from './schema/author.schema';
+import {AuthorEntity} from './entity/author.entity';
+import {AuthorDocument} from './schema/author.schema';
 
 @Resolver(
   /* istanbul ignore next */
-  () => Author,
+  () => AuthorEntity,
 )
 export class AuthorsResolver {
   constructor(private authorsService: AuthorsService) {}
 
   @Query(
     /* istanbul ignore next */
-    () => Author,
+    () => AuthorEntity,
     {nullable: false},
   )
   async author(
@@ -34,16 +35,16 @@ export class AuthorsResolver {
         () => ID,
     })
     id: string,
-  ): Promise<Author> {
+  ): Promise<AuthorDocument> {
     return this.authorsService.getById(new ObjectId(id));
   }
 
   @Query(
     /* istanbul ignore next */
-    () => [Author],
+    () => [AuthorEntity],
     {nullable: false},
   )
-  async allAuthors(): Promise<Author[]> {
+  async allAuthors(): Promise<AuthorDocument[]> {
     return this.authorsService.all();
   }
 
@@ -51,7 +52,7 @@ export class AuthorsResolver {
     /* istanbul ignore next */
     () => ID,
   )
-  id(@Parent() author: Author): string {
+  id(@Parent() author: AuthorDocument): string {
     return this.authorsService.id(author).toHexString();
   }
 
@@ -60,7 +61,7 @@ export class AuthorsResolver {
     () => PaginatedBookConnection,
   )
   async books(
-    @Parent() author: Author,
+    @Parent() author: AuthorDocument,
 
     @Args({
       type:
@@ -79,7 +80,7 @@ export class AuthorsResolver {
 
   @Mutation(
     /* istanbul ignore next */
-    () => Author,
+    () => AuthorEntity,
     {nullable: false},
   )
   async createAuthor(
@@ -89,7 +90,7 @@ export class AuthorsResolver {
         () => CreateAuthorInput,
     })
     data: CreateAuthorInput,
-  ): Promise<Author> {
+  ): Promise<AuthorDocument> {
     return this.authorsService.create(data);
   }
 }

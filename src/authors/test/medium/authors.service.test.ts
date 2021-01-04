@@ -10,14 +10,14 @@ import {
   RelayConnection,
 } from '../../../paginate/paginate.service';
 import {AuthorsService} from '../../authors.service';
-import {Author, AuthorSchema} from '../../schema/author.schema';
+import {AuthorDocument, AuthorSchema} from '../../schema/author.schema';
 
 describe(AuthorsService.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;
 
-  let authorModel: Model<Author>;
+  let authorModel: Model<AuthorDocument>;
 
   let paginateService: PaginateService;
 
@@ -35,7 +35,9 @@ describe(AuthorsService.name, () => {
             uri: await mongoServer.getUri(),
           }),
         }),
-        MongooseModule.forFeature([{name: Author.name, schema: AuthorSchema}]),
+        MongooseModule.forFeature([
+          {name: AuthorDocument.name, schema: AuthorSchema},
+        ]),
       ],
       providers: [
         {
@@ -46,7 +48,9 @@ describe(AuthorsService.name, () => {
       ],
     }).compile();
 
-    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
 
     paginateService = module.get<PaginateService>(PaginateService);
 
@@ -80,7 +84,7 @@ describe(AuthorsService.name, () => {
   });
 
   describe('getById()', () => {
-    let author: Author;
+    let author: AuthorDocument;
     let authorId: ObjectId;
     beforeEach(async () => {
       author = await authorModel.create({name: 'Name'});
@@ -131,7 +135,7 @@ describe(AuthorsService.name, () => {
   });
 
   describe('books()', () => {
-    let author: Author;
+    let author: AuthorDocument;
     beforeEach(async () => {
       author = await authorModel.create({name: 'Name'});
     });

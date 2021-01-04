@@ -3,7 +3,10 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
+import {
+  AuthorDocument,
+  AuthorSchema,
+} from '../../../authors/schema/author.schema';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
 import {
   SeriesDocument,
@@ -19,7 +22,7 @@ describe(BooksResolver.name, () => {
   let module: TestingModule;
 
   let bookModel: Model<BookDocument>;
-  let authorModel: Model<Author>;
+  let authorModel: Model<AuthorDocument>;
   let seriesModel: Model<SeriesDocument>;
 
   let booksService: BooksService;
@@ -37,7 +40,7 @@ describe(BooksResolver.name, () => {
         }),
         MongooseModule.forFeature([
           {name: BookDocument.name, schema: BookSchema},
-          {name: Author.name, schema: AuthorSchema},
+          {name: AuthorDocument.name, schema: AuthorSchema},
           {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
       ],
@@ -47,7 +50,9 @@ describe(BooksResolver.name, () => {
     bookModel = module.get<Model<BookDocument>>(
       getModelToken(BookDocument.name),
     );
-    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
     seriesModel = module.get<Model<SeriesDocument>>(
       getModelToken(SeriesDocument.name),
     );
@@ -187,8 +192,8 @@ describe(BooksResolver.name, () => {
   });
 
   describe('createBook()', () => {
-    let author1: Author;
-    let author2: Author;
+    let author1: AuthorDocument;
+    let author2: AuthorDocument;
     beforeEach(async () => {
       author1 = await authorModel.create({name: 'Name 1'});
       author2 = await authorModel.create({name: 'Name 2'});

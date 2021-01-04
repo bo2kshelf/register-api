@@ -2,7 +2,7 @@ import {getModelToken} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Author} from '../../../authors/schema/author.schema';
+import {AuthorDocument} from '../../../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
@@ -15,7 +15,7 @@ describe(BooksService.name, () => {
   let module: TestingModule;
 
   let bookModel: Model<BookDocument>;
-  let authorModel: Model<Author>;
+  let authorModel: Model<AuthorDocument>;
 
   let bookService: BooksService;
 
@@ -27,7 +27,7 @@ describe(BooksService.name, () => {
           useFactory: modelMockFactory,
         },
         {
-          provide: getModelToken(Author.name),
+          provide: getModelToken(AuthorDocument.name),
           useFactory: modelMockFactory,
         },
         BooksService,
@@ -37,7 +37,9 @@ describe(BooksService.name, () => {
     bookModel = module.get<Model<BookDocument>>(
       getModelToken(BookDocument.name),
     );
-    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
 
     bookService = module.get<BooksService>(BooksService);
   });
@@ -117,7 +119,10 @@ describe(BooksService.name, () => {
       const id2 = new ObjectId();
       jest
         .spyOn(authorModel, 'find')
-        .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
+        .mockResolvedValueOnce([
+          {_id: id1} as AuthorDocument,
+          {_id: id2} as AuthorDocument,
+        ]);
 
       await expect(() =>
         bookService.create({
@@ -139,7 +144,10 @@ describe(BooksService.name, () => {
         const id2 = new ObjectId();
         jest
           .spyOn(authorModel, 'find')
-          .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
+          .mockResolvedValueOnce([
+            {_id: id1} as AuthorDocument,
+            {_id: id2} as AuthorDocument,
+          ]);
         jest
           .spyOn(bookModel, 'create')
           .mockResolvedValueOnce({} as BookDocument);
@@ -161,7 +169,10 @@ describe(BooksService.name, () => {
         const id2 = new ObjectId();
         jest
           .spyOn(authorModel, 'find')
-          .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
+          .mockResolvedValueOnce([
+            {_id: id1} as AuthorDocument,
+            {_id: id2} as AuthorDocument,
+          ]);
         jest
           .spyOn(bookModel, 'create')
           .mockResolvedValueOnce({} as BookDocument);
@@ -182,7 +193,10 @@ describe(BooksService.name, () => {
         const id2 = new ObjectId();
         jest
           .spyOn(authorModel, 'find')
-          .mockResolvedValueOnce([{_id: id1} as Author, {_id: id2} as Author]);
+          .mockResolvedValueOnce([
+            {_id: id1} as AuthorDocument,
+            {_id: id2} as AuthorDocument,
+          ]);
         jest
           .spyOn(bookModel, 'create')
           .mockResolvedValueOnce({} as BookDocument);

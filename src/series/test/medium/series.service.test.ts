@@ -3,7 +3,10 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
+import {
+  AuthorDocument,
+  AuthorSchema,
+} from '../../../authors/schema/author.schema';
 import {
   SeriesBooksConnection,
   SeriesRelatedBooksConnection,
@@ -28,7 +31,7 @@ describe(SeriesService.name, () => {
 
   let bookModel: Model<BookDocument>;
   let seriesModel: Model<SeriesDocument>;
-  let authorsModel: Model<Author>;
+  let authorsModel: Model<AuthorDocument>;
 
   let paginateService: PaginateService;
   let seriesService: SeriesService;
@@ -46,7 +49,7 @@ describe(SeriesService.name, () => {
         MongooseModule.forFeature([
           {name: BookDocument.name, schema: BookSchema},
           {name: SeriesDocument.name, schema: SeriesSchema},
-          {name: Author.name, schema: AuthorSchema},
+          {name: AuthorDocument.name, schema: AuthorSchema},
         ]),
       ],
       providers: [PaginateService, SeriesService],
@@ -58,7 +61,9 @@ describe(SeriesService.name, () => {
     seriesModel = module.get<Model<SeriesDocument>>(
       getModelToken(SeriesDocument.name),
     );
-    authorsModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorsModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
 
     paginateService = module.get<PaginateService>(PaginateService);
     seriesService = module.get<SeriesService>(SeriesService);
@@ -489,10 +494,10 @@ describe(SeriesService.name, () => {
   });
 
   describe('relatedAuthors()', () => {
-    let newAuthor1: Author;
-    let newAuthor2: Author;
-    let newAuthor3: Author;
-    let newAuthor4: Author;
+    let newAuthor1: AuthorDocument;
+    let newAuthor2: AuthorDocument;
+    let newAuthor3: AuthorDocument;
+    let newAuthor4: AuthorDocument;
 
     beforeEach(async () => {
       newAuthor1 = await authorsModel.create({name: 'Author 1'});

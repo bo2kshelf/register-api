@@ -3,7 +3,10 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {Author, AuthorSchema} from '../../../../authors/schema/author.schema';
+import {
+  AuthorDocument,
+  AuthorSchema,
+} from '../../../../authors/schema/author.schema';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {BooksService} from '../../../books.service';
 import {BookDocument, BookSchema} from '../../../schema/book.schema';
@@ -35,7 +38,7 @@ describe(SeriesBooksConnectionResolver.name, () => {
         }),
         MongooseModule.forFeature([
           {name: BookDocument.name, schema: BookSchema},
-          {name: Author.name, schema: AuthorSchema},
+          {name: AuthorDocument.name, schema: AuthorSchema},
         ]),
       ],
       providers: [BooksService, SeriesBooksConnectionResolver],
@@ -121,7 +124,7 @@ describe(SeriesRelatedBooksConnectionResolver.name, () => {
         }),
         MongooseModule.forFeature([
           {name: BookDocument.name, schema: BookSchema},
-          {name: Author.name, schema: AuthorSchema},
+          {name: AuthorDocument.name, schema: AuthorSchema},
         ]),
       ],
       providers: [BooksService, SeriesRelatedBooksConnectionResolver],

@@ -11,14 +11,14 @@ import {
 } from '../../../paginate/paginate.service';
 import {AuthorsResolver} from '../../authors.resolver';
 import {AuthorsService} from '../../authors.service';
-import {Author, AuthorSchema} from '../../schema/author.schema';
+import {AuthorDocument, AuthorSchema} from '../../schema/author.schema';
 
 describe(AuthorsResolver.name, () => {
   let mongoServer: MongoMemoryServer;
 
   let module: TestingModule;
 
-  let authorModel: Model<Author>;
+  let authorModel: Model<AuthorDocument>;
 
   let paginateService: PaginateService;
 
@@ -35,7 +35,9 @@ describe(AuthorsResolver.name, () => {
         MongooseModule.forRootAsync({
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
-        MongooseModule.forFeature([{name: Author.name, schema: AuthorSchema}]),
+        MongooseModule.forFeature([
+          {name: AuthorDocument.name, schema: AuthorSchema},
+        ]),
       ],
       providers: [
         {
@@ -47,7 +49,9 @@ describe(AuthorsResolver.name, () => {
       ],
     }).compile();
 
-    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
 
     paginateService = module.get<PaginateService>(PaginateService);
 
@@ -72,7 +76,7 @@ describe(AuthorsResolver.name, () => {
   });
 
   describe('author()', () => {
-    let author: Author;
+    let author: AuthorDocument;
     let authorId: ObjectId;
     beforeEach(async () => {
       author = await authorModel.create({name: 'Name'});
@@ -124,7 +128,7 @@ describe(AuthorsResolver.name, () => {
   });
 
   describe('books()', () => {
-    let author: Author;
+    let author: AuthorDocument;
     beforeEach(async () => {
       author = await authorModel.create({name: 'Name'});
     });

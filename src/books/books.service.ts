@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Author} from '../authors/schema/author.schema';
+import {AuthorDocument} from '../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../error/no-document-for-objectid.error';
@@ -15,8 +15,8 @@ export class BooksService {
   constructor(
     @InjectModel(BookDocument.name)
     private readonly bookModel: Model<BookDocument>,
-    @InjectModel(Author.name)
-    private readonly authorModel: Model<Author>,
+    @InjectModel(AuthorDocument.name)
+    private readonly authorModel: Model<AuthorDocument>,
   ) {}
 
   async all(): Promise<BookDocument[]> {
@@ -56,7 +56,7 @@ export class BooksService {
 
     if (actualIds.length < authors.length)
       throw new NoDocumentForObjectIdError(
-        Author.name,
+        AuthorDocument.name,
         authorIds.find((id) => !actualIds.includes(id))!,
       );
 

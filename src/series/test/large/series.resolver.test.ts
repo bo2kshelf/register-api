@@ -3,7 +3,10 @@ import {Test, TestingModule} from '@nestjs/testing';
 import * as Relay from 'graphql-relay';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
+import {
+  AuthorDocument,
+  AuthorSchema,
+} from '../../../authors/schema/author.schema';
 import {BookDocument, BookSchema} from '../../../books/schema/book.schema';
 import {OrderDirection} from '../../../paginate/enum/order-direction.enum';
 import {PaginateModule} from '../../../paginate/paginate.module';
@@ -16,7 +19,7 @@ describe(SeriesResolver.name, () => {
 
   let module: TestingModule;
 
-  let authorModel: Model<Author>;
+  let authorModel: Model<AuthorDocument>;
   let bookModel: Model<BookDocument>;
   let seriesModel: Model<Series>;
 
@@ -33,7 +36,7 @@ describe(SeriesResolver.name, () => {
           useFactory: async () => ({uri: await mongoServer.getUri()}),
         }),
         MongooseModule.forFeature([
-          {name: Author.name, schema: AuthorSchema},
+          {name: AuthorDocument.name, schema: AuthorSchema},
           {name: BookDocument.name, schema: BookSchema},
           {name: Series.name, schema: SeriesSchema},
         ]),
@@ -42,7 +45,9 @@ describe(SeriesResolver.name, () => {
       providers: [SeriesService, SeriesResolver],
     }).compile();
 
-    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorModel = module.get<Model<AuthorDocument>>(
+      getModelToken(AuthorDocument.name),
+    );
     bookModel = module.get<Model<BookDocument>>(
       getModelToken(BookDocument.name),
     );

@@ -3,7 +3,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Model} from 'mongoose';
-import {Author, AuthorSchema} from '../../../authors/schema/author.schema';
+import {AuthorDocument, AuthorSchema} from '../../../authors/schema/author.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
 import {EmptyArrayError} from '../../../error/empty-array.error';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
@@ -17,7 +17,7 @@ describe(BooksService.name, () => {
   let module: TestingModule;
 
   let bookModel: Model<BookDocument>;
-  let authorModel: Model<Author>;
+  let authorModel: Model<AuthorDocument>;
   let seriesModel: Model<Series>;
 
   let bookService: BooksService;
@@ -34,7 +34,7 @@ describe(BooksService.name, () => {
         }),
         MongooseModule.forFeature([
           {name: BookDocument.name, schema: BookSchema},
-          {name: Author.name, schema: AuthorSchema},
+          {name: AuthorDocument.name, schema: AuthorSchema},
           {name: Series.name, schema: SeriesSchema},
         ]),
       ],
@@ -42,7 +42,7 @@ describe(BooksService.name, () => {
     }).compile();
 
     bookModel = module.get<Model<BookDocument>>(getModelToken(BookDocument.name));
-    authorModel = module.get<Model<Author>>(getModelToken(Author.name));
+    authorModel = module.get<Model<AuthorDocument>>(getModelToken(AuthorDocument.name));
     seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
 
     bookService = module.get<BooksService>(BooksService);
@@ -123,8 +123,8 @@ describe(BooksService.name, () => {
   });
 
   describe('create()', () => {
-    let author1: Author;
-    let author2: Author;
+    let author1: AuthorDocument;
+    let author2: AuthorDocument;
     beforeEach(async () => {
       author1 = await authorModel.create({name: 'Name 1'});
       author2 = await authorModel.create({name: 'Name 2'});

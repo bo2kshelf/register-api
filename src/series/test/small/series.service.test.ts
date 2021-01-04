@@ -2,7 +2,7 @@ import {getModelToken} from '@nestjs/mongoose';
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {Model} from 'mongoose';
-import {Author} from '../../../authors/schema/author.schema';
+import {AuthorDocument} from '../../../authors/schema/author.schema';
 import {SeriesBooksConnection} from '../../../books/connection/series-connection.entity';
 import {BookDocument} from '../../../books/schema/book.schema';
 import {DuplicateValueInArrayError} from '../../../error/duplicate-values-in-array.error';
@@ -39,7 +39,7 @@ describe(SeriesService.name, () => {
           useFactory: modelMockFactory,
         },
         {
-          provide: getModelToken(Author.name),
+          provide: getModelToken(AuthorDocument.name),
           useFactory: modelMockFactory,
         },
         PaginateService,

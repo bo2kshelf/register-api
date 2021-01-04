@@ -1,6 +1,6 @@
 import {Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
-import {Author, AuthorSchema} from '../authors/schema/author.schema';
+import {AuthorDocument, AuthorSchema} from '../authors/schema/author.schema';
 import {BooksResolver} from './books.resolver';
 import {BooksService} from './books.service';
 import {
@@ -13,7 +13,7 @@ import {BookDocument, BookSchema} from './schema/book.schema';
   imports: [
     MongooseModule.forFeature([
       {name: BookDocument.name, schema: BookSchema},
-      {name: Author.name, schema: AuthorSchema},
+      {name: AuthorDocument.name, schema: AuthorSchema},
     ]),
   ],
   providers: [
