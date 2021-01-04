@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+jest --passWithNoTests --config=test/jest.e2e.config.ts $@
