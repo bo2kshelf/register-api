@@ -2,7 +2,7 @@ import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import {ObjectId} from 'mongodb';
 import {Document} from 'mongoose';
 
-@Schema()
+@Schema({collection: 'books'})
 export class BookDocument extends Document {
   @Prop()
   title!: string;

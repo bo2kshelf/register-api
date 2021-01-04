@@ -5,7 +5,7 @@ import {
   SeriesRelatedBooksConnection,
 } from '../../books/connection/series-connection.entity';
 
-@Schema()
+@Schema({collection: 'series'})
 export class SeriesDocument extends Document {
   @Prop()
   title!: string;
