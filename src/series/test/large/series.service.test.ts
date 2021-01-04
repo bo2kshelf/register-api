@@ -10,7 +10,7 @@ import {
 import {BookDocument, BookSchema} from '../../../books/schema/book.schema';
 import {OrderDirection} from '../../../paginate/enum/order-direction.enum';
 import {PaginateModule} from '../../../paginate/paginate.module';
-import {Series, SeriesSchema} from '../../schema/series.schema';
+import {SeriesDocument, SeriesSchema} from '../../schema/series.schema';
 import {SeriesService} from '../../series.service';
 
 describe(SeriesService.name, () => {
@@ -20,7 +20,7 @@ describe(SeriesService.name, () => {
 
   let authorModel: Model<AuthorDocument>;
   let bookModel: Model<BookDocument>;
-  let seriesModel: Model<Series>;
+  let seriesModel: Model<SeriesDocument>;
 
   let seriesService: SeriesService;
 
@@ -37,7 +37,7 @@ describe(SeriesService.name, () => {
         MongooseModule.forFeature([
           {name: AuthorDocument.name, schema: AuthorSchema},
           {name: BookDocument.name, schema: BookSchema},
-          {name: Series.name, schema: SeriesSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
         PaginateModule,
       ],
@@ -50,7 +50,9 @@ describe(SeriesService.name, () => {
     bookModel = module.get<Model<BookDocument>>(
       getModelToken(BookDocument.name),
     );
-    seriesModel = module.get<Model<Series>>(getModelToken(Series.name));
+    seriesModel = module.get<Model<SeriesDocument>>(
+      getModelToken(SeriesDocument.name),
+    );
 
     seriesService = module.get<SeriesService>(SeriesService);
   });

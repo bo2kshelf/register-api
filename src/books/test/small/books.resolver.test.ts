@@ -1,7 +1,7 @@
 import {Test, TestingModule} from '@nestjs/testing';
 import {ObjectId} from 'mongodb';
 import {NoDocumentForObjectIdError} from '../../../error/no-document-for-objectid.error';
-import {Series} from '../../../series/schema/series.schema';
+import {SeriesDocument} from '../../../series/schema/series.schema';
 import {BooksResolver} from '../../books.resolver';
 import {BooksService} from '../../books.service';
 import {BookDocument} from '../../schema/book.schema';
@@ -108,7 +108,7 @@ describe(BooksResolver.name, () => {
     it('正常に取得', async () => {
       jest
         .spyOn(booksService, 'relatedSeries')
-        .mockResolvedValueOnce([{} as Series, {} as Series]);
+        .mockResolvedValueOnce([{} as SeriesDocument, {} as SeriesDocument]);
 
       const actual = await booksResolver.relatedSeries({
         _id: new ObjectId(),
