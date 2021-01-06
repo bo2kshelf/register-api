@@ -10,9 +10,13 @@ import {
 } from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
 import {PaginatedBookConnection} from '../books/connection/paginated.connection';
+import {RelayConnection} from '../paginate/paginate.service';
+import {PaginatedSeriesConnection} from '../series/connection/paginated.connection';
+import {SeriesDocument} from '../series/schema/series.schema';
 import {AuthorsService} from './authors.service';
 import {AuthorBooksArgs} from './dto/books.args';
 import {CreateAuthorInput} from './dto/create-author.input';
+import {AuthorRelatedSeriesArgs} from './dto/related-series.args';
 import {AuthorEntity} from './entity/author.entity';
 import {AuthorDocument} from './schema/author.schema';
 
@@ -71,6 +75,22 @@ export class AuthorsResolver {
     args: AuthorBooksArgs,
   ) {
     return this.authorsService.books(author, args);
+  }
+
+  @ResolveField(
+    /* istanbul ignore next */
+    () => PaginatedSeriesConnection,
+  )
+  async relatedSeries(
+    @Parent() author: AuthorDocument,
+    @Args({
+      type:
+        /* istanbul ignore next */
+        () => AuthorRelatedSeriesArgs,
+    })
+    args: AuthorRelatedSeriesArgs,
+  ): Promise<RelayConnection<SeriesDocument>> {
+    return this.authorsService.relatedSeries(author, args);
   }
 
   @ResolveReference()

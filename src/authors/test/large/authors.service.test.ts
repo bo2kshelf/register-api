@@ -6,6 +6,10 @@ import {Model} from 'mongoose';
 import {BookDocument, BookSchema} from '../../../books/schema/book.schema';
 import {PaginateModule} from '../../../paginate/paginate.module';
 import {PaginateService} from '../../../paginate/paginate.service';
+import {
+  SeriesDocument,
+  SeriesSchema,
+} from '../../../series/schema/series.schema';
 import {AuthorsService} from '../../authors.service';
 import {AuthorDocument, AuthorSchema} from '../../schema/author.schema';
 
@@ -16,6 +20,7 @@ describe(AuthorsService.name, () => {
 
   let authorModel: Model<AuthorDocument>;
   let booksModel: Model<BookDocument>;
+  let seriesModel: Model<SeriesDocument>;
 
   let paginateService: PaginateService;
 
@@ -36,6 +41,7 @@ describe(AuthorsService.name, () => {
         MongooseModule.forFeature([
           {name: AuthorDocument.name, schema: AuthorSchema},
           {name: BookDocument.name, schema: BookSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
         PaginateModule,
       ],
@@ -47,6 +53,9 @@ describe(AuthorsService.name, () => {
     );
     booksModel = module.get<Model<BookDocument>>(
       getModelToken(BookDocument.name),
+    );
+    seriesModel = module.get<Model<SeriesDocument>>(
+      getModelToken(SeriesDocument.name),
     );
 
     paginateService = module.get<PaginateService>(PaginateService);
@@ -105,6 +114,115 @@ describe(AuthorsService.name, () => {
 
       expect(actual).toHaveProperty('edges');
       expect(actual.edges).toHaveLength(10);
+    });
+  });
+
+  describe('relatedSeries()', () => {
+    let author: AuthorDocument;
+    let book1: BookDocument;
+    let book2: BookDocument;
+    let book3: BookDocument;
+    let book4: BookDocument;
+    beforeEach(async () => {
+      author = await authorModel.create({name: 'Name'});
+      book1 = await booksModel.create({
+        title: `Book 1`,
+        authors: [{id: author._id}],
+      });
+      book2 = await booksModel.create({
+        title: `Book 2`,
+        authors: [{id: author._id}],
+      });
+      book3 = await booksModel.create({
+        title: `Book 3`,
+        authors: [{id: author._id}],
+      });
+      book4 = await booksModel.create({
+        title: `Book 4`,
+        authors: [{id: author._id}],
+      });
+    });
+
+    it('Series.booksとSeries.relatedBooksから取得', async () => {
+      await seriesModel.create({
+        title: 'Series 1',
+        books: [
+          {id: book1._id, serial: 1},
+          {id: book2._id, serial: 2},
+        ],
+        relatedBooks: [],
+      });
+      await seriesModel.create({
+        title: 'Series 1',
+        books: [],
+        relatedBooks: [{id: book1._id}, {id: book2._id}],
+      });
+
+      const actual = await authorService.relatedSeries(author, {
+        first: 10,
+        include: {books: true, relatedBooks: true},
+      });
+
+      expect(actual).toBeDefined();
+
+      expect(actual).toHaveProperty('aggregate');
+      expect(actual.aggregate).toHaveProperty('count', 2);
+
+      expect(actual).toHaveProperty('pageInfo');
+      expect(actual.pageInfo).toHaveProperty(
+        'startCursor',
+        Relay.offsetToCursor(0),
+      );
+      expect(actual.pageInfo).toHaveProperty(
+        'endCursor',
+        Relay.offsetToCursor(1),
+      );
+      expect(actual.pageInfo).toHaveProperty('hasPreviousPage', false);
+      expect(actual.pageInfo).toHaveProperty('hasNextPage', false);
+
+      expect(actual).toHaveProperty('edges');
+      expect(actual.edges).toHaveLength(2);
+    });
+
+    it('Series.booksのみから取得', async () => {
+      await seriesModel.create({
+        title: 'Series 1',
+        books: [
+          {id: book1._id, serial: 1},
+          {id: book2._id, serial: 2},
+        ],
+        relatedBooks: [],
+      });
+      await seriesModel.create({
+        title: 'Series 1',
+        books: [],
+        relatedBooks: [{id: book1._id}, {id: book2._id}],
+      });
+
+      const actual = await authorService.relatedSeries(author, {
+        first: 10,
+        include: {books: true, relatedBooks: false},
+      });
+
+      expect(actual).toBeDefined();
+
+      expect(actual).toHaveProperty('aggregate');
+      expect(actual.aggregate).toHaveProperty('count', 1);
+
+      expect(actual).toHaveProperty('pageInfo');
+      expect(actual.pageInfo).toHaveProperty(
+        'startCursor',
+        Relay.offsetToCursor(0),
+      );
+      expect(actual.pageInfo).toHaveProperty(
+        'endCursor',
+        Relay.offsetToCursor(0),
+      );
+      expect(actual.pageInfo).toHaveProperty('hasPreviousPage', false);
+      expect(actual.pageInfo).toHaveProperty('hasNextPage', false);
+
+      expect(actual).toHaveProperty('edges');
+      expect(actual.edges).toHaveLength(1);
     });
   });
 });

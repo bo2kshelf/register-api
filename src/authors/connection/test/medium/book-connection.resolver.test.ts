@@ -6,6 +6,10 @@ import {Model} from 'mongoose';
 import {BookDocument, BookSchema} from '../../../../books/schema/book.schema';
 import {NoDocumentForObjectIdError} from '../../../../error/no-document-for-objectid.error';
 import {PaginateService} from '../../../../paginate/paginate.service';
+import {
+  SeriesDocument,
+  SeriesSchema,
+} from '../../../../series/schema/series.schema';
 import {AuthorsService} from '../../../authors.service';
 import {AuthorDocument, AuthorSchema} from '../../../schema/author.schema';
 import {BookAuthorsConnectionResolver} from '../../book-connection.resolver';
@@ -36,6 +40,7 @@ describe(BookAuthorsConnectionResolver.name, () => {
         MongooseModule.forFeature([
           {name: AuthorDocument.name, schema: AuthorSchema},
           {name: BookDocument.name, schema: BookSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
       ],
       providers: [
