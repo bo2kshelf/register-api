@@ -1,21 +1,6 @@
 {
   "baseBranches": ["develop"],
   "extends": [
-    "config:base",
-    ":label(renovate)",
-    ":timezone(Asia/Tokyo)",
-    ":dependencyDashboard",
-    ":separateMultipleMajorReleases",
-    ":semanticCommitType(chore)",
-    "schedule:weekly",
-    "github>hatena/renovate-config:automergePin",
-    "github>hatena/renovate-config:automergeTypesMinor"
-  ],
-  "ignorePaths": [
-    "**/node_modules/**",
-    "**/test/**",
-    "**/tests/**",
-    "**/fixtures/**",
-    "**/__fixtures__/**"
+    "github>bo2kshelf/renovate-config"
   ]
 }
