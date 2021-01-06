@@ -9,6 +9,10 @@ import {
   PaginateService,
   RelayConnection,
 } from '../../../paginate/paginate.service';
+import {
+  SeriesDocument,
+  SeriesSchema,
+} from '../../../series/schema/series.schema';
 import {AuthorsResolver} from '../../authors.resolver';
 import {AuthorsService} from '../../authors.service';
 import {AuthorDocument, AuthorSchema} from '../../schema/author.schema';
@@ -38,6 +42,7 @@ describe(AuthorsResolver.name, () => {
         MongooseModule.forFeature([
           {name: AuthorDocument.name, schema: AuthorSchema},
           {name: BookDocument.name, schema: BookSchema},
+          {name: SeriesDocument.name, schema: SeriesSchema},
         ]),
       ],
       providers: [

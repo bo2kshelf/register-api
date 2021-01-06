@@ -9,6 +9,7 @@ import {
   PaginateService,
   RelayConnection,
 } from '../../../paginate/paginate.service';
+import {SeriesDocument} from '../../../series/schema/series.schema';
 import {AuthorsService} from '../../authors.service';
 import {AuthorDocument} from '../../schema/author.schema';
 
@@ -32,6 +33,10 @@ describe(AuthorsService.name, () => {
         },
         {
           provide: getModelToken(BookDocument.name),
+          useFactory: modelMockFactory,
+        },
+        {
+          provide: getModelToken(SeriesDocument.name),
           useFactory: modelMockFactory,
         },
         PaginateService,
