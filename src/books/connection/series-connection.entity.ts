@@ -1,10 +1,9 @@
-import {Field, ID, ObjectType} from '@nestjs/graphql';
+import {Field, ObjectType} from '@nestjs/graphql';
 import {ObjectId} from 'mongodb';
 import {PaginatedFactory} from '../../paginate/paginated.factory';
 
 @ObjectType()
 export class SeriesBooksConnection {
-  @Field(() => ID)
   id!: ObjectId;
 
   @Field(() => Number)
@@ -13,7 +12,6 @@ export class SeriesBooksConnection {
 
 @ObjectType()
 export class SeriesRelatedBooksConnection {
-  @Field(() => ID)
   id!: ObjectId;
 }
 
