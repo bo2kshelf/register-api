@@ -55,7 +55,7 @@
     "@shopify/eslint-plugin": "39.0.3",
     "@shopify/prettier-config": "1.1.2",
     "@types/express": "4.17.9",
-    "@types/faker": "5.1.5",
+    "@types/faker": "5.1.6",
     "@types/graphql-relay": "0.6.0",
     "@types/jest": "26.0.19",
     "@types/mongoose": "5.10.2",
