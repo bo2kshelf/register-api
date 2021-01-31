@@ -1234,10 +1234,10 @@
     "@angular-devkit/core" "11.0.3"
     "@angular-devkit/schematics" "11.0.3"
 
-"@shopify/eslint-plugin@39.0.3":
-  version "39.0.3"
-  resolved "https://registry.yarnpkg.com/@shopify/eslint-plugin/-/eslint-plugin-39.0.3.tgz#ec97969f8decfdc722b67bc8b573798eca9a7f4e"
-  integrity sha512-mZGiKj+N68AZIBkDSdEPYVPuRpsdCJAFkLg9vQnp7G2Wz28xgBBGPnY6grncI7tShqsjnulij+IV/2bP15Gzwg==
+"@shopify/eslint-plugin@39.0.4":
+  version "39.0.4"
+  resolved "https://registry.yarnpkg.com/@shopify/eslint-plugin/-/eslint-plugin-39.0.4.tgz#b53c30eb9c33d0e6a0ba699a3e4ca22e9cd0538c"
+  integrity sha512-Ogqak9Y51zjd+utg3b+8D9T6sHsJw2L3Aoyklv0teIxsvctdvy9L8f27GmzQzcsKfRV02JZHVYUN+MfzKFlXAA==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.1.0"
     "@typescript-eslint/parser" "^4.1.0"
@@ -1254,7 +1254,7 @@
     eslint-plugin-jest-formatting "2.0.0"
     eslint-plugin-jsx-a11y "6.4.1"
     eslint-plugin-node "11.1.0"
-    eslint-plugin-prettier "3.1.4"
+    eslint-plugin-prettier "3.3.0"
     eslint-plugin-promise "4.2.1"
     eslint-plugin-react "7.21.5"
     eslint-plugin-react-hooks "4.2.0"
@@ -1612,12 +1612,7 @@
     "@types/node" "*"
     form-data "^3.0.0"
 
-"@types/node@*":
-  version "14.14.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.14.tgz#f7fd5f3cc8521301119f63910f0fb965c7d761ae"
-  integrity sha512-UHnOPWVWV1z+VV8k6L1HhG7UbGBgIdghqF3l9Ny9ApPghbjICXkUJSd/b9gOgQfjM1r+37cipdw/HJ3F6ICEnQ==
-
-"@types/node@14.14.16":
+"@types/node@*", "@types/node@14.14.16":
   version "14.14.16"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.16.tgz#3cc351f8d48101deadfed4c9e4f116048d437b4b"
   integrity sha512-naXYePhweTi+BMv11TgioE2/FXU4fSl29HAH1ffxVciNsH3rYXjNP2yM8wqmSm7jS20gM8TIklKiTen+1iVncw==
@@ -3981,10 +3976,10 @@ eslint-plugin-node@11.1.0:
     resolve "^1.10.1"
     semver "^6.1.0"
 
-eslint-plugin-prettier@3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-3.1.4.tgz#168ab43154e2ea57db992a2cd097c828171f75c2"
-  integrity sha512-jZDa8z76klRqo+TdGDTFJSavwbnWK2ZpqGKNZ+VvweMW516pDUMmQ2koXvxEE4JhzNvTv+radye/bWGBmA6jmg==
+eslint-plugin-prettier@3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-3.3.0.tgz#61e295349a65688ffac0b7808ef0a8244bdd8d40"
+  integrity sha512-tMTwO8iUWlSRZIwS9k7/E4vrTsfvsrcM5p1eftyuqWH25nKsz/o6/54I7jwQ/3zobISyC7wMy9ZsFwgTxOcOpQ==
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
